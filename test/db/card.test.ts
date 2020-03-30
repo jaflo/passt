@@ -1,27 +1,12 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import 'mocha';
 import assert from 'assert';
-import mongoose from 'mongoose';
 import { Card, FillStyle, Color, Shape } from '../../server/db/card';
 
-const OPTIONS: mongoose.ConnectionOptions = { useUnifiedTopology: true, useCreateIndex: true, useNewUrlParser: true }
-let mongoServer: MongoMemoryServer | undefined;
-
-before(async () => {
-    mongoServer = new MongoMemoryServer();
-    const mongoUri = await mongoServer.getUri();
-    await mongoose.connect(mongoUri, OPTIONS);
-});
-
-after(async () => {
-    await mongoose.disconnect();
-    if (mongoServer) {
-        await mongoServer.stop();
-    }
-});
+import '../testSetup.test';
 
 describe('Card', () => {
     it('should be unique in the database', async () => {
+        const indexes = await Card.collection.getIndexes();
         await Card.create({ fillStyle: FillStyle.EMPTY, color: Color.BLUE, shape: Shape.CIRCLE, number: 1 });
         try {
             await Card.create({ fillStyle: FillStyle.EMPTY, color: Color.BLUE, shape: Shape.CIRCLE, number: 1 });
