@@ -5,7 +5,7 @@
 		"build": "rollup -c",
 		"dev": "rollup -c -w",
 		"start:client": "sirv public",
-		"start:server": "node build/index.js",
+		"start:server": "node build/server/index.js",
 		"compile": "tsc",
 		"test": "mocha"
 	},
@@ -17,7 +17,6 @@
 		"@types/node": "^13.9.5",
 		"@types/socket.io": "^2.1.4",
 		"mocha": "^7.1.1",
-		"mongodb-memory-server": "^6.5.0",
 		"rollup": "^1.20.0",
 		"rollup-plugin-livereload": "^1.0.0",
 		"rollup-plugin-svelte": "^5.0.3",

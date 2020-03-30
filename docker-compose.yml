@@ -9,6 +9,7 @@ services:
     environment:
       PORT: 3001
       MONGODB_URI: 'mongodb://mongodb:27017/passt'
+      TEST_MONGODB_URI: 'mongodb://mongodb:27017/passtTest'
   mongodb:
     container_name: mongodb
     image: mongo

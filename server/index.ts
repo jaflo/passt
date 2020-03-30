@@ -17,7 +17,7 @@ const app = http.createServer();
 const io = socketIo(app);
 
 io.on('connection', (socket) => {
-    socket.on('join', () => socketFunctions.joinRoom)
+    socket.on('join', (data: socketFunctions.JoinRoomData) => socketFunctions.joinRoom)
 })
 
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
