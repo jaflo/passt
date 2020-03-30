@@ -114,7 +114,7 @@ export class RoomController {
       .populate("availableCards");
     if (!room) {
       throw new Error(
-        `Failed to find a Room with code ${roomCode} that hasn't been started`
+        `Failed to find a Room with at least one player with code ${roomCode} that hasn't been started`
       );
     }
     return room;
