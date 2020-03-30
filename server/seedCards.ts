@@ -7,8 +7,8 @@ const seedCards = async (shapes: Array<Shape>, fills: Array<FillStyle>, colors: 
             for (const fillStyle of fills) {
                 for (const color of colors) {
                     try {
-                        const card = await Card.findOne({ shape, fillStyle, color, number });
-                        if (card) {
+                        const cardExists = await Card.exists({ shape, fillStyle, color, number });
+                        if (cardExists) {
                             existingCards += 1;
                             continue;
                         }
