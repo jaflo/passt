@@ -105,7 +105,7 @@ export class RoomController {
     // Modifies shuffledCards in-place as a side effect.
     const initialHand = shuffledCards.splice(0, RoomController.HAND_SIZE);
     const room = await Room.findOneAndUpdate(
-      { roomCode, started: false },
+      { roomCode, started: false, 'players.0': { $exists: true } },
       { board: initialHand, availableCards: shuffledCards, started: true },
       { new: true }
     )
