@@ -1,7 +1,9 @@
 import "mocha";
 import mongoose from "mongoose";
 import { seedCards } from "../server/seedCards";
-import { Shape, FillStyle, Color } from "../server/db/card";
+import { Shape, FillStyle, Color, Card } from "../server/db/card";
+import { Room } from "../server/db/room";
+import { Player } from "../server/db/player";
 
 const OPTIONS: mongoose.ConnectionOptions = {
   useUnifiedTopology: true,
@@ -20,7 +22,9 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  await mongoose.connection.db.dropDatabase();
+  await Card.remove({});
+  await Player.remove({});
+  await Room.remove({});
   await mongoose.disconnect();
 });
 
