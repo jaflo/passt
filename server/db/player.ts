@@ -4,7 +4,7 @@ import { getModelForClass, prop } from "@typegoose/typegoose";
  * The player class, from which the Player schema is defined by Typegoose.
  */
 class PlayerClass {
-  @prop({ required: true })
+  @prop({ required: true, unique: true })
   public connectionId!: string;
 
   @prop({ required: true })

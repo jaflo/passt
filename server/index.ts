@@ -19,15 +19,44 @@ const io = socketIo(app);
 const roomController = new RoomController();
 
 io.on("connection", (socket) => {
-  socket.on("join", (data) =>
+  socket.on("create", (data: { open: boolean }) =>
     roomController
-      .joinRoom(data.roomId, socket.id, data.playerName)
+      .createRoom(data.open)
+      .then((room) => socket.emit("createdRoom", room))
+  );
+  socket.on("join", (data: { roomCode: string; playerName: string }) =>
+    roomController
+      .joinRoom(data.roomCode, socket.id, data.playerName)
       .then(({ room, player }) => {
-        room.players
-          .filter((p) => p.connectionId !== player.connectionId)
-          .forEach((p) => io.to(p.connectionId).emit("new_player", player));
-        socket.emit("joined_successful", room);
+        socket.join(room.roomCode);
+        socket.broadcast.to(room.roomCode).emit("new_player", player);
+        socket.emit("joined_successfully", room);
       })
+  );
+
+  socket.on("start", (data: { roomCode: string }) => {
+    roomController.startGame(data.roomCode).then((room) => {
+      const board = room.board;
+      const players = room.players.map(({ name, points }) => {
+        return { name, points };
+      });
+      io.to(room.roomCode).emit("game_started", { board, players });
+    });
+  });
+
+  socket.on("disconnect", () =>
+    roomController.removePlayer(socket.id).then((affectedRooms) => {
+      if (!affectedRooms) {
+        console.error(
+          `No rooms will be notified of socket ${socket.id}'s disconnection`
+        );
+        return;
+      }
+      socket.leaveAll();
+      affectedRooms.forEach((affectedRoom) =>
+        io.to(affectedRoom.roomCode).emit("player_disconnected", socket.id)
+      );
+    })
   );
 });
 
