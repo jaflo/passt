@@ -1,7 +1,7 @@
-name: Test
+name: Lint server code
 on: [push]
 jobs:
-  tests:
+  prettier:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

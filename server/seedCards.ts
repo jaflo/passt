@@ -32,12 +32,6 @@ const seedCards = async (
       }
     }
   }
-  console.log(
-    `Created ${
-      shapes.length * fills.length * colors.length * numbers.length -
-      existingCards
-    } new cards.`
-  );
 };
 
 export { seedCards };
