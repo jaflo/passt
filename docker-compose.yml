@@ -1,0 +1,16 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - 3001:3001
+    depends_on:
+      - mongodb
+    environment:
+      PORT: 3001
+      MONGODB_URI: 'mongodb://mongodb:27017/passt'
+  mongodb:
+    container_name: mongodb
+    image: mongo
+    ports:
+      - "27017:27017"
