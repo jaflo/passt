@@ -18,35 +18,59 @@ const app = http.createServer();
 const io = socketIo(app);
 const roomController = new RoomController();
 
+enum SocketEvent {
+  CREATE_ROOM = "createRoom",
+  ROOM_CREATED = "roomCreated",
+  JOIN_ROOM = "joinRoom",
+  JOINED_SUCCESSFULLY = "joinedSuccessfully",
+  NEW_PLAYER = "newPlayer",
+  START_ROOM = "startRoom",
+  ROOM_STARTED = "roomStarted",
+  PLAYER_DISCONNECTED = "playerDisconnected",
+}
+
 io.on("connection", (socket) => {
-  socket.on("create", (data: { open: boolean }) =>
-    roomController
-      .createRoom(data.open)
-      .then((room) => socket.emit("createdRoom", room))
-  );
-  socket.on("join", (data: { roomCode: string; playerName: string }) =>
-    roomController
-      .joinRoom(data.roomCode, socket.id, data.playerName)
-      .then(({ room, player }) => {
+  console.log(`${socket.id} has connected!`);
+  socket.on(SocketEvent.CREATE_ROOM, async (data: { open: boolean }) => {
+    try {
+      const room = await roomController.createRoom(data.open);
+      socket.emit(SocketEvent.ROOM_CREATED, room);
+    } catch (err) {
+      socket.emit("error", err.toString());
+    }
+  });
+  socket.on(
+    SocketEvent.JOIN_ROOM,
+    async (data: { roomCode: string; playerName: string }) => {
+      try {
+        const { room, player } = await roomController.joinRoom(
+          data.roomCode,
+          socket.id,
+          data.playerName
+        );
         socket.join(room.roomCode);
-        socket.broadcast.to(room.roomCode).emit("new_player", player);
-        socket.emit("joined_successfully", room);
-      })
-      .catch((err) => socket.emit("error", err.toString()))
+        socket.broadcast.to(room.roomCode).emit(SocketEvent.NEW_PLAYER, player);
+        socket.emit(SocketEvent.JOINED_SUCCESSFULLY, room);
+      } catch (err) {
+        socket.emit("error", err.toString());
+      }
+    }
   );
 
-  socket.on("start", (data: { roomCode: string }) => {
-    roomController.startGame(data.roomCode).then((room) => {
-      const board = room.board;
-      const players = room.players.map(({ name, points }) => {
-        return { name, points };
-      });
-      io.to(room.roomCode).emit("game_started", { board, players });
-    });
+  socket.on(SocketEvent.START_ROOM, async () => {
+    try {
+      const room = await roomController.startGame(socket.id);
+      const { board, players } = room;
+      io.to(room.roomCode).emit(SocketEvent.ROOM_STARTED, { board, players });
+    } catch (err) {
+      socket.emit("error", err.toString());
+    }
   });
 
-  socket.on("disconnect", () =>
-    roomController.removePlayer(socket.id).then((affectedRooms) => {
+  socket.on("disconnect", async () => {
+    try {
+      const affectedRooms = await roomController.removePlayer(socket.id);
+      console.log(`${socket.id} disconnected.`);
       if (!affectedRooms) {
         console.error(
           `No rooms will be notified of socket ${socket.id}'s disconnection`
@@ -55,10 +79,14 @@ io.on("connection", (socket) => {
       }
       socket.leaveAll();
       affectedRooms.forEach((affectedRoom) =>
-        io.to(affectedRoom.roomCode).emit("player_disconnected", socket.id)
+        io
+          .to(affectedRoom.roomCode)
+          .emit(SocketEvent.PLAYER_DISCONNECTED, socket.id)
       );
-    })
-  );
+    } catch (err) {
+      socket.emit("error", err.toString());
+    }
+  });
 });
 
 mongoose

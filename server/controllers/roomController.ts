@@ -102,13 +102,25 @@ export class RoomController {
     return { player, room };
   }
 
-  public async startGame(roomCode: string): Promise<DocumentType<RoomClass>> {
+  public async startGame(
+    connectionId: string
+  ): Promise<DocumentType<RoomClass>> {
+    const player = await Player.findOne({ connectionId });
+    if (!player) {
+      throw new Error(
+        `Failed to find a player with connectionId ${connectionId} to start game for.`
+      );
+    }
     const cards = await Card.find({});
     const shuffledCards = shuffle(cards);
     // Modifies shuffledCards in-place as a side effect.
     const initialHand = shuffledCards.splice(0, RoomController.HAND_SIZE);
     const room = await Room.findOneAndUpdate(
-      { roomCode, started: false, "players.0": { $exists: true } },
+      {
+        players: { $in: [player?._id] },
+        started: false,
+        "players.0": { $exists: true },
+      },
       { board: initialHand, availableCards: shuffledCards, started: true },
       { new: true }
     )
@@ -117,7 +129,7 @@ export class RoomController {
       .populate("availableCards");
     if (!room) {
       throw new Error(
-        `Failed to find a Room with at least one player with code ${roomCode} that hasn't been started`
+        `Failed to find a Room for player with connectionId ${connectionId} that hasn't been started`
       );
     }
     return room;

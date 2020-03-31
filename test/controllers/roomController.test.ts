@@ -127,7 +127,7 @@ describe("RoomController", () => {
         DUMMY_PLAYER_NAME
       );
 
-      const room = await roomController.startGame(roomCode);
+      const room = await roomController.startGame(DUMMY_PLAYER_CONNECTION_ID);
 
       assert.equal(room.started, true);
     });
@@ -140,7 +140,7 @@ describe("RoomController", () => {
         DUMMY_PLAYER_NAME
       );
 
-      const room = await roomController.startGame(roomCode);
+      const room = await roomController.startGame(DUMMY_PLAYER_CONNECTION_ID);
 
       assert.equal(room.board.length, RoomController.HAND_SIZE);
       for (const card of room.board) {
@@ -162,7 +162,7 @@ describe("RoomController", () => {
         DUMMY_PLAYER_NAME
       );
 
-      const room = await roomController.startGame(roomCode);
+      const room = await roomController.startGame(DUMMY_PLAYER_CONNECTION_ID);
 
       assert.equal(
         room.availableCards.length,
@@ -192,10 +192,10 @@ describe("RoomController", () => {
     it("should not start if no players are present", async () => {
       const { roomCode } = await roomController.createRoom();
 
-      assert.rejects(roomController.startGame(roomCode));
+      assert.rejects(roomController.startGame(DUMMY_PLAYER_CONNECTION_ID));
     });
-    it("should not start if no room exists with the provided code", async () => {
-      assert.rejects(roomController.startGame("INVALID ROOM CODE"));
+    it("should not start if no room exists for the provided player", async () => {
+      assert.rejects(roomController.startGame("INVALID_PLAYER_ID"));
     });
     it("should not start if the room has already started", async () => {
       const { roomCode } = await roomController.createRoom();
@@ -205,9 +205,9 @@ describe("RoomController", () => {
         DUMMY_PLAYER_NAME
       );
 
-      await roomController.startGame(roomCode);
+      await roomController.startGame(DUMMY_PLAYER_CONNECTION_ID);
 
-      assert.rejects(roomController.startGame(roomCode));
+      assert.rejects(roomController.startGame(DUMMY_PLAYER_CONNECTION_ID));
     });
   });
 });

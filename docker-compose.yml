@@ -3,11 +3,11 @@ services:
   web:
     build: .
     ports:
-      - 3001:3001
+      - 3000:3000
     depends_on:
       - mongodb
     environment:
-      PORT: 3001
+      PORT: 3000
       MONGODB_URI: 'mongodb://mongodb:27017/passt'
       TEST_MONGODB_URI: 'mongodb://mongodb:27017/passtTest'
   mongodb:
