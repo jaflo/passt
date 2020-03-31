@@ -31,7 +31,8 @@ io.on("connection", (socket) => {
         socket.join(room.roomCode);
         socket.broadcast.to(room.roomCode).emit("new_player", player);
         socket.emit("joined_successfully", room);
-      }).catch((err) => socket.emit("error", err.toString()))
+      })
+      .catch((err) => socket.emit("error", err.toString()))
   );
 
   socket.on("start", (data: { roomCode: string }) => {
