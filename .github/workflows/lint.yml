@@ -1,0 +1,12 @@
+name: Lint server code
+on: [push]
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+        with:
+            node-version: '10.x'
+      - name: Check with prettier
+        run: npx prettier --check server test
