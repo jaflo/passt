@@ -64,7 +64,10 @@ export class RoomController {
       try {
         return await Room.create({ open });
       } catch (err) {
-        console.error(err);
+        // Duplicate key error, ignore this and generate a new code.
+        if (!(err.name === 'MongoError' && err.code === 11000)) {
+          throw err;
+        }
       }
     }
   }
