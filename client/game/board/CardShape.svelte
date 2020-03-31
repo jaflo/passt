@@ -7,6 +7,7 @@
 		blue: "#17BEBB",
 		green: "#F0A202"
 	}[color];
+
 	let remappedStyle = {
 		fill: {
 			empty: "none",
@@ -18,6 +19,7 @@
 		"stroke-linecap": "round",
 		"vector-effect": "non-scaling-stroke"
 	};
+
 	let scale = 2 * (70 / size);
 </script>
 

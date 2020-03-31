@@ -3,12 +3,11 @@
 	export let letter = "A";
 	export let selected = false;
 
-	import CardShape from "./CardShape.svelte";
+	import CardSymbol from "./CardSymbol.svelte";
 	import { createEventDispatcher } from "svelte";
 
 	const dispatch = createEventDispatcher();
-	const countToSize = [50, 30, 30];
-	$: humanReadable = number + " " + color + " " + fillStyle + " " + shape + (number == 1 ? "" : "s");
+	let humanReadable = number + " " + color + " " + fillStyle + " " + shape + (number == 1 ? "" : "s");
 
 	function click() {
 		selected = !selected;
@@ -45,30 +44,6 @@
 		border-color: rgba(0, 0, 0, 0.2);
 	}
 
-	.shape {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-	}
-
-	.card.count-2 .shape:nth-child(1) {
-		transform: translate(0%, -90%) rotate(180deg);
-	}
-	.card.count-2 .shape:nth-child(2) {
-		transform: translate(-100%, -10%);
-	}
-
-	.card.count-3 .shape:nth-child(1) {
-		transform: translate(-50%, -100%);
-	}
-	.card.count-3 .shape:nth-child(2) {
-		transform: translate(-110%, 0%);
-	}
-	.card.count-3 .shape:nth-child(3) {
-		transform: translate(10%, 0%);
-	}
-
 	.letter {
 		position: absolute;
 		top: 0;
@@ -102,12 +77,8 @@
 	}
 </style>
 
-<div class="card count-{number}" class:selected title={humanReadable} on:click={click}>
-	{#each Array(number) as _}
-		<div class="shape">
-			<CardShape {shape} {fillStyle} {color} size={countToSize[number - 1]} />
-		</div>
-	{/each}
+<div class="card" class:selected title={humanReadable} on:click={click}>
+	<CardSymbol {shape} {fillStyle} {color} {number} />
 	<div class="letter">{letter}</div>
 	<div class="selection-border" />
 </div>

@@ -1,6 +1,7 @@
 <script>
 	import Card from "./Card.svelte";
 	import { createEventDispatcher } from "svelte";
+	import { areCardsEqual } from "../shared.js";
 
 	const dispatch = createEventDispatcher();
 
@@ -15,7 +16,7 @@
 				});
 			}
 		} else {
-			selection = selection.filter(card => JSON.stringify(card) !== JSON.stringify(e.detail.card));
+			selection = selection.filter(card => !areCardsEqual(card, e.detail.card));
 		}
 	}
 </script>
