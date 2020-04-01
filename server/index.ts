@@ -3,7 +3,7 @@ import socketIo from "socket.io";
 import { mongoose } from "@typegoose/typegoose";
 import { exit } from "process";
 import { seedCards } from "./seedCards";
-import { Shape, FillStyle, Color } from "./db/card";
+import { Shape, FillStyle, Color, CardClass } from "./db/card";
 import { RoomController } from "./controllers/roomController";
 
 const PORT = process.env.PORT || 3000;
@@ -26,6 +26,7 @@ enum SocketEvent {
   NEW_PLAYER = "newPlayer",
   START_ROOM = "startRoom",
   ROOM_STARTED = "roomStarted",
+  PLAY = "play",
   PLAYER_DISCONNECTED = "playerDisconnected",
 }
 
@@ -65,6 +66,13 @@ io.on("connection", (socket) => {
     } catch (err) {
       socket.emit("error", err.toString());
     }
+  });
+
+  socket.on(SocketEvent.PLAY, async (data: {cards: Array<CardClass>}) => {
+    try {
+      const newBoard = await roomController.playMove(socket.id, data.cards);
+      // WIP
+    } catch (err) {}
   });
 
   socket.on("disconnect", async () => {

@@ -1,7 +1,7 @@
 import { Room, RoomClass } from "../db/room";
 import { Player, PlayerClass } from "../db/player";
-import { DocumentType } from "@typegoose/typegoose";
-import { Card } from "../db/card";
+import { DocumentType, isDocumentArray } from "@typegoose/typegoose";
+import { Card, CardClass } from "../db/card";
 
 function shuffle<T>(array: T[]): T[] {
   var currentIndex = array.length,
@@ -133,5 +133,67 @@ export class RoomController {
       );
     }
     return room;
+  }
+
+  public async playMove(connectionId: string, cardValues: CardClass[]) {
+    if (cardValues.length !== 3) {
+      throw new Error(
+        `Expected to get 3 cards, was given ${cardValues.length} cards`
+      );
+    }
+    const player = await Player.findOne({ connectionId });
+    if (!player) {
+      throw new Error(
+        `Failed to find a player with connectionId ${connectionId} to play a move for.`
+      );
+    }
+    const room = await Room.findOne({
+      players: { $in: [player._id] },
+      started: true,
+    })
+      .populate("availableCards")
+      .populate("board");
+    if (!room) {
+      throw new Error(
+        `Failed to find a started room for Player with connectionId ${connectionId}.`
+      );
+    }
+    if (!isDocumentArray(room.availableCards)) {
+      throw new Error(`availableCards was not populated.`);
+    }
+    if (!isDocumentArray(room.board)) {
+      throw new Error(`board was not populated.`);
+    }
+    const cards: DocumentType<CardClass>[] = [];
+    if (!room.cardsOnBoard(...cards)) {
+      throw new Error(
+        `Couldn't find cards with attributes ${JSON.stringify(cards)} in room ${
+          room.roomCode
+        }.`
+      );
+    }
+
+    if (!Card.isASet(...cards)) {
+      return undefined;
+    }
+    if (Card.isASet(...cards)) {
+      const cardsToPull = shuffle(room.availableCards).slice(0, 3);
+      const cardsToPullIds = cardsToPull.map((c) => c._id);
+
+      const updatedRoom = await Room.findOneAndUpdate({
+        roomCode: room.roomCode
+      }, {
+        $push: {
+          board: {
+            $each: cardsToPullIds
+          }
+        },
+        $pullAll: {
+          availableCards: cardsToPullIds
+        }
+      }, {new: true});
+      return updatedRoom!.board as Array<CardClass>;
+    }
+    return undefined;
   }
 }

@@ -9,6 +9,7 @@ import { Player } from "../../server/db/player";
 // import mongoose from "mongoose";
 import { Card } from "../../server/db/card";
 import { seedCards } from "../../server/seedCards";
+import { isDocumentArray } from "@typegoose/typegoose";
 
 const DUMMY_PLAYER_NAME = "dummyPlayer";
 const DUMMY_PLAYER_CONNECTION_ID = "dummyConnectionId";
@@ -46,7 +47,13 @@ describe("RoomController", () => {
       const room = await Room.findOne({ roomCode: newRoom.roomCode }).populate(
         "players"
       );
-      assert.notEqual(room, null);
+
+      if (!room) {
+        assert.fail("Room was null");
+      }
+      if (!isDocumentArray(room.players)) {
+        assert.fail("Room players were not populated.");
+      }
       assert.equal(room!.players.length, 1);
       assert.equal(room!.players[0].connectionId, DUMMY_PLAYER_CONNECTION_ID);
       assert.equal(room!.players[0].name, DUMMY_PLAYER_NAME);
@@ -141,6 +148,9 @@ describe("RoomController", () => {
       );
 
       const room = await roomController.startGame(DUMMY_PLAYER_CONNECTION_ID);
+      if (!isDocumentArray(room.board)) {
+        assert.fail("Board was not populated.");
+      }
 
       assert.equal(room.board.length, RoomController.HAND_SIZE);
       for (const card of room.board) {
@@ -168,6 +178,15 @@ describe("RoomController", () => {
         room.availableCards.length,
         (await Card.countDocuments()) - RoomController.HAND_SIZE
       );
+
+      if (!isDocumentArray(room.availableCards)) {
+        assert.fail("availableCards was not populated");
+      }
+
+      if (!isDocumentArray(room.board)) {
+        assert.fail("board was not populated");
+      }
+
       for (const card of room.availableCards) {
         const matchingCard = await Card.findOne({
           shape: card.shape,
