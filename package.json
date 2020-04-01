@@ -2,8 +2,8 @@
 	"name": "svelte-app",
 	"version": "1.0.0",
 	"scripts": {
-		"build": "rollup -c",
-		"dev": "rollup -c -w",
+		"build:client": "rollup -c",
+		"dev:client": "rollup -c -w",
 		"start:client": "sirv public",
 		"start:server": "node build/server/index.js",
 		"compile": "tsc",
@@ -29,6 +29,7 @@
 		"mongoose": "^5.9.6",
 		"sirv-cli": "^0.4.4",
 		"socket.io": "^2.3.0",
+		"socket.io-client": "^2.3.0",
 		"typescript": "^3.8.3"
 	}
 }

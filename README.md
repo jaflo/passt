@@ -5,5 +5,5 @@ WIP, check back later
 ```bash
 cd passt
 npm install
-npm run dev
+npm run dev:client
 ```
