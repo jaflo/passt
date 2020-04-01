@@ -49,7 +49,7 @@ describe("Card", () => {
           color: Color.BLUE,
           shape: Shape.CIRCLE,
           number: 3,
-        })
+        }),
       ];
       assert.equal(Card.isASet(...cards), true);
     });
@@ -72,7 +72,7 @@ describe("Card", () => {
           color: Color.BLUE,
           shape: Shape.CIRCLE,
           number: 3,
-        })
+        }),
       ];
       assert.equal(Card.isASet(...cards), false);
     });
@@ -91,7 +91,7 @@ describe("Card", () => {
           fillStyle: FillStyle.EMPTY,
           color: Color.RED,
           shape: Shape.TRIANGLE,
-          number: 3
+          number: 3,
         }),
         await Card.create({
           fillStyle: FillStyle.FILLED,
@@ -104,7 +104,7 @@ describe("Card", () => {
           color: Color.GREEN,
           shape: Shape.SQUARE,
           number: 2,
-        })
+        }),
       ];
       assert.equal(Card.containsASet(...cards), true);
     });
@@ -127,16 +127,16 @@ describe("Card", () => {
           fillStyle: FillStyle.LINED,
           color: Color.RED,
           shape: Shape.TRIANGLE,
-          number: 3
+          number: 3,
         }),
         await Card.create({
           fillStyle: FillStyle.EMPTY,
           color: Color.GREEN,
           shape: Shape.CIRCLE,
-          number: 1
-        })
+          number: 1,
+        }),
       ];
       assert.equal(Card.containsASet(...cards), false);
-    })
-  })
+    });
+  });
 });
