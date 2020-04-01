@@ -5,5 +5,5 @@
 </script>
 
 {#each players as player}
-	<PlayerEntry {...player} />
+	<PlayerEntry name={player.name} points={player.points} />
 {/each}
