@@ -1,16 +1,26 @@
 <script>
 	import Board from "./board/Board.svelte";
 	import PlayerList from "./players/PlayerList.svelte";
-
 	import Card from "./board/Card.svelte";
 
-	const sampleCard = {
-		shape: "triangle",
-		fillStyle: "lined",
-		color: "red",
-		number: 1
-	};
+	import { randomCard, arrayContainsCard } from "./shared.js";
+	import { socket } from "../connectivity.js";
+
+	let cards = [];
+	let players = [];
+
+	socket.on("roomStarted", function(data) {
+		cards = data.board.map(card => {
+			return {
+				shape: card.shape,
+				fillStyle: card.fillStyle,
+				color: card.color,
+				number: card.number
+			};
+		});
+		players = data.players;
+	});
 </script>
 
-<Board />
-<PlayerList />
+<Board {cards} />
+<PlayerList {players} />

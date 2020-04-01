@@ -35,7 +35,7 @@
 <div class="count-{number}">
 	{#each Array(number) as _}
 		<div class="shape">
-			<CardShape {shape} {fillStyle} {color} size={countToSize[number - 1]} />
+			<CardShape {shape} {fillStyle} {color} {number} size={countToSize[number - 1]} />
 		</div>
 	{/each}
 </div>
