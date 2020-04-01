@@ -34,6 +34,38 @@ class CardClass {
 
   @prop({ required: true, max: 3, min: 1 })
   public number!: number;
+
+  public static isASet(...cards: CardClass[]) {
+    const allSameOrAllDifferent = (elems: any[]): boolean => {
+      const setRepresentation = new Set(elems);
+      return (
+        setRepresentation.size === 1 || setRepresentation.size === elems.length
+      );
+    };
+
+    const colors = cards.map((c) => c.color);
+    const fillStyles = cards.map((c) => c.fillStyle);
+    const numbers = cards.map((c) => c.number);
+    const shapes = cards.map((c) => c.shape);
+
+    return [colors, fillStyles, numbers, shapes].every(allSameOrAllDifferent);
+  }
+
+  public static containsASet(...cards: CardClass[]): boolean {
+    if (cards.length < 3) {
+      return false;
+    }
+    for (let i = 0; i < cards.length; ++i) {
+      for (let j = i + 1; j < cards.length; ++j) {
+        for (let k = j + 1; k < cards.length; ++k) {
+          if (Card.isASet(cards[i], cards[j], cards[k])) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
 }
 
 const Card = getModelForClass(CardClass);
