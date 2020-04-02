@@ -38,14 +38,10 @@ describe("RoomController", () => {
     it("should add the player to the room", async () => {
       const newRoom = await roomController.createRoom();
 
-      await roomController.joinRoom(
+      const { room } = await roomController.joinRoom(
         newRoom.roomCode,
         DUMMY_PLAYER_CONNECTION_ID,
         DUMMY_PLAYER_NAME
-      );
-
-      const room = await Room.findOne({ roomCode: newRoom.roomCode }).populate(
-        "players"
       );
 
       if (!room) {
@@ -70,6 +66,18 @@ describe("RoomController", () => {
 
       assert.equal(player.connectionId, DUMMY_PLAYER_CONNECTION_ID);
       assert.equal(room.players.length, 1);
+    });
+
+    it("should return the populated board", async () => {
+      const newRoom = await roomController.createRoom();
+
+      const { room } = await roomController.joinRoom(
+        newRoom.roomCode,
+        DUMMY_PLAYER_CONNECTION_ID,
+        DUMMY_PLAYER_NAME
+      );
+      assert.notEqual(room, null);
+      assert.equal(isDocumentArray(room!.board), true);
     });
 
     it("should fail to join if the room does not exist", async () => {

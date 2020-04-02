@@ -1,5 +1,5 @@
-# From https://dev.to/heroku/deploying-to-heroku-from-github-actions-29ej
-name: Push Container to Heroku
+# Based on https://dev.to/heroku/deploying-to-heroku-from-github-actions-29ej
+name: Deploy to Heroku and GitHub Pages
 
 on:
   push:
@@ -10,15 +10,16 @@ env:
   HEROKU_APP_NAME: passt
 
 jobs:
-  deploy:
+  deploy-to-heroku:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - name: Checkout
+        uses: actions/checkout@master
       - name: Login to Heroku Container registry
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: heroku container:login
-      - name: Build and push
+      - name: Build and push to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: heroku container:push -a $HEROKU_APP_NAME web
@@ -26,3 +27,18 @@ jobs:
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: heroku container:release -a $HEROKU_APP_NAME web
+  deploy-to-gh-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Install and build
+        run: |
+          npm install
+          npm run build:client
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: public
