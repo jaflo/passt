@@ -1,5 +1,7 @@
 import 'mocha';
 import { createConnection, getConnection } from 'typeorm';
+import { Shape, FillStyle, Color, Card } from '../server/entity/card.entity';
+import { seedCards } from '../server/seedCards';
 
 beforeEach(async () => {
   const connection = await createConnection();
@@ -7,7 +9,11 @@ beforeEach(async () => {
   await queryRunner.createDatabase('passtTest', true);
 });
 
-afterEach(() => {
+afterEach(async () => {
   const conn = getConnection();
-  return conn.close();
+  await conn.close();
 });
+
+export const setupCardsForTest = async () => {
+  await seedCards();
+};

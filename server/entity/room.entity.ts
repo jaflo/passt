@@ -26,15 +26,16 @@ export class Room extends BaseEntity {
 
   @OneToMany(
     type => Player,
-    player => player.room
+    player => player.room,
+    { eager: true }
   )
   players!: Player[];
 
-  @ManyToMany(type => Card)
+  @ManyToMany(type => Card, { eager: true })
   @JoinTable()
   board!: Card[];
 
-  @ManyToMany(type => Card)
+  @ManyToMany(type => Card, { lazy: true })
   @JoinTable()
   availableCards!: Card[];
 

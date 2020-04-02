@@ -4,11 +4,12 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
   ManyToOne,
+  BaseEntity,
 } from 'typeorm';
 import { Room } from './room.entity';
 
 @Entity()
-export class Player {
+export class Player extends BaseEntity {
   @PrimaryColumn()
   connectionId!: string;
 

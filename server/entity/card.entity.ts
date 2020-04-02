@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  Unique,
+} from 'typeorm';
+import { Min, Max } from 'class-validator';
 
 export enum Shape {
   SQUARE = 'square',
@@ -19,7 +26,8 @@ export enum Color {
 }
 
 @Entity()
-export class Card {
+@Unique(['shape', 'fillStyle', 'color', 'number'])
+export class Card extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -43,4 +51,12 @@ export class Card {
     nullable: false,
   })
   color!: Color;
+
+  @Column({
+    type: 'int',
+    nullable: false,
+  })
+  @Min(1)
+  @Max(3)
+  number!: number;
 }

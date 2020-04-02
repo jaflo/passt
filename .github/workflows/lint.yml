@@ -8,5 +8,7 @@ jobs:
       - uses: actions/setup-node@master
         with:
             node-version: '10.x'
-      - name: Check with prettier
-        run: npx prettier --check server test
+      - name: Install dependencies
+        run: |
+          npm i
+          npm run check
