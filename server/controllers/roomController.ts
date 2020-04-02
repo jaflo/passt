@@ -1,7 +1,7 @@
 import { Room, RoomClass } from "../db/room";
 import { Player, PlayerClass } from "../db/player";
-import { DocumentType } from "@typegoose/typegoose";
-import { Card } from "../db/card";
+import { DocumentType, isDocumentArray } from "@typegoose/typegoose";
+import { Card, CardClass } from "../db/card";
 
 function shuffle<T>(array: T[]): T[] {
   var currentIndex = array.length,
@@ -105,7 +105,8 @@ export class RoomController {
   }
 
   public async startGame(
-    connectionId: string
+    connectionId: string,
+    initialHandSize = RoomController.HAND_SIZE
   ): Promise<DocumentType<RoomClass>> {
     const player = await Player.findOne({ connectionId });
     if (!player) {
@@ -116,7 +117,7 @@ export class RoomController {
     const cards = await Card.find({});
     const shuffledCards = shuffle(cards);
     // Modifies shuffledCards in-place as a side effect.
-    const initialHand = shuffledCards.splice(0, RoomController.HAND_SIZE);
+    const initialHand = shuffledCards.splice(0, initialHandSize);
     const room = await Room.findOneAndUpdate(
       {
         players: { $in: [player?._id] },
@@ -127,13 +128,112 @@ export class RoomController {
       { new: true }
     )
       .populate("players")
-      .populate("board")
-      .populate("availableCards");
+      .populate("board");
     if (!room) {
       throw new Error(
         `Failed to find a Room for player with connectionId ${connectionId} that hasn't been started`
       );
     }
     return room;
+  }
+
+  public async playMove(connectionId: string, cardValues: CardClass[]) {
+    if (cardValues.length !== 3) {
+      throw new Error(
+        `Expected to get 3 cards, was given ${cardValues.length} cards`
+      );
+    }
+    const player = await Player.findOne({ connectionId });
+    if (!player) {
+      throw new Error(
+        `Failed to find a player with connectionId ${connectionId} to play a move for.`
+      );
+    }
+    const room = await Room.findOne({
+      players: { $in: [player._id] },
+      started: true,
+    })
+      .populate("availableCards")
+      .populate("board");
+    if (!room) {
+      throw new Error(
+        `Failed to find a started room for Player with connectionId ${connectionId}.`
+      );
+    }
+    if (!isDocumentArray(room.availableCards)) {
+      throw new Error(`availableCards was not populated.`);
+    }
+    if (!isDocumentArray(room.board)) {
+      throw new Error(`board was not populated.`);
+    }
+
+    if (!Card.isASet(...cardValues)) {
+      return { room, updated: false, player };
+    }
+
+    const cards: DocumentType<CardClass>[] = [];
+    if (!room.cardsOnBoard(...cardValues)) {
+      throw new Error(
+        `Couldn't find cards with attributes ${JSON.stringify(
+          cardValues
+        )} on board in room ${room.roomCode}.`
+      );
+    }
+    for (const cardValue of cardValues) {
+      const card = await Card.findOne({
+        color: cardValue.color,
+        number: cardValue.number,
+        shape: cardValue.shape,
+        fillStyle: cardValue.fillStyle,
+      });
+      if (!card) {
+        throw new Error(
+          `Card does not exist with attributes ${JSON.stringify(cardValue)}`
+        );
+      }
+      cards.push(card);
+    }
+
+    const availableCardsToPull = shuffle(room.availableCards).slice(0, 3);
+    const availableCardsToPullIds = availableCardsToPull.map((c) => c._id);
+    const playedCardIds = cards.map((c) => c._id);
+
+    await Room.updateOne(
+      {
+        roomCode: room.roomCode,
+      },
+      {
+        $push: {
+          board: {
+            $each: availableCardsToPullIds,
+          },
+        },
+        $pullAll: {
+          availableCards: availableCardsToPullIds,
+        },
+      },
+      { new: true }
+    );
+
+    const updatedPlayer = await Player.findOneAndUpdate(
+      {
+        connectionId,
+      },
+      {
+        $inc: { points: 1 },
+      },
+      { new: true }
+    );
+
+    const updatedRoom = await Room.findOneAndUpdate(
+      {
+        roomCode: room.roomCode,
+      },
+      { $pullAll: { board: playedCardIds } },
+      { new: true }
+    )
+      .populate("board")
+      .populate("players");
+    return { room: updatedRoom!, player: updatedPlayer!, updated: true };
   }
 }

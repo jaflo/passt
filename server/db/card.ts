@@ -51,20 +51,22 @@ class CardClass {
     return [colors, fillStyles, numbers, shapes].every(allSameOrAllDifferent);
   }
 
-  public static containsASet(...cards: CardClass[]): boolean {
+  public static findSetIn(
+    ...cards: CardClass[]
+  ): [CardClass, CardClass, CardClass] | null {
     if (cards.length < 3) {
-      return false;
+      return null;
     }
     for (let i = 0; i < cards.length; ++i) {
       for (let j = i + 1; j < cards.length; ++j) {
         for (let k = j + 1; k < cards.length; ++k) {
           if (Card.isASet(cards[i], cards[j], cards[k])) {
-            return true;
+            return [cards[i], cards[j], cards[k]];
           }
         }
       }
     }
-    return false;
+    return null;
   }
 }
 

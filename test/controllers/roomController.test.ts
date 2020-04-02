@@ -4,10 +4,9 @@ import { RoomController } from "../../server/controllers/roomController";
 
 import "../testSetup.test";
 import { seedCardsForTest } from "../testSetup.test";
-import { Room } from "../../server/db/room";
 import { Player } from "../../server/db/player";
 // import mongoose from "mongoose";
-import { Card } from "../../server/db/card";
+import { Card, CardClass } from "../../server/db/card";
 import { seedCards } from "../../server/seedCards";
 import { isDocumentArray } from "@typegoose/typegoose";
 
@@ -43,7 +42,12 @@ describe("RoomController", () => {
         DUMMY_PLAYER_CONNECTION_ID,
         DUMMY_PLAYER_NAME
       );
-      assert.notEqual(room, null);
+      if (!room) {
+        assert.fail("Room was null");
+      }
+      if (!isDocumentArray(room.players)) {
+        assert.fail("Room players were not populated.");
+      }
       assert.equal(room!.players.length, 1);
       assert.equal(room!.players[0].connectionId, DUMMY_PLAYER_CONNECTION_ID);
       assert.equal(room!.players[0].name, DUMMY_PLAYER_NAME);
@@ -150,6 +154,9 @@ describe("RoomController", () => {
       );
 
       const room = await roomController.startGame(DUMMY_PLAYER_CONNECTION_ID);
+      if (!isDocumentArray(room.board)) {
+        assert.fail("Board was not populated.");
+      }
 
       assert.equal(room.board.length, RoomController.HAND_SIZE);
       for (const card of room.board) {
@@ -177,7 +184,12 @@ describe("RoomController", () => {
         room.availableCards.length,
         (await Card.countDocuments()) - RoomController.HAND_SIZE
       );
-      for (const card of room.availableCards) {
+
+      if (!isDocumentArray(room.board)) {
+        assert.fail("board was not populated");
+      }
+
+      for (const card of room.board) {
         const matchingCard = await Card.findOne({
           shape: card.shape,
           color: card.color,
@@ -186,13 +198,7 @@ describe("RoomController", () => {
         });
         assert.notEqual(matchingCard, null);
         assert.notEqual(
-          room.board.find(
-            (c) =>
-              c.color === card.color &&
-              c.fillStyle === card.fillStyle &&
-              c.number === card.number &&
-              c.shape === card.shape
-          ),
+          room.availableCards.find((c) => c.toString() === card._id.toString()),
           true
         );
       }
@@ -217,6 +223,112 @@ describe("RoomController", () => {
       await roomController.startGame(DUMMY_PLAYER_CONNECTION_ID);
 
       assert.rejects(roomController.startGame(DUMMY_PLAYER_CONNECTION_ID));
+    });
+  });
+
+  describe("playMove", () => {
+    beforeEach(async () => {
+      await seedCardsForTest();
+    });
+
+    it("should update the board when the move is successful", async () => {
+      const { roomCode } = await roomController.createRoom();
+      await roomController.joinRoom(
+        roomCode,
+        DUMMY_PLAYER_CONNECTION_ID,
+        DUMMY_PLAYER_NAME
+      );
+
+      // Mathematical proof that a set must exist in 20 cards
+      const room = await roomController.startGame(
+        DUMMY_PLAYER_CONNECTION_ID,
+        20
+      );
+      if (!isDocumentArray(room.board)) {
+        assert.fail("Room board was not populated.");
+      }
+      const set = Card.findSetIn(...room.board);
+      if (!set) {
+        assert.fail("No set was found.");
+      }
+      const { room: updatedRoom } = await roomController.playMove(
+        DUMMY_PLAYER_CONNECTION_ID,
+        set
+      );
+      if (!isDocumentArray(updatedRoom.board)) {
+        assert.fail("Room board was not populated.");
+      }
+      for (const card of set) {
+        if (
+          updatedRoom.board.find(
+            (c) =>
+              c.color === card.color &&
+              c.shape === card.shape &&
+              c.fillStyle === card.fillStyle &&
+              c.number === card.number
+          )
+        ) {
+          assert.fail("Card that was played was still on the board.");
+        }
+      }
+    });
+
+    it("should increment the player's score when the move is successful", async () => {
+      const { roomCode } = await roomController.createRoom();
+      await roomController.joinRoom(
+        roomCode,
+        DUMMY_PLAYER_CONNECTION_ID,
+        DUMMY_PLAYER_NAME
+      );
+
+      // Mathematical proof that a set must exist in 20 cards
+      const room = await roomController.startGame(
+        DUMMY_PLAYER_CONNECTION_ID,
+        20
+      );
+      if (!isDocumentArray(room.board)) {
+        assert.fail("Room board was not populated.");
+      }
+      const set = Card.findSetIn(...room.board);
+      if (!set) {
+        assert.fail("No set was found.");
+      }
+      const { room: updatedRoom } = await roomController.playMove(
+        DUMMY_PLAYER_CONNECTION_ID,
+        set
+      );
+
+      if (!isDocumentArray(updatedRoom.players)) {
+        assert.fail("Players was not populated");
+      }
+
+      const updatedPlayer = updatedRoom.players.find(
+        (p) => p.connectionId === DUMMY_PLAYER_CONNECTION_ID
+      );
+      assert.equal(updatedPlayer?.points, 1);
+    });
+
+    it("should fail when the board does not contain one of the cards in the move", async () => {
+      const { roomCode } = await roomController.createRoom();
+      await roomController.joinRoom(
+        roomCode,
+        DUMMY_PLAYER_CONNECTION_ID,
+        DUMMY_PLAYER_NAME
+      );
+
+      // No cards in initial hand. Won't happen, but it's fine.
+      await roomController.startGame(DUMMY_PLAYER_CONNECTION_ID, 0);
+      const cards = await Card.find({}).limit(3);
+      assert.rejects(
+        roomController.playMove(DUMMY_PLAYER_CONNECTION_ID, cards)
+      );
+    });
+
+    it("should fail when the room does not exist", async () => {
+      const cards = await Card.find({}).limit(3);
+      assert.rejects(
+        roomController.playMove(DUMMY_PLAYER_CONNECTION_ID, cards)
+      );
     });
   });
 });
