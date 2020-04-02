@@ -179,15 +179,11 @@ describe("RoomController", () => {
         (await Card.countDocuments()) - RoomController.HAND_SIZE
       );
 
-      if (!isDocumentArray(room.availableCards)) {
-        assert.fail("availableCards was not populated");
-      }
-
       if (!isDocumentArray(room.board)) {
         assert.fail("board was not populated");
       }
 
-      for (const card of room.availableCards) {
+      for (const card of room.board) {
         const matchingCard = await Card.findOne({
           shape: card.shape,
           color: card.color,
@@ -196,13 +192,7 @@ describe("RoomController", () => {
         });
         assert.notEqual(matchingCard, null);
         assert.notEqual(
-          room.board.find(
-            (c) =>
-              c.color === card.color &&
-              c.fillStyle === card.fillStyle &&
-              c.number === card.number &&
-              c.shape === card.shape
-          ),
+          room.availableCards.find((c) => c.toString() === card._id.toString()),
           true
         );
       }

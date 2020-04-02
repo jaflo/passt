@@ -95,7 +95,9 @@ export class RoomController {
       { roomCode },
       { $push: { players: player } },
       { new: true }
-    ).populate("players");
+    )
+      .populate("players")
+      .populate("board");
     if (!room) {
       throw new Error(`Failed to find a Room with code ${roomCode} to join`);
     }
@@ -125,8 +127,7 @@ export class RoomController {
       { new: true }
     )
       .populate("players")
-      .populate("board")
-      .populate("availableCards");
+      .populate("board");
     if (!room) {
       throw new Error(
         `Failed to find a Room for player with connectionId ${connectionId} that hasn't been started`
@@ -180,18 +181,22 @@ export class RoomController {
       const cardsToPull = shuffle(room.availableCards).slice(0, 3);
       const cardsToPullIds = cardsToPull.map((c) => c._id);
 
-      const updatedRoom = await Room.findOneAndUpdate({
-        roomCode: room.roomCode
-      }, {
-        $push: {
-          board: {
-            $each: cardsToPullIds
-          }
+      const updatedRoom = await Room.findOneAndUpdate(
+        {
+          roomCode: room.roomCode,
         },
-        $pullAll: {
-          availableCards: cardsToPullIds
-        }
-      }, {new: true});
+        {
+          $push: {
+            board: {
+              $each: cardsToPullIds,
+            },
+          },
+          $pullAll: {
+            availableCards: cardsToPullIds,
+          },
+        },
+        { new: true }
+      );
       return updatedRoom!.board as Array<CardClass>;
     }
     return undefined;

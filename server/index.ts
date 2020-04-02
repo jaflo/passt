@@ -68,7 +68,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on(SocketEvent.PLAY, async (data: {cards: Array<CardClass>}) => {
+  socket.on(SocketEvent.PLAY, async (data: { cards: Array<CardClass> }) => {
     try {
       const newBoard = await roomController.playMove(socket.id, data.cards);
       // WIP
