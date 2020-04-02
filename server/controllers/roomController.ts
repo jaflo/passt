@@ -95,7 +95,7 @@ export class RoomController {
       { roomCode },
       { $push: { players: player } },
       { new: true }
-    ).populate("players");
+    ).populate("players").populate("board");
     if (!room) {
       throw new Error(`Failed to find a Room with code ${roomCode} to join`);
     }
