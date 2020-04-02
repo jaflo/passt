@@ -16,8 +16,6 @@
 		});
 		joining = true;
 	}
-
-	joinRoom();
 </script>
 
 <div class="center">
