@@ -4,7 +4,7 @@ import { createConnection, getConnection } from 'typeorm';
 beforeEach(async () => {
   const connection = await createConnection();
   const queryRunner = connection.createQueryRunner();
-  await queryRunner.createDatabase("passtTest", true);
+  await queryRunner.createDatabase('passtTest', true);
 });
 
 afterEach(() => {

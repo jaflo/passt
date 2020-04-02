@@ -15,7 +15,7 @@ import shortid from 'shortid';
 
 @Entity()
 export class Room extends BaseEntity {
-  @PrimaryColumn({type: "varchar"})
+  @PrimaryColumn({ type: 'varchar' })
   roomCode!: string;
 
   @Column({ type: 'boolean', nullable: false, default: false })

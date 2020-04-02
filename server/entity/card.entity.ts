@@ -40,7 +40,7 @@ export class Card {
   @Column({
     type: 'enum',
     enum: Color,
-    nullable: false
+    nullable: false,
   })
   color!: Color;
 }
