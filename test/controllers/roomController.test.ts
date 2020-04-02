@@ -302,9 +302,11 @@ describe("RoomController", () => {
         assert.fail("Players was not populated");
       }
 
-      const updatedPlayer = updatedRoom.players.find(p => p.connectionId === DUMMY_PLAYER_CONNECTION_ID);
+      const updatedPlayer = updatedRoom.players.find(
+        (p) => p.connectionId === DUMMY_PLAYER_CONNECTION_ID
+      );
       assert.equal(updatedPlayer?.points, 1);
-    })
+    });
 
     it("should fail when the board does not contain one of the cards in the move", async () => {
       const { roomCode } = await roomController.createRoom();
