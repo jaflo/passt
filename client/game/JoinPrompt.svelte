@@ -1,29 +1,34 @@
 <script>
 	export let roomCode;
 
+	import { fade } from "svelte/transition";
 	import { socket } from "../connectivity.js";
-	import { createEventDispatcher } from "svelte";
+	import { uniqueNamesGenerator, adjectives, colors, animals } from "unique-names-generator";
 
+	const randomName = uniqueNamesGenerator({ dictionaries: [colors, animals], separator: " ", length: 2 });
 	let joining = false;
-	let playerName = "";
+	let playerName = randomName;
 
-	const dispatch = createEventDispatcher();
-
-	function joinRoom(e) {
+	function joinRoom() {
 		socket.emit("joinRoom", {
 			roomCode: roomCode,
-			playerName: playerName
+			playerName: playerName || randomName
 		});
 		joining = true;
 	}
+
+	joinRoom();
 </script>
 
-{roomCode}
-{#if joining}
-	Joining...
-{:else}
-	<form on:submit|preventDefault|once={joinRoom}>
-		<input type="text" bind:value={playerName} placeholder="Name" />
-		<button type="submit">join</button>
-	</form>
-{/if}
+<div class="center">
+	{#if joining}
+		<div in:fade={{ duration: 300 }}>
+			<div class="spinner" />
+		</div>
+	{:else}
+		<form on:submit|preventDefault|once={joinRoom}>
+			<input type="text" bind:value={playerName} placeholder="???" />
+			<button type="submit">&rarr;</button>
+		</form>
+	{/if}
+</div>
