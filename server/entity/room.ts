@@ -10,11 +10,11 @@ import {
 } from 'typeorm';
 import { Player } from './player';
 import { Card } from './card';
-import shortid from "shortid";
+import shortid from 'shortid';
 
 @Entity()
 export class Room extends BaseEntity {
-  @PrimaryColumn({default: shortid.generate})
+  @PrimaryColumn({ default: shortid.generate })
   roomCode!: string;
 
   @Column({ type: 'boolean', nullable: false, default: false })
