@@ -1,5 +1,5 @@
 <script>
-	export let color, fillStyle, shape;
+	export let shape, fillStyle, color, number;
 	export let size = 70;
 
 	let remappedColor = {
@@ -11,8 +11,8 @@
 	let remappedStyle = {
 		fill: {
 			empty: "none",
-			solid: remappedColor,
-			lined: "url(#diagonalHatch)"
+			filled: remappedColor,
+			lined: "url(#" + color + number + "Stripes)"
 		}[fillStyle],
 		stroke: remappedColor,
 		"stroke-width": 3,
@@ -30,7 +30,12 @@
 </style>
 
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 70 70" width={size} height={size} class={shape}>
-	<pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="scale({scale})">
+	<pattern
+		id="{color}{number}Stripes"
+		patternUnits="userSpaceOnUse"
+		width="4"
+		height="4"
+		patternTransform="scale({scale})">
 		<path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" stroke={remappedColor} stroke-width="1" />
 	</pattern>
 

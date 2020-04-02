@@ -7,6 +7,7 @@ import { seedCardsForTest } from "../testSetup.test";
 import { Player } from "../../server/db/player";
 // import mongoose from "mongoose";
 import { Card, CardClass } from "../../server/db/card";
+import { seedCards } from "../../server/seedCards";
 import { isDocumentArray } from "@typegoose/typegoose";
 
 const DUMMY_PLAYER_NAME = "dummyPlayer";
@@ -41,7 +42,6 @@ describe("RoomController", () => {
         DUMMY_PLAYER_CONNECTION_ID,
         DUMMY_PLAYER_NAME
       );
-
       if (!room) {
         assert.fail("Room was null");
       }
