@@ -4,11 +4,9 @@ import { RoomController } from "../../server/controllers/roomController";
 
 import "../testSetup.test";
 import { seedCardsForTest } from "../testSetup.test";
-import { Room } from "../../server/db/room";
 import { Player } from "../../server/db/player";
 // import mongoose from "mongoose";
-import { Card } from "../../server/db/card";
-import { seedCards } from "../../server/seedCards";
+import { Card, CardClass } from "../../server/db/card";
 import { isDocumentArray } from "@typegoose/typegoose";
 
 const DUMMY_PLAYER_NAME = "dummyPlayer";
@@ -225,6 +223,113 @@ describe("RoomController", () => {
       await roomController.startGame(DUMMY_PLAYER_CONNECTION_ID);
 
       assert.rejects(roomController.startGame(DUMMY_PLAYER_CONNECTION_ID));
+    });
+  });
+
+  describe("playMove", () => {
+    beforeEach(async () => {
+      await seedCardsForTest();
+    });
+
+    it("should update the board when the move is successful", async () => {
+      const { roomCode } = await roomController.createRoom();
+      await roomController.joinRoom(
+        roomCode,
+        DUMMY_PLAYER_CONNECTION_ID,
+        DUMMY_PLAYER_NAME
+      );
+
+      // Mathematical proof that a set must exist in 20 cards
+      const room = await roomController.startGame(
+        DUMMY_PLAYER_CONNECTION_ID,
+        20
+      );
+      if (!isDocumentArray(room.board)) {
+        assert.fail("Room board was not populated.");
+      }
+      const set = Card.findSetIn(...room.board);
+      if (!set) {
+        assert.fail("No set was found.");
+      }
+      const { room: updatedRoom } = await roomController.playMove(
+        DUMMY_PLAYER_CONNECTION_ID,
+        set
+      );
+      if (!isDocumentArray(updatedRoom.board)) {
+        assert.fail("Room board was not populated.");
+      }
+      for (const card of set) {
+        if (
+          updatedRoom.board.find(
+            (c) =>
+              c.color === card.color &&
+              c.shape === card.shape &&
+              c.fillStyle === card.fillStyle &&
+              c.number === card.number
+          )
+        ) {
+          assert.fail("Card that was played was still on the board.");
+        }
+      }
+    });
+
+    it("should increment the player's score when the move is successful", async () => {
+      const { roomCode } = await roomController.createRoom();
+      await roomController.joinRoom(
+        roomCode,
+        DUMMY_PLAYER_CONNECTION_ID,
+        DUMMY_PLAYER_NAME
+      );
+
+      // Mathematical proof that a set must exist in 20 cards
+      const room = await roomController.startGame(
+        DUMMY_PLAYER_CONNECTION_ID,
+        20
+      );
+      if (!isDocumentArray(room.board)) {
+        assert.fail("Room board was not populated.");
+      }
+      const set = Card.findSetIn(...room.board);
+      if (!set) {
+        assert.fail("No set was found.");
+      }
+      const { room: updatedRoom } = await roomController.playMove(
+        DUMMY_PLAYER_CONNECTION_ID,
+        set
+      );
+
+      if (!isDocumentArray(updatedRoom.players)) {
+        assert.fail("Players was not populated");
+      }
+
+      const updatedPlayer = updatedRoom.players.find(p => p.connectionId === DUMMY_PLAYER_CONNECTION_ID);
+      assert.equal(updatedPlayer?.points, 1);
+    })
+
+    it("should fail when the board does not contain one of the cards in the move", async () => {
+      const { roomCode } = await roomController.createRoom();
+      await roomController.joinRoom(
+        roomCode,
+        DUMMY_PLAYER_CONNECTION_ID,
+        DUMMY_PLAYER_NAME
+      );
+
+      // No cards in initial hand. Won't happen, but it's fine.
+      const room = await roomController.startGame(
+        DUMMY_PLAYER_CONNECTION_ID,
+        0
+      );
+      const cards = await Card.find({}).limit(3);
+      assert.rejects(
+        roomController.playMove(DUMMY_PLAYER_CONNECTION_ID, cards)
+      );
+    });
+
+    it("should fail when the room does not exist", async () => {
+      const cards = await Card.find({}).limit(3);
+      assert.rejects(
+        roomController.playMove(DUMMY_PLAYER_CONNECTION_ID, cards)
+      );
     });
   });
 });

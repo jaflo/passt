@@ -105,7 +105,8 @@ export class RoomController {
   }
 
   public async startGame(
-    connectionId: string
+    connectionId: string,
+    initialHandSize = RoomController.HAND_SIZE
   ): Promise<DocumentType<RoomClass>> {
     const player = await Player.findOne({ connectionId });
     if (!player) {
@@ -116,7 +117,7 @@ export class RoomController {
     const cards = await Card.find({});
     const shuffledCards = shuffle(cards);
     // Modifies shuffledCards in-place as a side effect.
-    const initialHand = shuffledCards.splice(0, RoomController.HAND_SIZE);
+    const initialHand = shuffledCards.splice(0, initialHandSize);
     const room = await Room.findOneAndUpdate(
       {
         players: { $in: [player?._id] },
@@ -165,40 +166,73 @@ export class RoomController {
     if (!isDocumentArray(room.board)) {
       throw new Error(`board was not populated.`);
     }
+
+    if (!Card.isASet(...cardValues)) {
+      return { room, updated: false };
+    }
+
     const cards: DocumentType<CardClass>[] = [];
-    if (!room.cardsOnBoard(...cards)) {
+    if (!room.cardsOnBoard(...cardValues)) {
       throw new Error(
-        `Couldn't find cards with attributes ${JSON.stringify(cards)} in room ${
-          room.roomCode
-        }.`
+        `Couldn't find cards with attributes ${JSON.stringify(
+          cardValues
+        )} on board in room ${room.roomCode}.`
       );
     }
-
-    if (!Card.isASet(...cards)) {
-      return undefined;
+    for (const cardValue of cardValues) {
+      const card = await Card.findOne({
+        color: cardValue.color,
+        number: cardValue.number,
+        shape: cardValue.shape,
+        fillStyle: cardValue.fillStyle,
+      });
+      if (!card) {
+        throw new Error(
+          `Card does not exist with attributes ${JSON.stringify(cardValue)}`
+        );
+      }
+      cards.push(card);
     }
-    if (Card.isASet(...cards)) {
-      const cardsToPull = shuffle(room.availableCards).slice(0, 3);
-      const cardsToPullIds = cardsToPull.map((c) => c._id);
 
-      const updatedRoom = await Room.findOneAndUpdate(
-        {
-          roomCode: room.roomCode,
-        },
-        {
-          $push: {
-            board: {
-              $each: cardsToPullIds,
-            },
+    const availableCardsToPull = shuffle(room.availableCards).slice(0, 3);
+    const availableCardsToPullIds = availableCardsToPull.map((c) => c._id);
+    const playedCardIds = cards.map((c) => c._id);
+
+    await Room.updateOne(
+      {
+        roomCode: room.roomCode,
+      },
+      {
+        $push: {
+          board: {
+            $each: availableCardsToPullIds,
           },
-          $pullAll: {
-            availableCards: cardsToPullIds,
-          },
         },
-        { new: true }
-      );
-      return updatedRoom!.board as Array<CardClass>;
-    }
-    return undefined;
+        $pullAll: {
+          availableCards: availableCardsToPullIds,
+        },
+      },
+      { new: true }
+    );
+
+    await Player.updateOne(
+      {
+        connectionId,
+      },
+      {
+        $inc: { points: 1 },
+      }
+    );
+
+    const updatedRoom = await Room.findOneAndUpdate(
+      {
+        roomCode: room.roomCode,
+      },
+      { $pullAll: { board: playedCardIds } },
+      { new: true }
+    )
+      .populate("board")
+      .populate("players");
+    return { room: updatedRoom!, updated: true };
   }
 }

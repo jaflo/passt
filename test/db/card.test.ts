@@ -78,8 +78,8 @@ describe("Card", () => {
     });
   });
 
-  describe("containsASet", () => {
-    it("should be true when the cards contain a set", async () => {
+  describe("findSetIn", () => {
+    it("should find a set in the given cards", async () => {
       const cards = [
         await Card.create({
           fillStyle: FillStyle.EMPTY,
@@ -106,10 +106,10 @@ describe("Card", () => {
           number: 2,
         }),
       ];
-      assert.equal(Card.containsASet(...cards), true);
+      assert.equal(Card.findSetIn(...cards)?.length, 3);
     });
 
-    it("should be false when the cards don't contain a set", async () => {
+    it("should fail to find a set when the cards don't contain a set", async () => {
       const cards = [
         await Card.create({
           fillStyle: FillStyle.EMPTY,
@@ -136,7 +136,7 @@ describe("Card", () => {
           number: 1,
         }),
       ];
-      assert.equal(Card.containsASet(...cards), false);
+      assert.equal(Card.findSetIn(...cards), null);
     });
   });
 });

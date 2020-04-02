@@ -27,6 +27,7 @@ enum SocketEvent {
   START_ROOM = "startRoom",
   ROOM_STARTED = "roomStarted",
   PLAY = "play",
+  MOVE_PLAYED = "movePlayed",
   PLAYER_DISCONNECTED = "playerDisconnected",
 }
 
@@ -70,8 +71,11 @@ io.on("connection", (socket) => {
 
   socket.on(SocketEvent.PLAY, async (data: { cards: Array<CardClass> }) => {
     try {
-      const newBoard = await roomController.playMove(socket.id, data.cards);
-      // WIP
+      const { room, updated } = await roomController.playMove(
+        socket.id,
+        data.cards
+      );
+      io.to(room.roomCode).emit(SocketEvent.MOVE_PLAYED, { room, updated });
     } catch (err) {}
   });
 
