@@ -26,18 +26,21 @@ export class Card {
   @Column({
     type: 'enum',
     enum: Shape,
+    nullable: false,
   })
   shape!: Shape;
 
   @Column({
     type: 'enum',
     enum: FillStyle,
+    nullable: false,
   })
   fillStyle!: FillStyle;
 
   @Column({
     type: 'enum',
     enum: Color,
+    nullable: false
   })
   color!: Color;
 }

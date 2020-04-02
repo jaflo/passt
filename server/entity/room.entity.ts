@@ -1,20 +1,21 @@
 import {
   Entity,
   Column,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
   OneToMany,
   ManyToMany,
   JoinTable,
   BaseEntity,
+  PrimaryColumn,
 } from 'typeorm';
-import { Player } from './player';
-import { Card } from './card';
+import { Player } from './player.entity';
+import { Card } from './card.entity';
 import shortid from 'shortid';
 
 @Entity()
 export class Room extends BaseEntity {
-  @PrimaryColumn({ default: shortid.generate })
+  @PrimaryColumn({type: "varchar"})
   roomCode!: string;
 
   @Column({ type: 'boolean', nullable: false, default: false })

@@ -5,7 +5,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
 } from 'typeorm';
-import { Room } from './room';
+import { Room } from './room.entity';
 
 @Entity()
 export class Player {
@@ -13,7 +13,7 @@ export class Player {
   connectionId!: string;
 
   @Column({
-    type: 'string',
+    type: 'varchar',
     nullable: false,
   })
   name!: string;

@@ -1,12 +1,10 @@
 import 'mocha';
 import { createConnection, getConnection } from 'typeorm';
 
-beforeEach(() => {
-  return createConnection({
-    type: 'postgres',
-    database: ':memory:',
-    dropSchema: true,
-  });
+beforeEach(async () => {
+  const connection = await createConnection();
+  const queryRunner = connection.createQueryRunner();
+  await queryRunner.createDatabase("passtTest", true);
 });
 
 afterEach(() => {
