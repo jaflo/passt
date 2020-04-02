@@ -6,15 +6,13 @@
 
 	// can be in setup, tutorial, or playing
 
-	let roomCode = "";
-	let parts = window.location.href.split("?");
-	if (parts.length == 2) {
-		roomCode = parts[1];
-	}
+	let roomCode = new URLSearchParams(window.location.search).get("room") || "";
 
 	socket.on("roomCreated", function(data) {
 		roomCode = data.roomCode;
-		window.history.pushState({}, "Game", "?" + data.roomCode);
+		const queryParams = new URLSearchParams();
+		queryParams.set("room", data.roomCode);
+		window.history.pushState({}, "Game", "?" + queryParams.toString());
 	});
 </script>
 
