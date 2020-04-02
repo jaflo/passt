@@ -317,7 +317,7 @@ describe("RoomController", () => {
       );
 
       // No cards in initial hand. Won't happen, but it's fine.
-      const room = await roomController.startGame(
+      await roomController.startGame(
         DUMMY_PLAYER_CONNECTION_ID,
         0
       );

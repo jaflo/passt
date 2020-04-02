@@ -168,7 +168,7 @@ export class RoomController {
     }
 
     if (!Card.isASet(...cardValues)) {
-      return { room, updated: false };
+      return { room, updated: false, player };
     }
 
     const cards: DocumentType<CardClass>[] = [];
@@ -215,15 +215,6 @@ export class RoomController {
       { new: true }
     );
 
-    await Player.updateOne(
-      {
-        connectionId,
-      },
-      {
-        $inc: { points: 1 },
-      }
-    );
-
     const updatedRoom = await Room.findOneAndUpdate(
       {
         roomCode: room.roomCode,
@@ -233,6 +224,16 @@ export class RoomController {
     )
       .populate("board")
       .populate("players");
-    return { room: updatedRoom!, updated: true };
+
+    const updatedPlayer = await Player.findOneAndUpdate(
+      {
+        connectionId,
+      },
+      {
+        $inc: { points: 1 },
+      },
+      { new: true }
+    );
+    return { room: updatedRoom!, player: updatedPlayer!, updated: true };
   }
 }

@@ -71,11 +71,15 @@ io.on("connection", (socket) => {
 
   socket.on(SocketEvent.PLAY, async (data: { cards: Array<CardClass> }) => {
     try {
-      const { room, updated } = await roomController.playMove(
+      const { room, updated, player } = await roomController.playMove(
         socket.id,
         data.cards
       );
-      io.to(room.roomCode).emit(SocketEvent.MOVE_PLAYED, { room, updated });
+      io.to(room.roomCode).emit(SocketEvent.MOVE_PLAYED, {
+        room,
+        updated,
+        player,
+      });
     } catch (err) {}
   });
 
