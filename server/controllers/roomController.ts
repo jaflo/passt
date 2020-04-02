@@ -215,16 +215,6 @@ export class RoomController {
       { new: true }
     );
 
-    const updatedRoom = await Room.findOneAndUpdate(
-      {
-        roomCode: room.roomCode,
-      },
-      { $pullAll: { board: playedCardIds } },
-      { new: true }
-    )
-      .populate("board")
-      .populate("players");
-
     const updatedPlayer = await Player.findOneAndUpdate(
       {
         connectionId,
@@ -234,6 +224,16 @@ export class RoomController {
       },
       { new: true }
     );
+
+    const updatedRoom = await Room.findOneAndUpdate(
+      {
+        roomCode: room.roomCode,
+      },
+      { $pullAll: { board: playedCardIds } },
+      { new: true }
+    )
+      .populate("board")
+      .populate("players");
     return { room: updatedRoom!, player: updatedPlayer!, updated: true };
   }
 }
