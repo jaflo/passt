@@ -33,10 +33,6 @@
 		font-size: 0;
 		width: 360px;
 		padding: 12px 12px 0 0;
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
 		text-align: center;
 		box-sizing: border-box;
 	}
@@ -64,7 +60,7 @@
 	}
 </style>
 
-<div class="board">
+<div class="center-wide board">
 	{#each cards as card}
 		<div class="card-wrapper">
 			<Card {...card} selected={arrayContainsCard(selection, card)} on:click={cardClicked} />

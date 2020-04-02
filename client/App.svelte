@@ -9,7 +9,7 @@
 		roomCode = data.roomCode;
 		const queryParams = new URLSearchParams();
 		queryParams.set("room", data.roomCode);
-		window.history.pushState({}, "Game", "?" + queryParams.toString());
+		window.location.search = "?" + queryParams.toString();
 	});
 </script>
 

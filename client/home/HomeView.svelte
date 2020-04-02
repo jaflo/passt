@@ -1,16 +1,19 @@
 <script>
+	import { fade } from "svelte/transition";
 	import { socket } from "../connectivity.js";
 
-	let waitingOnCreate = false;
+	let waiting = socket.connected;
 
 	function createRoom() {
 		socket.emit("createRoom", { open: false });
-		waitingOnCreate = true;
+		waiting = true;
 	}
 </script>
 
-{#if waitingOnCreate}
-	Loading...
+{#if waiting}
+	<div in:fade={{ duration: 300 }} class="center">
+		<div class="spinner" />
+	</div>
 {:else}
-	<button on:click={createRoom}>Create</button>
+	<button on:click={createRoom} class="center">go</button>
 {/if}
