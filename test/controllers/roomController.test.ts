@@ -317,10 +317,7 @@ describe("RoomController", () => {
       );
 
       // No cards in initial hand. Won't happen, but it's fine.
-      await roomController.startGame(
-        DUMMY_PLAYER_CONNECTION_ID,
-        0
-      );
+      await roomController.startGame(DUMMY_PLAYER_CONNECTION_ID, 0);
       const cards = await Card.find({}).limit(3);
       assert.rejects(
         roomController.playMove(DUMMY_PLAYER_CONNECTION_ID, cards)
