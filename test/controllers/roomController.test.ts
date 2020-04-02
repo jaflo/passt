@@ -9,6 +9,7 @@ import { Player } from "../../server/db/player";
 // import mongoose from "mongoose";
 import { Card } from "../../server/db/card";
 import { seedCards } from "../../server/seedCards";
+import { isDocumentArray } from "@typegoose/typegoose";
 
 const DUMMY_PLAYER_NAME = "dummyPlayer";
 const DUMMY_PLAYER_CONNECTION_ID = "dummyConnectionId";
@@ -37,14 +38,10 @@ describe("RoomController", () => {
     it("should add the player to the room", async () => {
       const newRoom = await roomController.createRoom();
 
-      await roomController.joinRoom(
+      const { room } = await roomController.joinRoom(
         newRoom.roomCode,
         DUMMY_PLAYER_CONNECTION_ID,
         DUMMY_PLAYER_NAME
-      );
-
-      const room = await Room.findOne({ roomCode: newRoom.roomCode }).populate(
-        "players"
       );
       assert.notEqual(room, null);
       assert.equal(room!.players.length, 1);
@@ -63,6 +60,18 @@ describe("RoomController", () => {
 
       assert.equal(player.connectionId, DUMMY_PLAYER_CONNECTION_ID);
       assert.equal(room.players.length, 1);
+    });
+
+    it("should return the populated board", async () => {
+      const newRoom = await roomController.createRoom();
+
+      const { room } = await roomController.joinRoom(
+        newRoom.roomCode,
+        DUMMY_PLAYER_CONNECTION_ID,
+        DUMMY_PLAYER_NAME
+      );
+      assert.notEqual(room, null);
+      assert.equal(isDocumentArray(room!.board), true);
     });
 
     it("should fail to join if the room does not exist", async () => {
