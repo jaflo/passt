@@ -16,8 +16,7 @@ services:
       - db
     environment:
       PORT: 3000
-      DATABASE_URL: postgres://postgres:dev_password@db:5432/passt
-      TEST_DATABASE_URL: postgres://postgres:dev_password@db:5432/passttest
+      DATABASE_URL: postgres://postgres:dev_password@db:5432/
 
 volumes:
   db-data:
