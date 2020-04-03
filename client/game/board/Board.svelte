@@ -2,27 +2,42 @@
 	export let cards = [];
 
 	import Card from "./Card.svelte";
-	import { createEventDispatcher } from "svelte";
+	import { socket } from "../../connectivity.js";
 	import { areCardsEqual, arrayContainsCard, isValidPlay } from "../shared.js";
 
-	const dispatch = createEventDispatcher();
+	const keyboardMap = ["qwertyu", "asdfghj", "zxcvbnm"].map(line => line.split(""));
+
+	function getKey(i) {
+		if (i >= keyboardMap.length * keyboardMap[0].length) {
+			return "";
+		} else {
+			return keyboardMap[i % 3][parseInt(i / 3)].toUpperCase();
+		}
+	}
 
 	let selection = [];
 
 	function cardClicked(e) {
+		if (selection.length >= 3) {
+			return;
+		}
 		const card = e.detail.card;
 		if (arrayContainsCard(selection, card)) {
 			selection = selection.filter(card => !areCardsEqual(card, e.detail.card));
 		} else {
 			selection = [...selection, card];
 			if (selection.length == 3) {
-				dispatch("play", {
-					selection
-				});
+				socket.emit("play", selection);
 				// submit to server for check and broadcast
-				console.log(isValidPlay(selection));
+				// console.log(isValidPlay(selection));
 				setTimeout(() => (selection = []), 200); // after check
 			}
+		}
+	}
+
+	function handleKeydown(e) {
+		if (e.code == "Backspace") {
+			selection = [];
 		}
 	}
 </script>
@@ -60,10 +75,11 @@
 	}
 </style>
 
+<svelte:window on:keydown={handleKeydown} />
 <div class="center-wide board">
-	{#each cards as card}
+	{#each cards as card, i}
 		<div class="card-wrapper">
-			<Card {...card} selected={arrayContainsCard(selection, card)} on:click={cardClicked} />
+			<Card {...card} selected={arrayContainsCard(selection, card)} on:click={cardClicked} letter={getKey(i)} />
 		</div>
 	{/each}
 </div>

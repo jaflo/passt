@@ -3,12 +3,13 @@
 
 	import Board from "./board/Board.svelte";
 	import PlayerList from "./PlayerList.svelte";
-	import Card from "./board/Card.svelte";
+	import Ticker from "./Ticker.svelte";
 	import JoinPrompt from "./JoinPrompt.svelte";
 	import PauseScreen from "./PauseScreen.svelte";
-	import { randomCard, arrayContainsCard } from "./shared.js";
 	import { socket } from "../connectivity.js";
+	import { randomCard, isValidPlay } from "./shared.js";
 
+	let plays = [];
 	let cards = [];
 	let players = [];
 	let started = false;
@@ -28,14 +29,27 @@
 	}
 
 	socket.on("roomStarted", function(data) {
-		loadRoom(data);
 		started = true;
+		loadRoom(data);
 	});
 
 	socket.on("joinedSuccessfully", function(data) {
 		hasJoined = true;
 		loadRoom(data);
 	});
+
+	setInterval(() => {
+		const cards = [randomCard(), randomCard(), randomCard()];
+		plays = [
+			{
+				cards: cards,
+				player: "test",
+				valid: isValidPlay(cards),
+				id: Math.random()
+			},
+			...plays.slice(0, 10)
+		];
+	}, 2000);
 </script>
 
 <style>
@@ -43,6 +57,21 @@
 		display: flex;
 		min-height: 100vh;
 		flex-direction: column;
+		margin-top: 3em;
+	}
+
+	.ticker,
+	.main {
+		-webkit-user-select: none;
+		user-select: none;
+	}
+
+	.ticker {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		overflow: hidden;
 	}
 
 	.main {
@@ -54,6 +83,7 @@
 		background: #225560;
 		color: #eff0d1;
 		flex: 1;
+		box-sizing: border-box;
 	}
 
 	@media only screen and (min-width: 800px) {
@@ -64,11 +94,17 @@
 			left: 0;
 			right: 0;
 			bottom: 0;
+			margin-top: 0;
+		}
+
+		.ticker {
+			right: 260px;
 		}
 
 		.main {
 			flex: 1;
 			position: relative;
+			margin-top: 3em;
 		}
 
 		.sidebar {
@@ -82,6 +118,9 @@
 	{#if !hasJoined}
 		<JoinPrompt {roomCode} />
 	{:else}
+		<div class="ticker">
+			<Ticker {plays} />
+		</div>
 		<div class="main">
 			{#if started}
 				<Board {cards} />

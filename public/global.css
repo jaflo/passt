@@ -74,6 +74,7 @@ button {
 	border-top-color: inherit;
 	border-radius: 9em;
 	animation: spin 0.5s infinite linear;
+	margin: auto;
 }
 
 @keyframes spin {
