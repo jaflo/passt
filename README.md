@@ -13,12 +13,21 @@ npm run dev:client
 For setting up the server for the first time or after a `docker system prune`, do:
 
 ```bash
-docker-compose up -d
-docker-compose exec db su postgres
-psql # in container
-CREATE DATABASE passt; # in PostgreSQL prompt, for actual local data
-CREATE DATABASE passttest; # in PostgreSQL prompt, for testing data
-# Leave PostgreSQL and container
-docker-compose restart
-docker-compose exec web npm run typeorm migration:run
+docker-compose run web npm run typeorm migration:run
+```
+
+### Testing
+To run tests on the host without re-building the Docker container:
+```bash
+DATABASE_URL=postgres://postgres:dev_password@localhost:5432 npm test
+```
+
+To run tests on the Docker container:
+
+```bash
+docker-compose run web npm test # If the server isn't running already
+
+# OR
+
+docker-compose exec web npm test # If the server IS running elsewhere.
 ```
