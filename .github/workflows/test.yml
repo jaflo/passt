@@ -7,5 +7,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build the stack
         run: docker-compose up -d
+      - name: Create migrations
+        run: docker-compose exec web npm run typeorm migration:run 
       - name: Run tests
-        run: docker-compose run web npm test
+        run: docker-compose exec web npm test
