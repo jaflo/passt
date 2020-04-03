@@ -17,7 +17,7 @@ docker-compose up -d
 docker-compose exec db su postgres
 psql # in container
 CREATE DATABASE passt; # in PostgreSQL prompt, for actual local data
-CREATE DATABASE passtTest; # in PostgreSQL prompt, for testing data
+CREATE DATABASE passttest; # in PostgreSQL prompt, for testing data
 # Leave PostgreSQL and container
 docker-compose restart
 docker-compose exec web npm run typeorm migration:run
