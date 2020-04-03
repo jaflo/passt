@@ -14,16 +14,16 @@ describe('RoomController', () => {
   });
   describe('createRoom', () => {
     it('should create a room and return it', async () => {
-      const newRoom = await roomController.createRoom();
+      const newRoom = await roomController.createRoom(false);
       assert.notStrictEqual(newRoom, null);
     });
   });
 
   describe('joinRoom', () => {
     it('should add the player to the room', async () => {
-      const newRoom = await roomController.createRoom();
+      const newRoom = await roomController.createRoom(false);
 
-      const updatedRoom = await roomController.joinRoom(
+      const { room: updatedRoom } = await roomController.joinRoom(
         newRoom.roomCode,
         MOCK_CONNECTION_ID,
         MOCK_PLAYER_NAME
@@ -41,36 +41,40 @@ describe('RoomController', () => {
 
   describe('leaveRoom', () => {
     it('should remove the player from the room', async () => {
-      const { roomCode } = await roomController.createRoom();
+      const { roomCode } = await roomController.createRoom(false);
       await roomController.joinRoom(
         roomCode,
         MOCK_CONNECTION_ID,
         MOCK_PLAYER_NAME
       );
-      const room = await roomController.joinRoom(
+      const { room } = await roomController.joinRoom(
         roomCode,
         'MOCK_CONNECTION_ID_2',
         'MOCK_PLAYER_NAME_2'
       );
       assert.strictEqual(room.players.length, 2);
 
-      const updatedRoom = await roomController.leaveRoom(MOCK_CONNECTION_ID);
+      const updatedRoom = (await roomController.leaveRoom(MOCK_CONNECTION_ID))!;
 
       assert.strictEqual(updatedRoom.players.length, 1);
     });
 
     it('should delete the player from the database', async () => {
-      let room = await roomController.createRoom();
-      room = await roomController.joinRoom(
-        room.roomCode,
-        MOCK_CONNECTION_ID,
-        MOCK_PLAYER_NAME
-      );
-      room = await roomController.joinRoom(
-        room.roomCode,
-        'MOCK_CONNECTION_ID_2',
-        'MOCK_PLAYER_NAME_2'
-      );
+      let room = await roomController.createRoom(false);
+      room = (
+        await roomController.joinRoom(
+          room.roomCode,
+          MOCK_CONNECTION_ID,
+          MOCK_PLAYER_NAME
+        )
+      ).room;
+      room = (
+        await roomController.joinRoom(
+          room.roomCode,
+          'MOCK_CONNECTION_ID_2',
+          'MOCK_PLAYER_NAME_2'
+        )
+      ).room;
       assert.strictEqual(room.players.length, 2);
 
       await roomController.leaveRoom(MOCK_CONNECTION_ID);
@@ -80,17 +84,19 @@ describe('RoomController', () => {
     });
 
     it('should remove the room if there was only one player', async () => {
-      let room = await roomController.createRoom();
-      room = await roomController.joinRoom(
-        room.roomCode,
-        MOCK_CONNECTION_ID,
-        MOCK_PLAYER_NAME
-      );
+      let room = await roomController.createRoom(false);
+      room = (
+        await roomController.joinRoom(
+          room.roomCode,
+          MOCK_CONNECTION_ID,
+          MOCK_PLAYER_NAME
+        )
+      ).room;
       assert.strictEqual(room.players.length, 1);
 
-      room = await roomController.leaveRoom(MOCK_CONNECTION_ID);
+      const updatedRoom = await roomController.leaveRoom(MOCK_CONNECTION_ID);
 
-      assert.strictEqual(room, undefined);
+      assert.strictEqual(updatedRoom, undefined);
     });
   });
 
@@ -99,7 +105,7 @@ describe('RoomController', () => {
       await setupCardsForTest();
     });
     it('should start the room', async () => {
-      let room = await roomController.createRoom();
+      let room = await roomController.createRoom(false);
       await roomController.joinRoom(
         room.roomCode,
         MOCK_CONNECTION_ID,
@@ -122,7 +128,7 @@ describe('RoomController', () => {
       await setupCardsForTest();
     });
     it('should return the new board if successful', async () => {
-      const { roomCode } = await roomController.createRoom();
+      const { roomCode } = await roomController.createRoom(false);
       await roomController.joinRoom(
         roomCode,
         MOCK_CONNECTION_ID,
@@ -130,7 +136,7 @@ describe('RoomController', () => {
       );
       // Mathematical proof indicating that a set must exist within 20 cards
       const { board } = await roomController.startRoom(MOCK_CONNECTION_ID, 20);
-      const realSet = findSetIn(...board);
+      const realSet = findSetIn(...board)!;
       const realSetIds = realSet.map(c => c.id);
 
       const { board: updatedBoard, updated } = await roomController.playMove(

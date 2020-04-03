@@ -10,11 +10,12 @@ export class RoomController {
   /**
    * Creates a new {@link Room} and returns it.
    */
-  async createRoom(roomCode?: string) {
+  async createRoom(open: boolean, roomCode?: string) {
     if (!roomCode) {
       roomCode = shortid.generate();
     }
     const newRoom = new Room();
+    newRoom.open = open;
     newRoom.roomCode = roomCode;
     return newRoom.save();
   }
@@ -34,7 +35,8 @@ export class RoomController {
     await player.save();
 
     room.players.push(player);
-    return room.save();
+    await room.save();
+    return { room, player };
   }
 
   /**
@@ -46,6 +48,10 @@ export class RoomController {
       { connectionId },
       { relations: ['room'] }
     );
+    if (!player) {
+      console.error("Player not found. Can't notify rooms.");
+      return undefined;
+    }
     const { roomCode } = player.room;
 
     await player.remove();
@@ -94,7 +100,13 @@ export class RoomController {
     connectionId: string,
     cardIds: number[],
     numToDraw = RoomController.NUM_TO_DRAW
-  ): Promise<{ name: string; cards: Card[]; updated: boolean; board: Card[] }> {
+  ): Promise<{
+    name: string;
+    cards: Card[];
+    updated: boolean;
+    board: Card[];
+    roomCode: string;
+  }> {
     if (cardIds.length !== numToDraw) {
       throw new Error(
         `Expected ${numToDraw} cards to be played, got ${cardIds.length} cards.`
@@ -107,7 +119,7 @@ export class RoomController {
     );
 
     // Get the Room
-    const room = await Room.findOne(
+    const room = await Room.findOneOrFail(
       { roomCode: player.room.roomCode },
       { relations: ['board', 'availableCards'] }
     );
@@ -126,6 +138,7 @@ export class RoomController {
         cards: matchingCards,
         updated: false,
         board: room.board,
+        roomCode: room.roomCode,
       };
     }
 
@@ -154,6 +167,7 @@ export class RoomController {
       cards: matchingCards,
       board: room.board,
       updated: true,
+      roomCode: room.roomCode,
     };
   }
 }
