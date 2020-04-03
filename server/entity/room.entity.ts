@@ -35,7 +35,7 @@ export class Room extends BaseEntity {
   @JoinTable()
   board!: Card[];
 
-  @ManyToMany(type => Card, { lazy: true })
+  @ManyToMany(type => Card)
   @JoinTable()
   availableCards!: Card[];
 
