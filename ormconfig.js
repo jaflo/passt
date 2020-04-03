@@ -1,4 +1,3 @@
-const PostgressConnectionStringParser = require('pg-connection-string');
 if (!process.env.DATABASE_URL) {
    console.error("Please supply the DATABASE_URL environment variable");
 }

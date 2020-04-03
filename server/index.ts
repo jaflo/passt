@@ -2,6 +2,7 @@ import * as http from 'http';
 import socketIo from 'socket.io';
 import { createConnection } from 'typeorm';
 import { RoomController } from './controller/roomController';
+import { Card } from './entity/room.entity';
 
 const PORT = process.env.PORT || 3000;
 
@@ -68,18 +69,18 @@ io.on('connection', socket => {
     }
   });
 
-  socket.on(SocketEvent.PLAY, async ({ cardIds }: { cardIds: number[] }) => {
+  socket.on(SocketEvent.PLAY, async ({ cards }: { cards: Card[] }) => {
     try {
       const {
         name,
-        cards,
+        cards: playedCards,
         updated,
         board,
         roomCode,
-      } = await roomController.playMove(socket.id, cardIds);
+      } = await roomController.playMove(socket.id, cards);
       io.to(roomCode).emit(SocketEvent.MOVE_PLAYED, {
         name,
-        cards,
+        cards: playedCards,
         updated,
         board,
       });

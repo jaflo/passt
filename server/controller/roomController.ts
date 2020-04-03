@@ -1,7 +1,6 @@
-import { Room } from '../entity/room.entity';
+import { Room, allCards, Card, cardsAreEqual } from '../entity/room.entity';
 import shortid from 'shortid';
 import { Player } from '../entity/player.entity';
-import { Card, FillStyle, Color, Shape } from '../entity/card.entity';
 import { getConnection } from 'typeorm';
 import { shuffle, isASet } from '../shared';
 export class RoomController {
@@ -79,7 +78,7 @@ export class RoomController {
     );
     const { room } = player;
 
-    const cards = shuffle(await Card.find({}));
+    const cards = shuffle(allCards());
     const initialBoard = cards.splice(0, initialBoardSize);
     const availableCards = cards;
 
@@ -98,7 +97,7 @@ export class RoomController {
    */
   async playMove(
     connectionId: string,
-    cardIds: number[],
+    cards: Card[],
     numToDraw = RoomController.NUM_TO_DRAW
   ): Promise<{
     name: string;
@@ -107,31 +106,32 @@ export class RoomController {
     board: Card[];
     roomCode: string;
   }> {
-    if (cardIds.length !== numToDraw) {
+    if (cards.length !== numToDraw) {
       throw new Error(
-        `Expected ${numToDraw} cards to be played, got ${cardIds.length} cards.`
+        `Expected ${numToDraw} cards to be played, got ${cards.length} cards.`
       );
     }
-    // Get the Player
+    // Get the Player and Room
     const player = await Player.findOneOrFail(
       { connectionId },
       { relations: ['room'] }
     );
 
     // Get the Room
-    const room = await Room.findOneOrFail(
-      { roomCode: player.room.roomCode },
-      { relations: ['board', 'availableCards'] }
-    );
+    const room = await Room.findOneOrFail({ roomCode: player.room.roomCode });
 
     // Find the matching cards on the board (or error if they don't exist).
-    const matchingCards = room.board.filter(c => cardIds.includes(c.id));
-    if (matchingCards.length !== cardIds.length) {
+    const matchingCards = room.board.filter(c => {
+      for (const card of cards) {
+        if (cardsAreEqual(c, card)) return true;
+      }
+      return false;
+    });
+    if (matchingCards.length !== cards.length) {
       throw new Error(
         `Not all of the provided cards for Room ${room.roomCode} were found on the board.`
       );
     }
-    const matchingCardIds = matchingCards.map(c => c.id);
     if (!isASet(...matchingCards)) {
       return {
         name: player.name,
@@ -144,7 +144,12 @@ export class RoomController {
 
     // It's a set, update board and points
     // Step 1: Remove the played cards from the board.
-    room.board = room.board.filter(c => !matchingCardIds.includes(c.id));
+    room.board = room.board.filter(c => {
+      for (const card of cards) {
+        if (cardsAreEqual(c, card)) return false;
+      }
+      return true;
+    });
 
     // Step 2: Draw cards
     const { availableCards } = room;
@@ -159,8 +164,7 @@ export class RoomController {
     player.points += 1;
 
     // Update database records
-    await room.save();
-    await player.save();
+    await Promise.all([room.save(), player.save()]);
 
     return {
       name: player.name,

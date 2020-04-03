@@ -1,7 +1,6 @@
 import '../testSetup.test';
 import { RoomController } from '../../server/controller/roomController';
 import assert from 'assert';
-import { setupCardsForTest } from '../testSetup.test';
 import { Player } from '../../server/entity/player.entity';
 import { findSetIn } from '../../server/shared';
 
@@ -101,9 +100,6 @@ describe('RoomController', () => {
   });
 
   describe('startRoom', () => {
-    beforeEach(async () => {
-      await setupCardsForTest();
-    });
     it('should start the room', async () => {
       let room = await roomController.createRoom(false);
       await roomController.joinRoom(
@@ -124,9 +120,6 @@ describe('RoomController', () => {
   });
 
   describe('playMove', () => {
-    beforeEach(async () => {
-      await setupCardsForTest();
-    });
     it('should return the new board if successful', async () => {
       const { roomCode } = await roomController.createRoom(false);
       await roomController.joinRoom(
@@ -137,17 +130,16 @@ describe('RoomController', () => {
       // Mathematical proof indicating that a set must exist within 20 cards
       const { board } = await roomController.startRoom(MOCK_CONNECTION_ID, 20);
       const realSet = findSetIn(...board)!;
-      const realSetIds = realSet.map(c => c.id);
 
       const { board: updatedBoard, updated } = await roomController.playMove(
         MOCK_CONNECTION_ID,
-        realSetIds
+        realSet
       );
 
       assert.strictEqual(updated, true);
-      const playedCardsStillOnBoard = updatedBoard
-        .map(c => c.id)
-        .filter(id => realSetIds.includes(id)).length;
+      const playedCardsStillOnBoard = updatedBoard.filter(c =>
+        realSet.includes(c)
+      ).length;
       assert.strictEqual(playedCardsStillOnBoard, 0);
     });
   });

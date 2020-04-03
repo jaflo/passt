@@ -1,17 +1,62 @@
 import {
   Entity,
   Column,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
   OneToMany,
-  ManyToMany,
-  JoinTable,
   BaseEntity,
   PrimaryColumn,
 } from 'typeorm';
 import { Player } from './player.entity';
-import { Card } from './card.entity';
-import shortid from 'shortid';
+
+export enum Shape {
+  SQUARE = 'square',
+  CIRCLE = 'circle',
+  TRIANGLE = 'triangle',
+}
+
+export enum FillStyle {
+  EMPTY = 'empty',
+  LINED = 'lined',
+  FILLED = 'filled',
+}
+
+export enum Color {
+  RED = 'red',
+  GREEN = 'green',
+  BLUE = 'blue',
+}
+
+export interface Card {
+  shape: Shape;
+  fillStyle: FillStyle;
+  color: Color;
+  number: number;
+}
+
+export const cardsAreEqual = (a: Card, b: Card) =>
+  a.color === b.color &&
+  a.fillStyle === b.fillStyle &&
+  a.number === b.number &&
+  a.shape === b.shape;
+
+export const allCards = (
+  shapes = [Shape.CIRCLE, Shape.SQUARE, Shape.TRIANGLE],
+  colors = [Color.BLUE, Color.GREEN, Color.RED],
+  fillStyles = [FillStyle.EMPTY, FillStyle.FILLED, FillStyle.LINED],
+  numbers = [1, 2, 3]
+) => {
+  const allCards: Card[] = [];
+  for (const shape of shapes) {
+    for (const color of colors) {
+      for (const fillStyle of fillStyles) {
+        for (const num of numbers) {
+          allCards.push({ shape, fillStyle, color, number: num });
+        }
+      }
+    }
+  }
+  return allCards;
+};
 
 @Entity()
 export class Room extends BaseEntity {
@@ -31,12 +76,10 @@ export class Room extends BaseEntity {
   )
   players!: Player[];
 
-  @ManyToMany(type => Card, { eager: true })
-  @JoinTable()
+  @Column({ type: 'jsonb', default: [] })
   board!: Card[];
 
-  @ManyToMany(type => Card)
-  @JoinTable()
+  @Column({ type: 'jsonb', default: [] })
   availableCards!: Card[];
 
   @UpdateDateColumn({
