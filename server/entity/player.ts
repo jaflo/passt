@@ -1,39 +1,39 @@
 import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  BaseEntity,
+	Entity,
+	Column,
+	PrimaryColumn,
+	UpdateDateColumn,
+	ManyToOne,
+	BaseEntity,
 } from 'typeorm';
 import { Room } from './room';
 
 @Entity()
 export class Player extends BaseEntity {
-  @PrimaryColumn()
-  connectionId!: string;
+	@PrimaryColumn()
+	connectionId!: string;
 
-  @Column({
-    type: 'varchar',
-    nullable: false,
-  })
-  name!: string;
+	@Column({
+		type: 'varchar',
+		nullable: false,
+	})
+	name!: string;
 
-  @Column({
-    type: 'int',
-    default: 0,
-    nullable: false,
-  })
-  points!: number;
+	@Column({
+		type: 'int',
+		default: 0,
+		nullable: false,
+	})
+	points!: number;
 
-  @ManyToOne(
-    type => Room,
-    room => room.players
-  )
-  room!: Room;
+	@ManyToOne(
+		type => Room,
+		room => room.players
+	)
+	room!: Room;
 
-  @UpdateDateColumn({
-    nullable: false,
-  })
-  lastActive!: Date;
+	@UpdateDateColumn({
+		nullable: false,
+	})
+	lastActive!: Date;
 }
