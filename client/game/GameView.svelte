@@ -9,6 +9,8 @@
 	import { socket } from "../connectivity.js";
 	import { randomCard, isValidPlay } from "./shared.js";
 
+	const MAX_TICKER_COUNT = 10; // limit to prevent too much memory used
+
 	let plays = [];
 	let cards = [];
 	let players = [];
@@ -47,7 +49,7 @@
 				valid: isValidPlay(cards),
 				id: Math.random()
 			},
-			...plays.slice(0, 10)
+			...plays.slice(0, MAX_TICKER_COUNT)
 		];
 	}, 2000);
 </script>
