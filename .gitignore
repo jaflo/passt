@@ -1,5 +1,6 @@
-/node_modules/
-/public/build/
-
-.DS_Store
-build
+.idea/
+.vscode/
+node_modules/
+build/
+tmp/
+temp/

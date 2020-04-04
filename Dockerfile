@@ -3,6 +3,7 @@ WORKDIR /app
 COPY package*.json /app/
 COPY tsconfig.json /app/
 COPY .mocharc.json /app/
+COPY ormconfig.js /app/
 COPY server /app/server
 COPY test /app/test
 RUN npm install

@@ -1,36 +1,49 @@
 {
-	"name": "svelte-app",
-	"version": "1.0.0",
-	"scripts": {
-		"build:client": "rollup -c",
-		"dev:client": "rollup -c -w",
-		"start:client": "sirv public",
-		"start:server": "node build/server/index.js",
-		"compile": "tsc",
-		"test": "mocha"
-	},
-	"devDependencies": {
-		"@rollup/plugin-commonjs": "^11.0.0",
-		"@rollup/plugin-node-resolve": "^7.0.0",
-		"@types/mocha": "^7.0.2",
-		"@types/mongoose": "^5.7.8",
-		"@types/node": "^13.9.5",
-		"@types/socket.io": "^2.1.4",
-		"mocha": "^7.1.1",
-		"rollup": "^1.20.0",
-		"rollup-plugin-livereload": "^1.0.0",
-		"rollup-plugin-svelte": "^5.0.3",
-		"rollup-plugin-terser": "^5.1.2",
-		"svelte": "^3.0.0",
-		"ts-node": "^8.8.1"
-	},
-	"dependencies": {
-		"@typegoose/typegoose": "^6.4.0",
-		"mongoose": "^5.9.6",
-		"sirv-cli": "^0.4.4",
-		"socket.io": "^2.3.0",
-		"socket.io-client": "^2.3.0",
-		"typescript": "^3.8.3",
-		"unique-names-generator": "^4.2.0"
-	}
+   "name": "svelte-app",
+   "version": "1.0.0",
+   "scripts": {
+      "build:client": "rollup -c",
+      "dev:client": "rollup -c -w",
+      "start:client": "sirv public",
+      "start:server": "node build/server/index.js",
+      "test": "mocha",
+      "check": "gts check",
+      "clean": "gts clean",
+      "compile": "tsc -p .",
+      "fix": "gts fix",
+      "prepare": "npm run compile",
+      "pretest": "npm run compile",
+      "posttest": "npm run check",
+      "typeorm": "./node_modules/.bin/ts-node ./node_modules/typeorm/cli.js"
+   },
+   "devDependencies": {
+      "@rollup/plugin-commonjs": "^11.0.0",
+      "@rollup/plugin-node-resolve": "^7.0.0",
+      "@types/mocha": "^7.0.2",
+      "@types/shortid": "0.0.29",
+      "@types/socket.io": "^2.1.4",
+      "@types/node": "^10.16.0",
+      "gts": "^1.1.2",
+      "mocha": "^7.1.1",
+      "rollup": "^1.20.0",
+      "rollup-plugin-livereload": "^1.0.0",
+      "rollup-plugin-svelte": "^5.2.0",
+      "rollup-plugin-terser": "^5.1.2",
+      "svelte": "^3.0.0",
+      "ts-node": "^3.3.0"
+   },
+   "dependencies": {
+      "class-validator": "^0.11.1",
+      "mysql": "^2.14.1",
+      "pg": "^8.0.0",
+      "pg-connection-string": "^2.2.0",
+      "reflect-metadata": "^0.1.10",
+      "shortid": "^2.2.15",
+      "sirv-cli": "^0.4.4",
+      "socket.io": "^2.3.0",
+      "socket.io-client": "^2.3.0",
+      "typeorm": "0.2.24",
+      "typescript": "^3.8.3",
+      "unique-names-generator": "^4.2.0"
+   }
 }
