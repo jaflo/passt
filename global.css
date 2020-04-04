@@ -1,15 +1,21 @@
+:root {
+	--bgColor: #eff0d1;
+	--saturatedColor: #225560;
+	--textColor: #2e282a;
+}
+
 html,
 body {
-	background: #eff0d1;
+	background: var(--bgColor);
 	padding: 0;
 	margin: 0;
 }
 
 body {
-	color: #2e282a;
+	color: var(--textColor);
 	box-sizing: border-box;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue",
-		sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+		Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
 }
 
 a {
@@ -51,12 +57,32 @@ button {
 	cursor: pointer;
 }
 
+button.large {
+	border: 0;
+	background: var(--bgColor);
+	border-radius: 9em;
+	border: 0;
+	transition: 0.1s all ease-in-out;
+}
+
+button.large:hover,
+button.large:focus {
+	transform: scale(1.1);
+	box-shadow: 0 0 0 6px var(--saturatedColor), 0 0 0 12px var(--bgColor);
+}
+
+button.large.center:hover,
+button.large.center:focus {
+	transform: translate(-50%, -50%) scale(1.1);
+}
+
 .center,
 .center-wide {
 	position: absolute;
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+	margin: auto;
 }
 
 @media only screen and (max-width: 800px) {
@@ -84,4 +110,14 @@ button {
 	to {
 		transform: rotate(360deg);
 	}
+}
+
+.cover {
+	background: var(--saturatedColor);
+	color: var(--bgColor);
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }
