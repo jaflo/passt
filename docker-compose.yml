@@ -11,11 +11,11 @@ services:
   web:
     build: .
     ports:
-      - 3000:3000
+      - 3001:3001
     depends_on:
       - db
     environment:
-      PORT: 3000
+      PORT: 3001
       DATABASE_URL: postgres://postgres:dev_password@db:5432/
 
 volumes:

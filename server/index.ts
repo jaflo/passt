@@ -2,7 +2,7 @@ import * as http from 'http';
 import socketIo from 'socket.io';
 import { createConnection } from 'typeorm';
 import { RoomController } from './controller/roomController';
-import { Card } from './entity/room.entity';
+import { Card } from './entity/room';
 
 const PORT = process.env.PORT || 3000;
 
@@ -86,6 +86,7 @@ io.on('connection', socket => {
         board,
       });
     } catch (err) {
+      console.error(err);
       socket.emit(SocketEvent.ERROR, err.toString());
     }
   });
@@ -106,10 +107,7 @@ io.on('connection', socket => {
   });
 });
 
-createConnection({
-  type: 'postgres',
-  url: process.env['DATABASE_URL'],
-}).then(() =>
+createConnection().then(() =>
   app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
   })

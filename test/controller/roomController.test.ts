@@ -1,15 +1,9 @@
 import '../testSetup.test';
 import { RoomController } from '../../server/controller/roomController';
 import assert from 'assert';
-import { Player } from '../../server/entity/player.entity';
+import { Player } from '../../server/entity/player';
 import { findSetIn } from '../../server/shared';
-import {
-  Color,
-  Shape,
-  Card,
-  FillStyle,
-  Room,
-} from '../../server/entity/room.entity';
+import { Color, Shape, Card, FillStyle, Room } from '../../server/entity/room';
 
 const MOCK_CONNECTION_ID = 'MOCK_CONNECTION_ID';
 const MOCK_PLAYER_NAME = 'MOCK_NAME';

@@ -6,7 +6,7 @@ import {
   BaseEntity,
   PrimaryColumn,
 } from 'typeorm';
-import { Player } from './player.entity';
+import { Player } from './player';
 
 export enum Shape {
   SQUARE = 'square',

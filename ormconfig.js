@@ -4,9 +4,9 @@ if (!process.env.DATABASE_URL) {
 module.exports = {
    type: "postgres",
    url: process.env.DATABASE_URL,
-   entities: ["server/entity/*.entity.ts"],
-   migrations: ["server/migrations/*.ts"],
+   entities: ["build/server/entity/*.js"],
+   migrations: ["build/server/migrations/*.js"],
    cli: {
-      migrationsDir: "server/migrations"
+      migrationsDir: "build/server/migrations"
    }
 }

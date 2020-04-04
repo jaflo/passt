@@ -6,7 +6,7 @@ import {
   ManyToOne,
   BaseEntity,
 } from 'typeorm';
-import { Room } from './room.entity';
+import { Room } from './room';
 
 @Entity()
 export class Player extends BaseEntity {
