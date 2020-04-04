@@ -63,4 +63,3 @@
 		</div>
 	{/each}
 </div>
-<!-- <CardSymbol {shape} {fillStyle} {color} {number} /> -->

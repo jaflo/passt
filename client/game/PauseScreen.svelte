@@ -20,7 +20,7 @@
 		width: 0;
 		height: 0;
 		border: 2em solid transparent;
-		border-left: 3.5em solid #225560;
+		border-left: 3.5em solid var(--saturatedColor);
 		border-right-width: 0;
 	}
 </style>
