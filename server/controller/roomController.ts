@@ -120,6 +120,12 @@ export class RoomController {
     // Get the Room
     const room = await Room.findOneOrFail({ roomCode: player.room.roomCode });
 
+    if (!room.started) {
+      throw new Error(
+        `A move was attempted for Room ${room.roomCode}, but it has not started yet.`
+      );
+    }
+
     // Find the matching cards on the board (or error if they don't exist).
     const matchingCards = room.board.filter(c => {
       for (const card of cards) {

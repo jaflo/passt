@@ -174,7 +174,7 @@ describe('RoomController', () => {
     it('should fail if the room has not started', async () => {
       await setUpARoom(false, [MOCK_CONNECTION_ID], [MOCK_PLAYER_NAME]);
 
-      await roomController.playMove(MOCK_CONNECTION_ID, fakeSet);
+      assert.rejects(roomController.playMove(MOCK_CONNECTION_ID, fakeSet));
     });
 
     it('should fail if the Player does not exist', async () => {
