@@ -6,6 +6,7 @@
 	import { areCardsEqual, arrayContainsCard, isValidPlay } from "../shared.js";
 
 	const keyboardMap = ["qwertyu", "asdfghj", "zxcvbnm"].map(line => line.split(""));
+	const NUM_CARDS_FOR_PLAY = 3;
 
 	function getKey(i) {
 		if (i >= keyboardMap.length * keyboardMap[0].length) {
@@ -16,9 +17,10 @@
 	}
 
 	let selection = [];
+	let isSubmitting = false;
 
 	function cardClicked(e) {
-		if (selection.length >= 3) {
+		if (isSubmitting || selection.length >= NUM_CARDS_FOR_PLAY) {
 			return;
 		}
 		const card = e.detail.card;
@@ -26,17 +28,21 @@
 			selection = selection.filter(card => !areCardsEqual(card, e.detail.card));
 		} else {
 			selection = [...selection, card];
-			if (selection.length == 3) {
+			if (selection.length == NUM_CARDS_FOR_PLAY) {
+				isSubmitting = true;
 				socket.emit("play", selection);
 				// submit to server for check and broadcast
 				// console.log(isValidPlay(selection));
-				setTimeout(() => (selection = []), 200); // after check
+				setTimeout(() => {
+					selection = [];
+					isSubmitting = false;
+				}, 200); // after check
 			}
 		}
 	}
 
 	function handleKeydown(e) {
-		if (e.code == "Backspace") {
+		if (["Backspace", "Escape", "Delete"].includes(e.code)) {
 			selection = [];
 		}
 	}
