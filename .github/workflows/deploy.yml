@@ -1,5 +1,5 @@
 # Based on https://dev.to/heroku/deploying-to-heroku-from-github-actions-29ej
-name: Deploy to Heroku and GitHub Pages
+name: Deploy
 
 on:
   push:
