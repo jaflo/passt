@@ -48,7 +48,7 @@ export function isValidPlay(cards) {
 		// written this way for easier understanding
 		if (a[property] === b[property] && b[property] === c[property]) {
 			// a = b = c, we good
-		} else if (a[property] !== b[property] && b[property] !== c[property]) {
+		} else if (a[property] !== b[property] && b[property] !== c[property] && a[property] !== c[property]) {
 			// a != b != c, we good
 		} else {
 			isValid = false;
@@ -56,4 +56,12 @@ export function isValidPlay(cards) {
 		}
 	});
 	return isValid;
+}
+
+export function cardAsString(card) {
+	let result = "";
+	Object.keys(cardStructure).forEach(property => {
+		result += card[property];
+	});
+	return result;
 }

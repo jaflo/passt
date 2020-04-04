@@ -21,6 +21,12 @@
 			}
 		});
 	}
+
+	function handleKeydown(e) {
+		if (e.code == "Key" + letter) {
+			click();
+		}
+	}
 </script>
 
 <style>
@@ -72,6 +78,8 @@
 		}
 	}
 </style>
+
+<svelte:window on:keydown={handleKeydown} />
 
 <div class="card" title={humanReadable} on:click={click}>
 	<CardSymbol {shape} {fillStyle} {color} {number} />

@@ -6,7 +6,6 @@
 	let roomCode = new URLSearchParams(window.location.search).get("room") || "";
 
 	socket.on("roomCreated", function(data) {
-		roomCode = data.roomCode;
 		const queryParams = new URLSearchParams();
 		queryParams.set("room", data.roomCode);
 		window.location.search = "?" + queryParams.toString();
