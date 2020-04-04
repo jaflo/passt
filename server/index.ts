@@ -21,6 +21,7 @@ enum SocketEvent {
   PLAY = 'play',
   MOVE_PLAYED = 'movePlayed',
   PLAYER_DISCONNECTED = 'playerDisconnected',
+  ERROR = 'error',
 }
 
 io.on('connection', socket => {
@@ -30,7 +31,7 @@ io.on('connection', socket => {
       const room = await roomController.createRoom(open);
       socket.emit(SocketEvent.ROOM_CREATED, room);
     } catch (err) {
-      socket.emit('error', err.toString());
+      socket.emit(SocketEvent.ERROR, err.toString());
     }
   });
   socket.on(
@@ -52,7 +53,7 @@ io.on('connection', socket => {
         socket.broadcast.to(room.roomCode).emit(SocketEvent.NEW_PLAYER, player);
         socket.emit(SocketEvent.JOINED_SUCCESSFULLY, room);
       } catch (err) {
-        socket.emit('error', err.toString());
+        socket.emit(SocketEvent.ERROR, err.toString());
       }
     }
   );
@@ -65,7 +66,7 @@ io.on('connection', socket => {
         players: room.players,
       });
     } catch (err) {
-      socket.emit('error', err.toString());
+      socket.emit(SocketEvent.ERROR, err.toString());
     }
   });
 
@@ -85,7 +86,7 @@ io.on('connection', socket => {
         board,
       });
     } catch (err) {
-      socket.emit('eror', err.toString());
+      socket.emit(SocketEvent.ERROR, err.toString());
     }
   });
 
@@ -100,7 +101,7 @@ io.on('connection', socket => {
         socket.id
       );
     } catch (err) {
-      socket.emit('err', err.toString());
+      socket.emit('error', err.toString());
     }
   });
 });
