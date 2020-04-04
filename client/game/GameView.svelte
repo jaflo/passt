@@ -59,6 +59,9 @@
 		display: flex;
 		min-height: 100vh;
 		flex-direction: column;
+	}
+
+	.game.joined {
 		margin-top: 3em;
 	}
 
@@ -82,8 +85,8 @@
 
 	.sidebar {
 		padding: 1em;
-		background: #225560;
-		color: #eff0d1;
+		background: var(--saturatedColor);
+		color: var(--bgColor);
 		flex: 1;
 		box-sizing: border-box;
 	}
@@ -116,7 +119,7 @@
 	}
 </style>
 
-<div class="game">
+<div class="game" class:joined={hasJoined}>
 	{#if !hasJoined}
 		<JoinPrompt {roomCode} />
 	{:else}
