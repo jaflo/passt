@@ -1,6 +1,6 @@
-import { Room, allCards, Card, cardsAreEqual } from '../entity/room.entity';
+import { Room, allCards, Card, cardsAreEqual } from '../entity/room';
 import shortid from 'shortid';
-import { Player } from '../entity/player.entity';
+import { Player } from '../entity/player';
 import { getConnection } from 'typeorm';
 import { shuffle, isASet } from '../shared';
 export class RoomController {
@@ -33,8 +33,7 @@ export class RoomController {
     player.room = room;
     await player.save();
 
-    room.players.push(player);
-    await room.save();
+    await room.reload();
     return { room, player };
   }
 
@@ -170,7 +169,7 @@ export class RoomController {
     player.points += 1;
 
     // Update database records
-    await Promise.all([room.save(), player.save()]);
+    await Promise.all([room.reload(), player.reload()]);
 
     return {
       name: player.name,

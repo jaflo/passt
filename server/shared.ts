@@ -1,4 +1,4 @@
-import { Card } from './entity/room.entity';
+import { Card } from './entity/room';
 
 export function shuffle<T>(array: T[]): T[] {
   let currentIndex = array.length,

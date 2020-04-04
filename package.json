@@ -5,7 +5,7 @@
       "build:client": "rollup -c",
       "dev:client": "rollup -c -w",
       "start:client": "sirv public",
-      "start:server": "node build/server/index.js",
+      "start:server": "npm run compile && node build/server/index.js",
       "test": "mocha",
       "check": "gts check",
       "clean": "gts clean",

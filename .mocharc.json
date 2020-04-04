@@ -1,8 +1,7 @@
 {
     "extension": [
-        "ts"
+        "js"
     ],
-    "spec": "test/**/*.test.ts",
-    "timeout": 10000,
-    "require": "ts-node/register"
+    "spec": "build/test/**/*.test.js",
+    "timeout": 10000
 }
