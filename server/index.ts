@@ -75,14 +75,14 @@ io.on('connection', socket => {
 	socket.on(SocketEvent.PLAY, async ({ cards }: { cards: Card[] }) => {
 		try {
 			const {
-				name,
+				player,
 				cards: playedCards,
 				updated,
 				board,
 				roomCode,
 			} = await roomController.playMove(socket.id, cards);
 			io.to(roomCode).emit(SocketEvent.MOVE_PLAYED, {
-				name,
+				player,
 				cards: playedCards,
 				updated,
 				board,

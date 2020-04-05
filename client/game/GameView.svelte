@@ -7,6 +7,7 @@
 	import JoinPrompt from './JoinPrompt.svelte';
 	import PauseScreen from './PauseScreen.svelte';
 	import { socket } from '../connectivity.js';
+	import { cardAsString, inPlaceReplace } from './shared.js';
 
 	const MAX_TICKER_COUNT = 10; // limit to prevent too much memory used
 
@@ -17,14 +18,18 @@
 	let hasJoined = false;
 
 	function loadRoom(data) {
-		cards = data.board.map(card => {
-			return {
-				shape: card.shape,
-				fillStyle: card.fillStyle,
-				color: card.color,
-				number: card.number,
-			};
-		});
+		cards = inPlaceReplace(
+			cards,
+			data.board.map(card => {
+				return {
+					shape: card.shape,
+					fillStyle: card.fillStyle,
+					color: card.color,
+					number: card.number,
+					id: cardAsString(card),
+				};
+			})
+		);
 		players = data.players || players;
 		started = data.started || started;
 	}
@@ -44,12 +49,19 @@
 		plays = [
 			{
 				cards: data.cards,
-				player: data.name,
+				player: data.player.name,
 				valid: data.updated,
 				id: Math.random(),
 			},
 			...plays.slice(0, MAX_TICKER_COUNT),
 		];
+		players = players.map(player => {
+			if (player.connectionId == data.player.connectionId) {
+				return data.player;
+			} else {
+				return player;
+			}
+		});
 	});
 </script>
 
