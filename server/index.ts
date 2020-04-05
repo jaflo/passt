@@ -44,10 +44,7 @@ io.on('connection', socket => {
 			playerName: string;
 		}) => {
 			try {
-				const {
-					room,
-					player,
-				} = await roomController.joinRoom(
+				const { room, player } = await roomController.joinRoom(
 					roomCode,
 					socket.id,
 					playerName
