@@ -1,25 +1,34 @@
 <script>
 	export let roomCode;
 
-	import { fade } from "svelte/transition";
-	import { socket } from "../connectivity.js";
-	import { uniqueNamesGenerator, adjectives, colors, animals } from "unique-names-generator";
+	import { fade } from 'svelte/transition';
+	import { socket } from '../connectivity.js';
+	import {
+		uniqueNamesGenerator,
+		adjectives,
+		colors,
+		animals,
+	} from 'unique-names-generator';
 
 	const defaultName =
-		localStorage.getItem("name") ||
-		uniqueNamesGenerator({ dictionaries: [colors, animals], separator: " ", length: 2 });
+		localStorage.getItem('name') ||
+		uniqueNamesGenerator({
+			dictionaries: [colors, animals],
+			separator: ' ',
+			length: 2,
+		});
 	let joining = false;
 	let playerName = defaultName;
 
 	function joinRoom() {
 		if (playerName) {
-			localStorage.setItem("name", playerName);
+			localStorage.setItem('name', playerName);
 		} else {
-			localStorage.removeItem("name");
+			localStorage.removeItem('name');
 		}
-		socket.emit("joinRoom", {
+		socket.emit('joinRoom', {
 			roomCode: roomCode,
-			playerName: playerName || defaultName
+			playerName: playerName || defaultName,
 		});
 		joining = true;
 	}
@@ -64,7 +73,11 @@
 	{:else}
 		<form on:submit|preventDefault|once={joinRoom}>
 			<!-- svelte-ignore a11y-autofocus -->
-			<input type="text" bind:value={playerName} placeholder="???" autofocus />
+			<input
+				type="text"
+				bind:value={playerName}
+				placeholder="???"
+				autofocus />
 			<button type="submit" class="large">&rarr;</button>
 		</form>
 	{/if}

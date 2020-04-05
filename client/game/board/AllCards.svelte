@@ -1,5 +1,5 @@
 <script>
-	import Card from "./Card.svelte";
+	import Card from './Card.svelte';
 </script>
 
 {#each ['square', 'circle', 'triangle'] as shape}

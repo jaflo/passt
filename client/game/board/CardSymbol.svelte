@@ -1,7 +1,7 @@
 <script>
 	export let shape, fillStyle, color, number;
 
-	import CardShape from "./CardShape.svelte";
+	import CardShape from './CardShape.svelte';
 
 	const countToSize = [50, 30, 30];
 </script>
@@ -35,7 +35,12 @@
 <div class="count-{number}">
 	{#each Array(number) as _}
 		<div class="shape">
-			<CardShape {shape} {fillStyle} {color} {number} size={countToSize[number - 1]} />
+			<CardShape
+				{shape}
+				{fillStyle}
+				{color}
+				{number}
+				size={countToSize[number - 1]} />
 		</div>
 	{/each}
 </div>

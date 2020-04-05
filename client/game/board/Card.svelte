@@ -1,29 +1,37 @@
 <script>
 	export let shape, fillStyle, color, number;
-	export let letter = "";
+	export let letter = '';
 	export let selected = false;
 
-	import CardSymbol from "./CardSymbol.svelte";
-	import { createEventDispatcher } from "svelte";
-	import { fade } from "svelte/transition";
-	import { arrayContainsCard } from "../shared.js";
+	import CardSymbol from './CardSymbol.svelte';
+	import { createEventDispatcher } from 'svelte';
+	import { fade } from 'svelte/transition';
+	import { arrayContainsCard } from '../shared.js';
 
 	const dispatch = createEventDispatcher();
-	let humanReadable = number + " " + color + " " + fillStyle + " " + shape + (number == 1 ? "" : "s");
+	let humanReadable =
+		number +
+		' ' +
+		color +
+		' ' +
+		fillStyle +
+		' ' +
+		shape +
+		(number == 1 ? '' : 's');
 
 	function click() {
-		dispatch("click", {
+		dispatch('click', {
 			card: {
 				shape,
 				fillStyle,
 				color,
-				number
-			}
+				number,
+			},
 		});
 	}
 
 	function handleKeydown(e) {
-		if (e.code == "Key" + letter) {
+		if (e.code == 'Key' + letter) {
 			click();
 		}
 	}

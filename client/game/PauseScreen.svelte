@@ -1,8 +1,8 @@
 <script>
-	import { socket } from "../connectivity.js";
+	import { socket } from '../connectivity.js';
 
 	function startGame() {
-		socket.emit("startRoom");
+		socket.emit('startRoom');
 	}
 </script>
 
@@ -15,7 +15,7 @@
 	}
 
 	.play:after {
-		content: "";
+		content: '';
 		display: block;
 		width: 0;
 		height: 0;
