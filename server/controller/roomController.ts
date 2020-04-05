@@ -102,7 +102,7 @@ export class RoomController {
 		cards: Card[],
 		numToDraw = RoomController.NUM_TO_DRAW
 	): Promise<{
-		name: string;
+		player: Player;
 		cards: Card[];
 		updated: boolean;
 		board: Card[];
@@ -144,7 +144,7 @@ export class RoomController {
 		}
 		if (!isASet(...matchingCards)) {
 			return {
-				name: player.name,
+				player,
 				cards: matchingCards,
 				updated: false,
 				board: room.board,
@@ -168,10 +168,11 @@ export class RoomController {
 		player.points += 1;
 
 		// Update database records
+		await Promise.all([room.save(), player.save()]);
 		await Promise.all([room.reload(), player.reload()]);
 
 		return {
-			name: player.name,
+			player,
 			cards: matchingCards,
 			board: room.board,
 			updated: true,

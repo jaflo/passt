@@ -69,3 +69,33 @@ export function cardAsString(card) {
 	});
 	return result;
 }
+
+export function inPlaceReplace(before, after) {
+	let final = [];
+	before.forEach((card) => {
+		// is the card still there?
+		let index = -1;
+		after.forEach((current, i) => {
+			if (areCardsEqual(current, card)) {
+				index = i;
+				return;
+			}
+		});
+		if (index > -1) {
+			// keep the card
+			final.push(card);
+			// we used it, so remove from after
+			after.splice(index, 1);
+		} else {
+			// put in a placeholder to replace later
+			final.push(null);
+		}
+	});
+	// replace all placeholders with new elements
+	final = final.map((card) => card || after.pop());
+	// remove any placeholders that weren't filled
+	final = final.filter((card) => !!card);
+	// add any remaining elements
+	final = [...final, ...after];
+	return final;
+}

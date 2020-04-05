@@ -2,6 +2,9 @@
 	export let cards = [];
 
 	import Card from './Card.svelte';
+	import { cubicIn, cubicOut } from 'svelte/easing';
+	import { scale, fly } from 'svelte/transition';
+	import { flip } from 'svelte/animate';
 	import { socket } from '../../connectivity.js';
 	import { areCardsEqual, arrayContainsCard } from '../shared.js';
 
@@ -96,13 +99,18 @@
 
 <svelte:window on:keydown={handleKeydown} />
 <div class="center-wide board">
-	{#each cards as card, i}
-		<div class="card-wrapper">
-			<Card
-				{...card}
-				selected={arrayContainsCard(selection, card)}
-				on:click={cardClicked}
-				letter={getKey(i)} />
+	{#each cards as card, i (card.id)}
+		<div animate:flip={{ duration: 200 }}>
+			<div
+				class="card-wrapper"
+				in:fly={{ y: 30, opacity: 0, duration: 300, easing: cubicOut }}
+				out:fly={{ y: -30, opacity: 0, duration: 300, easing: cubicOut }}>
+				<Card
+					{...card}
+					selected={arrayContainsCard(selection, card)}
+					on:click={cardClicked}
+					letter={getKey(i)} />
+			</div>
 		</div>
 	{/each}
 </div>
