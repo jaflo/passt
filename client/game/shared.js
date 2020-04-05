@@ -93,6 +93,8 @@ export function inPlaceReplace(before, after) {
 	});
 	// replace all placeholders with new elements
 	final = final.map((card) => card || after.pop());
+	// remove any placeholders that weren't filled
+	final = final.filter((card) => !!card);
 	// add any remaining elements
 	final = [...final, ...after];
 	return final;
