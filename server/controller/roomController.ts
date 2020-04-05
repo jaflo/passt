@@ -1,8 +1,11 @@
 import { Room, allCards, Card, cardsAreEqual } from '../entity/room';
-import shortid from 'shortid';
 import { Player } from '../entity/player';
-import { getConnection } from 'typeorm';
+import { customAlphabet } from 'nanoid';
 import { shuffle, isASet } from '../shared';
+
+const ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
+const nanoid = customAlphabet(ALPHABET, 6);
+
 export class RoomController {
 	static INITIAL_BOARD_SIZE = 12;
 	static NUM_TO_DRAW = 3;
@@ -11,7 +14,7 @@ export class RoomController {
 	 */
 	async createRoom(open: boolean, roomCode?: string) {
 		if (!roomCode) {
-			roomCode = shortid.generate();
+			roomCode = nanoid();
 		}
 		const newRoom = new Room();
 		newRoom.open = open;
