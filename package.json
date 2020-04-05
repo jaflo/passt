@@ -4,6 +4,7 @@
    "scripts": {
       "build:client": "rollup -c",
       "dev:client": "rollup -c -w",
+      "dev:server": "nodemon --watch server -e ts --exec 'npm run compile && node build/server/index.js'",
       "start:client": "sirv public",
       "start:server": "npm run compile && node build/server/index.js",
       "test": "mocha",
