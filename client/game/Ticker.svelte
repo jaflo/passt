@@ -1,10 +1,10 @@
 <script>
 	export let plays = [];
 
-	import CardSymbol from "./board/CardSymbol.svelte";
-	import { createEventDispatcher } from "svelte";
-	import { slide } from "svelte/transition";
-	import { flip } from "svelte/animate";
+	import CardSymbol from './board/CardSymbol.svelte';
+	import { createEventDispatcher } from 'svelte';
+	import { slide } from 'svelte/transition';
+	import { flip } from 'svelte/animate';
 </script>
 
 <style>
@@ -51,7 +51,10 @@
 
 <div class="ticker">
 	{#each plays as play (play.id)}
-		<div class="play" animate:flip={{ duration: 400 }} in:slide={{ delay: 300, duration: 300 }}>
+		<div
+			class="play"
+			animate:flip={{ duration: 400 }}
+			in:slide={{ delay: 300, duration: 300 }}>
 			{#each play.cards as card}
 				<div class="card">
 					<div class="symbol">

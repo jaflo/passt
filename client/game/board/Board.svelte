@@ -1,16 +1,22 @@
 <script>
 	export let cards = [];
 
-	import Card from "./Card.svelte";
-	import { socket } from "../../connectivity.js";
-	import { areCardsEqual, arrayContainsCard, isValidPlay } from "../shared.js";
+	import Card from './Card.svelte';
+	import { socket } from '../../connectivity.js';
+	import {
+		areCardsEqual,
+		arrayContainsCard,
+		isValidPlay,
+	} from '../shared.js';
 
-	const keyboardMap = ["qwertyu", "asdfghj", "zxcvbnm"].map(line => line.split(""));
+	const keyboardMap = ['qwertyu', 'asdfghj', 'zxcvbnm'].map(line =>
+		line.split('')
+	);
 	const NUM_CARDS_FOR_PLAY = 3;
 
 	function getKey(i) {
 		if (i >= keyboardMap.length * keyboardMap[0].length) {
-			return "";
+			return '';
 		} else {
 			return keyboardMap[i % 3][parseInt(i / 3)].toUpperCase();
 		}
@@ -25,12 +31,14 @@
 		}
 		const card = e.detail.card;
 		if (arrayContainsCard(selection, card)) {
-			selection = selection.filter(card => !areCardsEqual(card, e.detail.card));
+			selection = selection.filter(
+				card => !areCardsEqual(card, e.detail.card)
+			);
 		} else {
 			selection = [...selection, card];
 			if (selection.length == NUM_CARDS_FOR_PLAY) {
 				isSubmitting = true;
-				socket.emit("play", selection);
+				socket.emit('play', selection);
 				// submit to server for check and broadcast
 				// console.log(isValidPlay(selection));
 				setTimeout(() => {
@@ -42,7 +50,7 @@
 	}
 
 	function handleKeydown(e) {
-		if (["Backspace", "Escape", "Delete"].includes(e.code)) {
+		if (['Backspace', 'Escape', 'Delete'].includes(e.code)) {
 			selection = [];
 		}
 	}
@@ -85,7 +93,11 @@
 <div class="center-wide board">
 	{#each cards as card, i}
 		<div class="card-wrapper">
-			<Card {...card} selected={arrayContainsCard(selection, card)} on:click={cardClicked} letter={getKey(i)} />
+			<Card
+				{...card}
+				selected={arrayContainsCard(selection, card)}
+				on:click={cardClicked}
+				letter={getKey(i)} />
 		</div>
 	{/each}
 </div>

@@ -1,11 +1,11 @@
 <script>
-	import { fade } from "svelte/transition";
-	import { socket } from "../connectivity.js";
+	import { fade } from 'svelte/transition';
+	import { socket } from '../connectivity.js';
 
 	let waiting = socket.connected;
 
 	function createRoom() {
-		socket.emit("createRoom", { open: false });
+		socket.emit('createRoom', { open: false });
 		waiting = true;
 	}
 
@@ -24,7 +24,7 @@
 
 	button:before,
 	button:after {
-		content: "";
+		content: '';
 		display: block;
 		position: absolute;
 		top: 0;

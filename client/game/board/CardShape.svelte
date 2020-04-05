@@ -2,24 +2,24 @@
 	export let shape, fillStyle, color, number;
 	export let size = 70;
 
-	const randomPatternId = "pattern" + Math.random();
+	const randomPatternId = 'pattern' + Math.random();
 
 	let remappedColor = {
-		red: "#E4572E",
-		blue: "#17BEBB",
-		green: "#F0A202"
+		red: '#E4572E',
+		blue: '#17BEBB',
+		green: '#F0A202',
 	}[color];
 
 	let remappedStyle = {
 		fill: {
-			empty: "none",
+			empty: 'none',
 			filled: remappedColor,
-			lined: "url(#" + randomPatternId + ")"
+			lined: 'url(#' + randomPatternId + ')',
 		}[fillStyle],
 		stroke: remappedColor,
-		"stroke-width": 3,
-		"stroke-linecap": "round",
-		"vector-effect": "non-scaling-stroke"
+		'stroke-width': 3,
+		'stroke-linecap': 'round',
+		'vector-effect': 'non-scaling-stroke',
 	};
 
 	let scale = 2 * (70 / size);
@@ -31,9 +31,23 @@
 	}
 </style>
 
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 70 70" width={size} height={size} class={shape}>
-	<pattern id={randomPatternId} patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="scale({scale})">
-		<path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" stroke={remappedColor} stroke-width="1" />
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	version="1.1"
+	viewBox="0 0 70 70"
+	width={size}
+	height={size}
+	class={shape}>
+	<pattern
+		id={randomPatternId}
+		patternUnits="userSpaceOnUse"
+		width="4"
+		height="4"
+		patternTransform="scale({scale})">
+		<path
+			d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2"
+			stroke={remappedColor}
+			stroke-width="1" />
 	</pattern>
 
 	{#if shape == 'square'}

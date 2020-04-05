@@ -1,13 +1,13 @@
 <script>
 	export let roomCode;
 
-	import Board from "./board/Board.svelte";
-	import PlayerList from "./PlayerList.svelte";
-	import Ticker from "./Ticker.svelte";
-	import JoinPrompt from "./JoinPrompt.svelte";
-	import PauseScreen from "./PauseScreen.svelte";
-	import { socket } from "../connectivity.js";
-	import { randomCard, isValidPlay } from "./shared.js";
+	import Board from './board/Board.svelte';
+	import PlayerList from './PlayerList.svelte';
+	import Ticker from './Ticker.svelte';
+	import JoinPrompt from './JoinPrompt.svelte';
+	import PauseScreen from './PauseScreen.svelte';
+	import { socket } from '../connectivity.js';
+	import { randomCard, isValidPlay } from './shared.js';
 
 	const MAX_TICKER_COUNT = 10; // limit to prevent too much memory used
 
@@ -23,19 +23,19 @@
 				shape: card.shape,
 				fillStyle: card.fillStyle,
 				color: card.color,
-				number: card.number
+				number: card.number,
 			};
 		});
 		players = data.players;
 		started = data.started;
 	}
 
-	socket.on("roomStarted", function(data) {
+	socket.on('roomStarted', function(data) {
 		started = true;
 		loadRoom(data);
 	});
 
-	socket.on("joinedSuccessfully", function(data) {
+	socket.on('joinedSuccessfully', function(data) {
 		hasJoined = true;
 		loadRoom(data);
 	});
@@ -45,11 +45,11 @@
 		plays = [
 			{
 				cards: cards,
-				player: "test",
+				player: 'test',
 				valid: isValidPlay(cards),
-				id: Math.random()
+				id: Math.random(),
 			},
-			...plays.slice(0, MAX_TICKER_COUNT)
+			...plays.slice(0, MAX_TICKER_COUNT),
 		];
 	}, 2000);
 </script>
