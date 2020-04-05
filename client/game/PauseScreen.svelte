@@ -4,20 +4,32 @@
 	function startGame() {
 		socket.emit('startRoom');
 	}
+
+	function handleKeydown(e) {
+		if (e.code == 'Space') {
+			startGame();
+		}
+	}
 </script>
 
 <style>
+	.play-wrapper {
+		cursor: pointer;
+		padding: 3em 0;
+		height: 100%;
+	}
+
+	@media only screen and (min-width: 800px) {
+		.play-wrapper {
+			padding: 0;
+		}
+	}
+
 	.play {
 		display: block;
 		border: 0;
 		background: none;
-		margin: 3em auto;
-	}
-
-	@media only screen and (min-width: 800px) {
-		.play {
-			margin: 0 auto;
-		}
+		margin: auto;
 	}
 
 	.play:after {
@@ -31,4 +43,8 @@
 	}
 </style>
 
-<button on:click={startGame} class="center-wide play" />
+<svelte:window on:keydown={handleKeydown} />
+
+<div class="play-wrapper" on:click={startGame}>
+	<button class="center-wide play" />
+</div>
