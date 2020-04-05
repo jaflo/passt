@@ -162,15 +162,9 @@ export class RoomController {
 		});
 
 		// Step 2: Draw cards
-		const { availableCards } = room;
-		numToDraw = Math.min(numToDraw, availableCards.length);
-		const drawnCards = availableCards.splice(0, numToDraw);
+		room.placeCardsOnBoard(numToDraw);
 
-		// Step 3: Put the drawn cards on the board.
-		room.board.push(...drawnCards);
-		room.availableCards = availableCards;
-
-		// Step 4: Update the player's points.
+		// Step 3: Update the player's points.
 		player.points += 1;
 
 		// Update database records

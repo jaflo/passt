@@ -86,4 +86,17 @@ export class Room extends BaseEntity {
 		nullable: false,
 	})
 	lastActive!: Date;
+
+	/**
+	 * Takes up to "numCardsToDraw" from "availableCards" and places them on "board". Does not save.
+	 * @param numCardsToDraw The number of cards to move from "availableCards" to "board"
+	 */
+	placeCardsOnBoard(numCardsToDraw: number): void {
+		const { availableCards } = this;
+		numCardsToDraw = Math.min(numCardsToDraw, availableCards.length);
+		const drawnCards = availableCards.splice(0, numCardsToDraw);
+
+		this.board.push(...drawnCards);
+		this.availableCards = availableCards;
+	}
 }
