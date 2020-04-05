@@ -44,7 +44,10 @@ io.on('connection', socket => {
 			playerName: string;
 		}) => {
 			try {
-				const { room, player } = await roomController.joinRoom(
+				const {
+					room,
+					player,
+				} = await roomController.joinRoom(
 					roomCode,
 					socket.id,
 					playerName
@@ -52,7 +55,11 @@ io.on('connection', socket => {
 				socket.join(room.roomCode);
 				socket.broadcast
 					.to(room.roomCode)
-					.emit(SocketEvent.NEW_PLAYER, player);
+					.emit(SocketEvent.NEW_PLAYER, {
+						connectionId: player.connectionId,
+						name: player.name,
+						points: player.points,
+					});
 				socket.emit(SocketEvent.JOINED_SUCCESSFULLY, room);
 			} catch (err) {
 				socket.emit(SocketEvent.EXCEPTION, err.toString());
@@ -72,7 +79,7 @@ io.on('connection', socket => {
 		}
 	});
 
-	socket.on(SocketEvent.PLAY, async ({ cards }: { cards: Card[] }) => {
+	socket.on(SocketEvent.PLAY, async (data: { cards: Card[] }) => {
 		try {
 			const {
 				name,
@@ -80,7 +87,7 @@ io.on('connection', socket => {
 				updated,
 				board,
 				roomCode,
-			} = await roomController.playMove(socket.id, cards);
+			} = await roomController.playMove(socket.id, data.cards);
 			io.to(roomCode).emit(SocketEvent.MOVE_PLAYED, {
 				name,
 				cards: playedCards,
