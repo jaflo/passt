@@ -2,8 +2,9 @@
 
 WIP, check back later
 
+## Client
+
 ```bash
-cd passt
 npm install
 npm run dev:client
 ```
@@ -26,3 +27,12 @@ docker-compose run web npm test # If the server isn't running already
 
 docker-compose exec web npm test # If the server IS running elsewhere.
 ```
+
+### Local Development
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+docker-compose down # after you're done
+```
+
+Make changes to the TypeScript files and wait for the server to come back up ("Listening on port 3000") after compilation.
