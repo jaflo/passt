@@ -1,10 +1,23 @@
 import { Room, allCards, Card, cardsAreEqual } from '../entity/room';
 import { Player } from '../entity/player';
 import { customAlphabet } from 'nanoid';
-import { shuffle, isASet } from '../shared';
+import { shuffle, isASet, findSetIn } from '../shared';
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
 const nanoid = customAlphabet(ALPHABET, 6);
+
+interface MovePlayed {
+	player: Player;
+	cards: Card[];
+	updated: boolean;
+	board: Card[];
+	roomCode: string;
+}
+
+interface GameOver {
+	isOver: boolean;
+	players?: Player[];
+}
 
 export class RoomController {
 	static INITIAL_BOARD_SIZE = 12;
@@ -69,10 +82,14 @@ export class RoomController {
 	 * Starts the room for a given player.
 	 * @param connectionId The connectionId of the {@link Player}
 	 * @param initialBoardSize The initial size of the board (by default, {@see RoomController.INITIAL_BOARD_SIZE})
+	 * @param initialBoard The initial board state (overrides default generation behavior)
+	 * @param initialAvailbleCards The initial availableCards state (overrides default generation behavior)
 	 */
 	async startRoom(
 		connectionId: string,
-		initialBoardSize = RoomController.INITIAL_BOARD_SIZE
+		initialBoardSize = RoomController.INITIAL_BOARD_SIZE,
+		initialBoard?: Card[],
+		initialAvailbleCards?: Card[]
 	) {
 		const player = await Player.findOneOrFail(
 			{ connectionId },
@@ -81,11 +98,18 @@ export class RoomController {
 		const { room } = player;
 
 		const cards = shuffle(allCards());
-		const initialBoard = cards.splice(0, initialBoardSize);
-		const availableCards = cards;
 
-		room.board = initialBoard;
-		room.availableCards = availableCards;
+		if (initialBoard) {
+			room.board = initialBoard;
+		} else {
+			room.board = cards.slice(0, initialBoardSize);
+		}
+
+		if (initialAvailbleCards) {
+			room.availableCards = initialAvailbleCards;
+		} else {
+			room.availableCards = cards.slice(initialBoardSize);
+		}
 		room.started = true;
 
 		return room.save();
@@ -107,19 +131,18 @@ export class RoomController {
 		updated: boolean;
 		board: Card[];
 		roomCode: string;
+		isOver: boolean;
+		players?: Player[];
 	}> {
 		if (cards.length !== numToDraw) {
 			throw new Error(
 				`Expected ${numToDraw} cards to be played, got ${cards.length} cards.`
 			);
 		}
-		// Get the Player and Room
 		const player = await Player.findOneOrFail(
 			{ connectionId },
 			{ relations: ['room'] }
 		);
-
-		// Get the Room
 		const room = await Room.findOneOrFail({
 			roomCode: player.room.roomCode,
 		});
@@ -131,51 +154,54 @@ export class RoomController {
 		}
 
 		// Find the matching cards on the board (or error if they don't exist).
-		const matchingCards = room.board.filter(c => {
-			for (const card of cards) {
-				if (cardsAreEqual(c, card)) return true;
-			}
-			return false;
-		});
-		if (matchingCards.length !== cards.length) {
-			throw new Error(
-				`Not all of the provided cards for Room ${room.roomCode} were found on the board.`
-			);
-		}
-		if (!isASet(...matchingCards)) {
+		if (!room.cardsAreAllOnBoard(cards) || !isASet(...cards)) {
 			return {
 				player,
-				cards: matchingCards,
+				cards,
 				updated: false,
 				board: room.board,
+				isOver: false,
 				roomCode: room.roomCode,
 			};
 		}
 
 		// It's a set, update board and points
-		// Step 1: Remove the played cards from the board.
-		room.board = room.board.filter(c => {
-			for (const card of cards) {
-				if (cardsAreEqual(c, card)) return false;
-			}
-			return true;
-		});
+		player.points += 1;
+		await player.save();
 
-		// Step 2: Draw cards
+		room.removeCardsFromBoard(cards);
+
+		// If no moves can be played, the game is over.
+		if (room.cantPlayAnotherMove()) {
+			await room.save();
+			return {
+				player,
+				cards,
+				updated: true,
+				board: room.board,
+				roomCode: room.roomCode,
+				isOver: true,
+				players: room.players,
+			};
+		}
+
+		// Replace as many of the cards drawn as possible
 		room.placeCardsOnBoard(numToDraw);
 
-		// Step 3: Update the player's points.
-		player.points += 1;
+		// If a set isn't on the board, draw numToDraw more cards until one exists. (Shouldn't exceed 20).
+		while (!findSetIn(...room.board)) {
+			room.placeCardsOnBoard(numToDraw);
+		}
 
 		// Update database records
-		await Promise.all([room.save(), player.save()]);
-		await Promise.all([room.reload(), player.reload()]);
+		await room.save();
 
 		return {
 			player,
-			cards: matchingCards,
+			cards,
 			board: room.board,
 			updated: true,
+			isOver: false,
 			roomCode: room.roomCode,
 		};
 	}

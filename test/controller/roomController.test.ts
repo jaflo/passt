@@ -204,5 +204,86 @@ describe('RoomController', () => {
 				roomController.playMove(MOCK_CONNECTION_ID, fakeSet.slice(0, 2))
 			);
 		});
+
+		it('should indicate that the game is over', async () => {
+			const initialBoard: Card[] = [
+				{
+					color: Color.RED,
+					shape: Shape.CIRCLE,
+					fillStyle: FillStyle.EMPTY,
+					number: 1,
+				},
+				{
+					color: Color.BLUE,
+					shape: Shape.SQUARE,
+					fillStyle: FillStyle.FILLED,
+					number: 2,
+				},
+				{
+					color: Color.GREEN,
+					shape: Shape.TRIANGLE,
+					fillStyle: FillStyle.LINED,
+					number: 3,
+				},
+			];
+			const initialAvailableCards = [];
+			await setUpARoom(false, [MOCK_CONNECTION_ID], [MOCK_PLAYER_NAME]);
+			await roomController.startRoom(
+				MOCK_CONNECTION_ID,
+				3,
+				initialBoard,
+				initialAvailableCards
+			);
+
+			const result = await roomController.playMove(
+				MOCK_CONNECTION_ID,
+				initialBoard
+			);
+
+			assert.strictEqual(result.isOver, true);
+		});
+
+		it('should provide the final player scores if the game is over', async () => {
+			const initialBoard: Card[] = [
+				{
+					color: Color.RED,
+					shape: Shape.CIRCLE,
+					fillStyle: FillStyle.EMPTY,
+					number: 1,
+				},
+				{
+					color: Color.BLUE,
+					shape: Shape.SQUARE,
+					fillStyle: FillStyle.FILLED,
+					number: 2,
+				},
+				{
+					color: Color.GREEN,
+					shape: Shape.TRIANGLE,
+					fillStyle: FillStyle.LINED,
+					number: 3,
+				},
+			];
+			const initialAvailableCards = [];
+			await setUpARoom(false, [MOCK_CONNECTION_ID], [MOCK_PLAYER_NAME]);
+			await roomController.startRoom(
+				MOCK_CONNECTION_ID,
+				3,
+				initialBoard,
+				initialAvailableCards
+			);
+
+			const result = await roomController.playMove(
+				MOCK_CONNECTION_ID,
+				initialBoard
+			);
+
+			assert.strictEqual(result.players![0].points, 1);
+		});
+	});
+
+	afterEach(async () => {
+		await Player.delete({});
+		await Room.delete({});
 	});
 });

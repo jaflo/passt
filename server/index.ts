@@ -20,6 +20,7 @@ enum SocketEvent {
 	ROOM_STARTED = 'roomStarted',
 	PLAY = 'play',
 	MOVE_PLAYED = 'movePlayed',
+	GAME_OVER = 'gameOver',
 	PLAYER_DISCONNECTED = 'playerDisconnected',
 	EXCEPTION = 'exception',
 }
@@ -84,7 +85,12 @@ io.on('connection', socket => {
 				updated,
 				board,
 				roomCode,
+				isOver,
+				players
 			} = await roomController.playMove(socket.id, data.cards);
+			if (isOver) {
+				io.to(roomCode).emit(SocketEvent.GAME_OVER, {player, cards: playedCards, updated, board, players});
+			}
 			io.to(roomCode).emit(SocketEvent.MOVE_PLAYED, {
 				player,
 				cards: playedCards,
