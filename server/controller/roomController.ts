@@ -102,7 +102,7 @@ export class RoomController {
 		cards: Card[],
 		numToDraw = RoomController.NUM_TO_DRAW
 	): Promise<{
-		player: Player,
+		player: Player;
 		cards: Card[];
 		updated: boolean;
 		board: Card[];
@@ -144,7 +144,7 @@ export class RoomController {
 		}
 		if (!isASet(...matchingCards)) {
 			return {
-				player: player,
+				player,
 				cards: matchingCards,
 				updated: false,
 				board: room.board,
@@ -172,7 +172,7 @@ export class RoomController {
 		await Promise.all([room.reload(), player.reload()]);
 
 		return {
-			player: player,
+			player,
 			cards: matchingCards,
 			board: room.board,
 			updated: true,
