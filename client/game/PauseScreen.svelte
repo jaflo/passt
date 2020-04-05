@@ -11,7 +11,13 @@
 		display: block;
 		border: 0;
 		background: none;
-		margin: 1em auto;
+		margin: 3em auto;
+	}
+
+	@media only screen and (min-width: 800px) {
+		.play {
+			margin: 0 auto;
+		}
 	}
 
 	.play:after {

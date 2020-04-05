@@ -51,7 +51,7 @@
 	}
 
 	input {
-		font-size: 10vmin;
+		font-size: 4em;
 		text-align: center;
 		background: none;
 		border: 0;
@@ -59,7 +59,7 @@
 	}
 
 	button {
-		font-size: 6vmin;
+		font-size: 2em;
 		color: var(--saturatedColor);
 		padding: 0.4em 1em;
 	}

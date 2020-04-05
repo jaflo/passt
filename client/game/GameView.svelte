@@ -7,7 +7,6 @@
 	import JoinPrompt from './JoinPrompt.svelte';
 	import PauseScreen from './PauseScreen.svelte';
 	import { socket } from '../connectivity.js';
-	import { randomCard, isValidPlay } from './shared.js';
 
 	const MAX_TICKER_COUNT = 10; // limit to prevent too much memory used
 
@@ -26,32 +25,32 @@
 				number: card.number,
 			};
 		});
-		players = data.players;
-		started = data.started;
+		players = data.players || players;
+		started = data.started || started;
 	}
 
 	socket.on('roomStarted', function(data) {
-		started = true;
 		loadRoom(data);
+		started = true;
 	});
 
 	socket.on('joinedSuccessfully', function(data) {
-		hasJoined = true;
 		loadRoom(data);
+		hasJoined = true;
 	});
 
-	setInterval(() => {
-		const cards = [randomCard(), randomCard(), randomCard()];
+	socket.on('movePlayed', function(data) {
+		loadRoom(data);
 		plays = [
 			{
-				cards: cards,
-				player: 'test',
-				valid: isValidPlay(cards),
+				cards: data.cards,
+				player: data.name,
+				valid: data.updated,
 				id: Math.random(),
 			},
 			...plays.slice(0, MAX_TICKER_COUNT),
 		];
-	}, 2000);
+	});
 </script>
 
 <style>
@@ -59,10 +58,6 @@
 		display: flex;
 		min-height: 100vh;
 		flex-direction: column;
-	}
-
-	.game.joined {
-		margin-top: 3em;
 	}
 
 	.ticker,
@@ -80,7 +75,7 @@
 	}
 
 	.main {
-		margin: 1em 0;
+		margin: 3em 0 1em 0;
 	}
 
 	.sidebar {
@@ -119,7 +114,7 @@
 	}
 </style>
 
-<div class="game" class:joined={hasJoined}>
+<div class="game">
 	{#if !hasJoined}
 		<JoinPrompt {roomCode} />
 	{:else}

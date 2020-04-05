@@ -67,6 +67,12 @@
 		text-align: center;
 	}
 
+	@media only screen and (max-width: 500px) {
+		.letter {
+			display: none;
+		}
+	}
+
 	.selection-border {
 		position: absolute;
 		top: 0;

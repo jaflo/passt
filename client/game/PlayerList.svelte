@@ -22,7 +22,7 @@
 <style>
 	.count {
 		font-weight: bold;
-		font-size: 2em;
+		font-size: 4em;
 		margin-bottom: 0.5em;
 	}
 
@@ -44,7 +44,7 @@
 
 <div class="count">{players.length}</div>
 
-{#each players as player}
+{#each players as player (player.connectionId)}
 	<div class="player">
 		<strong>{player.name}</strong>
 		<span>{player.points}</span>

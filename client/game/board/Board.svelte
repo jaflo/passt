@@ -3,11 +3,7 @@
 
 	import Card from './Card.svelte';
 	import { socket } from '../../connectivity.js';
-	import {
-		areCardsEqual,
-		arrayContainsCard,
-		isValidPlay,
-	} from '../shared.js';
+	import { areCardsEqual, arrayContainsCard } from '../shared.js';
 
 	const keyboardMap = ['qwertyu', 'asdfghj', 'zxcvbnm'].map(line =>
 		line.split('')
@@ -24,6 +20,16 @@
 
 	let selection = [];
 	let isSubmitting = false;
+	let selectionDeselectClearSteps = 2;
+
+	function attemptSelectionClear() {
+		selectionDeselectClearSteps--;
+		if (selectionDeselectClearSteps == 0) {
+			selection = [];
+			isSubmitting = false;
+			selectionDeselectClearSteps = 2;
+		}
+	}
 
 	function cardClicked(e) {
 		if (isSubmitting || selection.length >= NUM_CARDS_FOR_PLAY) {
@@ -38,16 +44,15 @@
 			selection = [...selection, card];
 			if (selection.length == NUM_CARDS_FOR_PLAY) {
 				isSubmitting = true;
-				socket.emit('play', selection);
-				// submit to server for check and broadcast
-				// console.log(isValidPlay(selection));
-				setTimeout(() => {
-					selection = [];
-					isSubmitting = false;
-				}, 200); // after check
+				socket.emit('play', {
+					cards: selection,
+				});
+				setTimeout(attemptSelectionClear, 300);
 			}
 		}
 	}
+
+	socket.on('movePlayed', attemptSelectionClear);
 
 	function handleKeydown(e) {
 		if (['Backspace', 'Escape', 'Delete'].includes(e.code)) {

@@ -16,10 +16,11 @@
 
 <style>
 	button {
-		font-size: 20vmin;
+		font-size: 8em;
 		width: 1em;
 		height: 1em;
 		text-indent: -9em;
+		overflow: hidden;
 	}
 
 	button:before,
