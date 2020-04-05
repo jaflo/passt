@@ -52,6 +52,14 @@ button:hover {
 	outline: none;
 }
 
+::placeholder {
+	color: rgba(0, 0, 0, 0.4);
+}
+
+.cover ::placeholder {
+	color: rgba(255, 255, 255, 0.4);
+}
+
 button {
 	outline: none;
 	cursor: pointer;
@@ -62,7 +70,7 @@ button.large {
 	background: var(--bgColor);
 	border-radius: 9em;
 	border: 0;
-	transition: 0.1s all ease-in-out;
+	transition: 0.2s transform ease-in-out, 0.1s box-shadow ease-in-out;
 }
 
 button.large:hover,
@@ -120,4 +128,5 @@ button.large.center:focus {
 	left: 0;
 	right: 0;
 	bottom: 0;
+	z-index: 5;
 }

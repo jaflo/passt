@@ -3,20 +3,19 @@
 
 	import CardSymbol from './board/CardSymbol.svelte';
 	import { createEventDispatcher } from 'svelte';
-	import { slide } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 </script>
 
 <style>
 	.ticker {
 		padding: 1em;
-		display: flex;
-		flex-wrap: nowrap;
 		opacity: 0.9;
+		white-space: nowrap;
 	}
 
 	.play {
-		display: flex;
+		display: inline-flex;
 		align-content: center;
 		align-items: center;
 	}
@@ -42,6 +41,7 @@
 	.player {
 		margin: 0 2em 0 0.5em;
 		opacity: 0.6;
+		white-space: nowrap;
 	}
 
 	.player.highlight {
@@ -54,7 +54,7 @@
 		<div
 			class="play"
 			animate:flip={{ duration: 400 }}
-			in:slide={{ delay: 300, duration: 300 }}>
+			in:fade={{ delay: 300, duration: 300 }}>
 			{#each play.cards as card}
 				<div class="card">
 					<div class="symbol">
