@@ -44,6 +44,10 @@
 		hasJoined = true;
 	});
 
+	socket.on('gameOver', function(data) {
+		started = false;
+	});
+
 	socket.on('movePlayed', function(data) {
 		loadRoom(data);
 		plays = [
@@ -62,6 +66,21 @@
 				return player;
 			}
 		});
+	});
+
+	socket.on('playerDisconnected', function(data) {
+		players = players.filter(player => player.connectionId != data);
+	});
+
+	socket.on('newPlayer', function(data) {
+		players = [
+			{
+				connectionId: data.connectionId,
+				name: data.name,
+				points: data.points,
+			},
+			...players,
+		];
 	});
 </script>
 
