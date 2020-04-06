@@ -6,7 +6,7 @@
 	}
 
 	function handleKeydown(e) {
-		if (e.code == 'Space') {
+		if (['Enter', 'Space'].includes(e.code)) {
 			startGame();
 		}
 	}

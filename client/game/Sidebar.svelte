@@ -1,6 +1,7 @@
 <script>
 	export let players = [];
 
+	import ConnectivityIndicator from './ConnectivityIndicator.svelte';
 	import { socket } from '../connectivity.js';
 
 	socket.on('playerDisconnected', function(data) {
@@ -17,13 +18,24 @@
 			...players,
 		];
 	});
+
+	$: points = players.filter(player => player.connectionId == socket.id)[0]
+		.points;
 </script>
 
 <style>
+	.header {
+		margin-bottom: 0.5em;
+		display: flex;
+		flex-direction: row;
+		align-content: center;
+		align-items: center;
+	}
+
 	.count {
 		font-weight: bold;
 		font-size: 4em;
-		margin-bottom: 0.5em;
+		flex: 1;
 	}
 
 	.player {
@@ -40,9 +52,18 @@
 	.player span {
 		padding-left: 1em;
 	}
+
+	.connectivity-wrapper {
+		float: right;
+	}
 </style>
 
-<div class="count">{players.length}</div>
+<div class="header">
+	<div class="count">{points}</div>
+	<div class="connectivity-wrapper">
+		<ConnectivityIndicator />
+	</div>
+</div>
 
 {#each players as player (player.connectionId)}
 	<div class="player">

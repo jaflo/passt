@@ -25,7 +25,7 @@
 		width: 24px;
 		height: 24px;
 		display: inline-block;
-		margin-right: 0.5em;
+		margin-right: 0.2em;
 	}
 
 	.symbol {
@@ -39,13 +39,22 @@
 	}
 
 	.player {
-		margin: 0 2em 0 0.5em;
+		margin: 0 1.2em 0 0.2em;
 		opacity: 0.6;
 		white-space: nowrap;
+		max-width: 10em;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.player.highlight {
 		font-weight: bold;
+	}
+
+	.placeholder {
+		text-align: center;
+		opacity: 0.3;
 	}
 </style>
 
@@ -63,6 +72,10 @@
 				</div>
 			{/each}
 			<div class="player" class:highlight={play.valid}>{play.player}</div>
+		</div>
+	{:else}
+		<div class="placeholder" out:fade={{ duration: 300 }}>
+			&bull; &bull; &bull;
 		</div>
 	{/each}
 </div>

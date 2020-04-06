@@ -2,7 +2,6 @@
 	export let cards = [];
 
 	import Card from './Card.svelte';
-	import { cubicIn, cubicOut } from 'svelte/easing';
 	import { scale, fly } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import { socket } from '../../connectivity.js';
@@ -62,6 +61,13 @@
 			selection = [];
 		}
 	}
+
+	function cardDelay(i) {
+		const dist = Math.sqrt(
+			Math.pow(parseInt(i / 3), 2) + Math.pow((i % 3) - 3, 2)
+		);
+		return dist * 50;
+	}
 </script>
 
 <style>
@@ -98,13 +104,13 @@
 </style>
 
 <svelte:window on:keydown={handleKeydown} />
+
 <div class="center-wide board">
 	{#each cards as card, i (card.id)}
-		<div animate:flip={{ duration: 200 }}>
+		<div class="card-wrapper" animate:flip={{ duration: 200 }}>
 			<div
-				class="card-wrapper"
-				in:fly={{ y: 30, opacity: 0, duration: 300, easing: cubicOut }}
-				out:fly={{ y: -30, opacity: 0, duration: 300, easing: cubicOut }}>
+				in:fly={{ y: 30, duration: 300, delay: cardDelay(i) }}
+				out:fly={{ y: -30, duration: 300, delay: cardDelay(i) }}>
 				<Card
 					{...card}
 					selected={arrayContainsCard(selection, card)}

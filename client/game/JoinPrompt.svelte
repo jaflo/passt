@@ -10,15 +10,14 @@
 		animals,
 	} from 'unique-names-generator';
 
-	const defaultName =
-		localStorage.getItem('name') ||
-		uniqueNamesGenerator({
-			dictionaries: [colors, animals],
-			separator: ' ',
-			length: 2,
-		});
+	const randomName = uniqueNamesGenerator({
+		dictionaries: [colors, animals],
+		separator: ' ',
+		length: 2,
+	});
+	let playerName = localStorage.getItem('name') || '';
 	let joining = false;
-	let playerName = defaultName;
+	let unavailable = false;
 
 	function joinRoom() {
 		if (playerName) {
@@ -28,9 +27,20 @@
 		}
 		socket.emit('joinRoom', {
 			roomCode: roomCode,
-			playerName: playerName || defaultName,
+			playerName: playerName || randomName,
 		});
 		joining = true;
+	}
+
+	socket.on('exception', data => {
+		if (data.includes('EntityNotFound')) {
+			unavailable = true;
+			joining = false;
+		}
+	});
+
+	function back() {
+		window.location = window.location.pathname;
 	}
 </script>
 
@@ -50,7 +60,8 @@
 		box-sizing: border-box;
 	}
 
-	input {
+	input,
+	.blink {
 		font-size: 4em;
 		text-align: center;
 		background: none;
@@ -62,13 +73,34 @@
 		font-size: 2em;
 		color: var(--saturatedColor);
 		padding: 0.4em 1em;
+		margin: 0;
+	}
+
+	.blink {
+		animation: blink 1s steps(2, start) infinite;
+		padding: 0.4em 0;
+		margin-bottom: 0.5em;
+	}
+
+	@keyframes blink {
+		to {
+			visibility: hidden;
+		}
 	}
 </style>
 
 <div class="cover join-wrapper" out:fade={{ duration: 200 }}>
 	{#if joining}
-		<div in:fade={{ duration: 300, delay: 200 }} class="center">
+		<div in:fade={{ duration: 300, delay: 400 }} class="center">
 			<div class="spinner" />
+		</div>
+	{:else if unavailable}
+		<div class="center">
+			<div class="blink">?</div>
+			<!-- svelte-ignore a11y-autofocus -->
+			<button type="button" class="large" on:click={back} autofocus>
+				&larr;
+			</button>
 		</div>
 	{:else}
 		<form on:submit|preventDefault|once={joinRoom}>
@@ -76,7 +108,7 @@
 			<input
 				type="text"
 				bind:value={playerName}
-				placeholder="???"
+				placeholder={randomName}
 				autofocus />
 			<button type="submit" class="large">&rarr;</button>
 		</form>
