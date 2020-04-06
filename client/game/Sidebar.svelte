@@ -2,22 +2,9 @@
 	export let players = [];
 
 	import ConnectivityIndicator from './ConnectivityIndicator.svelte';
+	import { fly, fade } from 'svelte/transition';
+	import { flip } from 'svelte/animate';
 	import { socket } from '../connectivity.js';
-
-	socket.on('playerDisconnected', function(data) {
-		players = players.filter(player => player.connectionId != data);
-	});
-
-	socket.on('newPlayer', function(data) {
-		players = [
-			{
-				connectionId: data.connectionId,
-				name: data.name,
-				points: data.points,
-			},
-			...players,
-		];
-	});
 
 	$: points = players.filter(player => player.connectionId == socket.id)[0]
 		.points;
@@ -65,9 +52,11 @@
 	</div>
 </div>
 
-{#each players as player (player.connectionId)}
-	<div class="player">
-		<strong>{player.name}</strong>
-		<span>{player.points}</span>
+{#each players.sort((a, b) => b.points - a.points) as player (player.connectionId)}
+	<div class="player" animate:flip={{ duration: 300 }}>
+		<strong transition:fly={{ x: -20, duration: 300 }}>
+			{player.name}
+		</strong>
+		<span transition:fade={{ duration: 300 }}>{player.points}</span>
 	</div>
 {/each}
