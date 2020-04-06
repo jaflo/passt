@@ -7,6 +7,7 @@ import {
 	PrimaryColumn,
 } from 'typeorm';
 import { Player } from './player';
+import { findSetIn } from '../shared';
 
 export enum Shape {
 	SQUARE = 'square',
@@ -98,5 +99,42 @@ export class Room extends BaseEntity {
 
 		this.board.push(...drawnCards);
 		this.availableCards = availableCards;
+	}
+
+	/**
+	 * Checks to see if the provided cards are on the board
+	 * @param providedCards The cards to look for on the board
+	 */
+	cardsAreAllOnBoard(providedCards: Card[]): boolean {
+		return providedCards
+			.map(providedCard =>
+				this.board.find(boardCard =>
+					cardsAreEqual(providedCard, boardCard)
+				)
+			)
+			.every(match => match !== undefined);
+	}
+
+	/**
+	 * Removes all of the provided cards from the board. If a provided card isn't on the board, skips that card.
+	 * @param providedCards The cards to remove from the board
+	 */
+	removeCardsFromBoard(providedCards: Card[]): void {
+		if (!this.cardsAreAllOnBoard(providedCards)) {
+			throw new Error('Not all of the provided cards are on the board!');
+		}
+		this.board = this.board.filter(
+			boardCard =>
+				providedCards.find(providedCard =>
+					cardsAreEqual(providedCard, boardCard)
+				) === undefined
+		);
+	}
+
+	/**
+	 * If no sets can be created from any of the cards that are in play now (or could be in play by drawing).
+	 */
+	cantPlayAnotherMove(): boolean {
+		return findSetIn(...this.board.concat(this.availableCards)) === null;
 	}
 }
