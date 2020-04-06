@@ -86,10 +86,16 @@ io.on('connection', socket => {
 				board,
 				roomCode,
 				isOver,
-				players
+				players,
 			} = await roomController.playMove(socket.id, data.cards);
 			if (isOver) {
-				io.to(roomCode).emit(SocketEvent.GAME_OVER, {player, cards: playedCards, updated, board, players});
+				io.to(roomCode).emit(SocketEvent.GAME_OVER, {
+					player,
+					cards: playedCards,
+					updated,
+					board,
+					players,
+				});
 			}
 			io.to(roomCode).emit(SocketEvent.MOVE_PLAYED, {
 				player,
