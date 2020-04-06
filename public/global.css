@@ -83,25 +83,11 @@ button.large:focus {
 	box-shadow: 0 0 0 6px var(--saturatedColor), 0 0 0 12px var(--bgColor);
 }
 
-button.large.center:hover,
-button.large.center:focus {
-	transform: translate(-50%, -50%) scale(1.1);
-}
-
-.center,
-.center-wide {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	margin: auto;
-}
-
-@media only screen and (max-width: 800px) {
-	.center-wide {
-		position: static;
-		transform: none;
-	}
+.center-contents {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
 }
 
 .spinner {
