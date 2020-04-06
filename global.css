@@ -65,6 +65,10 @@ button {
 	cursor: pointer;
 }
 
+button::-moz-focus-inner {
+	border: 0;
+}
+
 button.large {
 	border: 0;
 	background: var(--bgColor);
