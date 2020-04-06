@@ -45,6 +45,6 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div class="play-wrapper" on:click={startGame}>
-	<button class="center-wide play" />
+<div class="play-wrapper center-contents" on:click={startGame}>
+	<button class="play" />
 </div>

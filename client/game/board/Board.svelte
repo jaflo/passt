@@ -105,7 +105,7 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div class="center-wide board">
+<div class="board">
 	{#each cards as card, i (card.id)}
 		<div class="card-wrapper" animate:flip={{ duration: 200 }}>
 			<div

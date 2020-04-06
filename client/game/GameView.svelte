@@ -152,7 +152,7 @@
 		<div class="ticker">
 			<Ticker {plays} />
 		</div>
-		<div class="main">
+		<div class="main center-contents">
 			{#if started}
 				<Board {cards} />
 			{:else}

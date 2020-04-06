@@ -47,8 +47,6 @@
 <style>
 	.join-wrapper {
 		text-align: center;
-		display: flex;
-		align-items: center;
 	}
 
 	form {
@@ -89,19 +87,17 @@
 	}
 </style>
 
-<div class="cover join-wrapper" out:fade={{ duration: 200 }}>
+<div class="cover join-wrapper center-contents" out:fade={{ duration: 200 }}>
 	{#if joining}
-		<div in:fade={{ duration: 300, delay: 400 }} class="center">
+		<div in:fade={{ duration: 300, delay: 400 }}>
 			<div class="spinner" />
 		</div>
 	{:else if unavailable}
-		<div class="center">
-			<div class="blink">?</div>
-			<!-- svelte-ignore a11y-autofocus -->
-			<button type="button" class="large" on:click={back} autofocus>
-				&larr;
-			</button>
-		</div>
+		<div class="blink">?</div>
+		<!-- svelte-ignore a11y-autofocus -->
+		<button type="button" class="large" on:click={back} autofocus>
+			&larr;
+		</button>
 	{:else}
 		<form on:submit|preventDefault|once={joinRoom}>
 			<!-- svelte-ignore a11y-autofocus -->

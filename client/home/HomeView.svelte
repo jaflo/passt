@@ -16,6 +16,7 @@
 
 <style>
 	button {
+		position: relative;
 		font-size: 8em;
 		width: 1em;
 		height: 1em;
@@ -42,13 +43,13 @@
 
 <svelte:window on:pageshow={popState} />
 
-<div class="cover">
+<div class="cover center-contents">
 	{#if waiting}
-		<div in:fade={{ duration: 300, delay: 400 }} class="center">
+		<div in:fade={{ duration: 300, delay: 400 }}>
 			<div class="spinner" />
 		</div>
 	{:else}
 		<!-- svelte-ignore a11y-autofocus -->
-		<button on:click={createRoom} class="center large" autofocus>go</button>
+		<button on:click={createRoom} class="large" autofocus>go</button>
 	{/if}
 </div>
