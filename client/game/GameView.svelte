@@ -2,7 +2,7 @@
 	export let roomCode;
 
 	import Board from './board/Board.svelte';
-	import PlayerList from './PlayerList.svelte';
+	import Sidebar from './Sidebar.svelte';
 	import Ticker from './Ticker.svelte';
 	import JoinPrompt from './JoinPrompt.svelte';
 	import PauseScreen from './PauseScreen.svelte';
@@ -141,7 +141,7 @@
 			{/if}
 		</div>
 		<div class="sidebar">
-			<PlayerList {players} />
+			<Sidebar {players} />
 		</div>
 	{/if}
 </div>

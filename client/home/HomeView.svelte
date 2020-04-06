@@ -48,6 +48,7 @@
 			<div class="spinner" />
 		</div>
 	{:else}
-		<button on:click={createRoom} class="center large">go</button>
+		<!-- svelte-ignore a11y-autofocus -->
+		<button on:click={createRoom} class="center large" autofocus>go</button>
 	{/if}
 </div>
