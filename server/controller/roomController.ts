@@ -173,7 +173,7 @@ export class RoomController {
 
 		// If no moves can be played, the game is over.
 		if (room.cantPlayAnotherMove()) {
-			await room.save();
+			await room.reload();
 			return {
 				player,
 				cards,
