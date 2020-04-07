@@ -160,12 +160,16 @@ export class RoomController {
 			throw Error(`Cannot start a game that is already in progress!`);
 		}
 
-		const cards = shuffle(allCards());
+		let cards = shuffle(allCards());
 
 		if (initialBoard) {
 			room.board = initialBoard;
 		} else {
 			room.board = cards.slice(0, initialBoardSize);
+			while (!findSetIn(...cards.slice(0, initialBoardSize))) {
+				cards = shuffle(allCards());
+				room.board = cards.slice(0, initialBoardSize);
+			}
 		}
 
 		if (initialAvailbleCards) {
