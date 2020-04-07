@@ -58,6 +58,7 @@ io.on('connection', socket => {
 					.to(room.roomCode)
 					.emit(SocketEvent.NEW_PLAYER, {
 						connectionId: player.connectionId,
+						oldConnectionId,
 						name: player.name,
 						points: player.points,
 						connected: player.connected,
