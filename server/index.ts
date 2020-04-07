@@ -130,7 +130,7 @@ io.on('connection', socket => {
 	});
 });
 
-// Every hour, "garbage collect" the database and let all affected rooms know.
+// At a regular interval, "garbage collect" the database and let all affected rooms know.
 setInterval(() => {
 	RoomController.flushInactiveDisconnectedPlayers()
 		.then(affectedRooms => {

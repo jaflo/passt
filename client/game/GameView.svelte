@@ -81,8 +81,11 @@
 		players = players;
 	});
 
-	socket.on('playersRemoved', function(connectionId) {
-		players = players.filter(player => player.connectionId != connectionId);
+	socket.on('playersRemoved', function(data) {
+		const removedPlayers = data.removedPlayers;
+		players = players.filter(
+			player => !removedPlayers.includes(player.connectionId)
+		);
 	});
 
 	socket.on('newPlayer', function(player) {
@@ -124,6 +127,7 @@
 
 	.main {
 		margin: 3em 0 1em 0;
+		min-height: 200px;
 	}
 
 	.sidebar {

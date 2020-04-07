@@ -32,6 +32,7 @@
 		padding: 3em 0;
 		height: 100%;
 		width: 100%;
+		position: absolute;
 	}
 
 	.paused-wrapper.allowed {
@@ -51,6 +52,7 @@
 		margin: auto;
 		position: relative;
 		font-size: 0;
+		cursor: inherit;
 	}
 
 	.arrow:after {
