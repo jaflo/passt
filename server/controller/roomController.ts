@@ -10,7 +10,7 @@ const nanoid = customAlphabet(ALPHABET, 6);
 export class RoomController {
 	static INITIAL_BOARD_SIZE = 12;
 	static NUM_TO_DRAW = 3;
-	static FLUSH_INTERVAL_MILLIS = 60 * 60 * 1000; // 1 hour
+	static FLUSH_INTERVAL_MILLIS = 10 * 60 * 1000; // 10 min
 
 	/**
 	 * Removes all of the rooms that have no players.
