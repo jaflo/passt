@@ -95,7 +95,7 @@
 			},
 			...players.filter(
 				// remove old player if needed
-				player => player.connectionId != player.oldConnectionId
+				oldPlayer => oldPlayer.connectionId != player.oldConnectionId
 			),
 		];
 	});
