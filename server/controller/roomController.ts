@@ -101,8 +101,12 @@ export class RoomController {
 			player => player.connectionId === oldConnectionId
 		);
 		if (existingPlayer) {
+			if (existingPlayer.connected) {
+				throw new Error(`You can't join a room you're already in!`);
+			}
 			existingPlayer.connectionId = newConnectionId;
 			existingPlayer.name = playerName;
+			existingPlayer.connected = true;
 			await existingPlayer.save();
 			await requestedRoom.reload();
 			return { room: requestedRoom, player: existingPlayer };
@@ -118,14 +122,17 @@ export class RoomController {
 	}
 
 	/**
-	 * Finds the room that a {@link Player} is a part of, and returns it
-	 * @param connectionId The connectionId of the {@link Player}
+	 * Marks a player as disconnected, and returns the affected room.
+	 * @param connectionId The connectionId of the {@link Player} that has left
 	 */
-	static async getRoom(connectionId: string): Promise<Room> {
+	static async leaveRoom(connectionId: string): Promise<Room> {
 		const player = await Player.findOneOrFail(
 			{ connectionId },
 			{ relations: ['room'] }
 		);
+		player.connected = false;
+		await player.save();
+		await player.room.reload();
 		return player.room;
 	}
 
@@ -167,6 +174,7 @@ export class RoomController {
 		}
 		for (const player of room.players) {
 			player.points = 0;
+			player.save();
 		}
 		room.started = true;
 

@@ -60,6 +60,7 @@ io.on('connection', socket => {
 						connectionId: player.connectionId,
 						name: player.name,
 						points: player.points,
+						connected: player.connected,
 					});
 				socket.emit(SocketEvent.JOINED_SUCCESSFULLY, room);
 			} catch (err) {
@@ -117,7 +118,7 @@ io.on('connection', socket => {
 		// This will just notify the room that the player disconnected.
 		// By not removing them from the DB immediately, we can let players reconnect.
 		try {
-			const affectedRoom = await RoomController.getRoom(socket.id);
+			const affectedRoom = await RoomController.leaveRoom(socket.id);
 			io.to(affectedRoom.roomCode).emit(
 				SocketEvent.PLAYER_DISCONNECTED,
 				socket.id

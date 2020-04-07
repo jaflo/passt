@@ -176,42 +176,55 @@ describe('RoomController', () => {
 
 		it('should allow a user to rejoin a room that they disconnected from', async () => {
 			const newMockConnectionId = 'NEW_MOCK_CONNECTION_ID';
-			let room = await RoomController.createRoom(false);
-			const result = await RoomController.joinRoom(
-				room.roomCode,
+			const { roomCode } = await RoomController.createRoom(false);
+			const { room: oldRoom } = await RoomController.joinRoom(
+				roomCode,
 				MOCK_CONNECTION_ID,
 				MOCK_PLAYER_NAME
 			);
-			room = result.room;
+			assert.strictEqual(
+				oldRoom.players[0].connectionId,
+				MOCK_CONNECTION_ID
+			);
 
-			const rejoinResult = await RoomController.joinRoom(
-				room.roomCode,
+			const leftRoom = await RoomController.leaveRoom(MOCK_CONNECTION_ID);
+
+			assert.strictEqual(leftRoom.players[0].connected, false);
+
+			const {
+				room: newRoom,
+				player: newPlayer,
+			} = await RoomController.joinRoom(
+				oldRoom.roomCode,
 				newMockConnectionId,
 				MOCK_PLAYER_NAME,
 				MOCK_CONNECTION_ID
 			);
-			room = rejoinResult.room;
-			const player = rejoinResult.player;
 
-			assert.strictEqual(player.connectionId, newMockConnectionId);
+			assert.strictEqual(newPlayer.connectionId, newMockConnectionId);
+			assert.strictEqual(newRoom.players.length, 1);
 			assert.strictEqual(
-				room.players[0].connectionId,
+				newRoom.players[0].connectionId,
 				newMockConnectionId
 			);
+			assert.strictEqual(newRoom.players[0].connected, true);
 		});
 	});
 
-	describe('getRoom', () => {
+	describe('leaveRoom', () => {
 		it('should retrieve the room a player is a part of', async () => {
-			const { room, players } = await setUpARoom(
+			const { room } = await setUpARoom(
 				false,
 				[MOCK_CONNECTION_ID],
 				[MOCK_PLAYER_NAME]
 			);
 
-			const playerRoom = await RoomController.getRoom(MOCK_CONNECTION_ID);
+			const playerRoom = await RoomController.leaveRoom(
+				MOCK_CONNECTION_ID
+			);
 
 			assert.strictEqual(room.roomCode, playerRoom?.roomCode);
+			assert.strictEqual(playerRoom.players[0].connected, false);
 		});
 	});
 
