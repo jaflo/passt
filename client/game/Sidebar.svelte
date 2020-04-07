@@ -27,6 +27,11 @@
 
 	.player {
 		display: flex;
+		transition: opacity 0.3s ease-in-out;
+	}
+
+	.player.afk {
+		opacity: 0.4;
 	}
 
 	.player strong {
@@ -53,7 +58,10 @@
 </div>
 
 {#each players.sort((a, b) => b.points - a.points) as player (player.connectionId)}
-	<div class="player" animate:flip={{ duration: 300 }}>
+	<div
+		class="player"
+		class:afk={!player.connected}
+		animate:flip={{ duration: 300 }}>
 		<strong transition:fly={{ x: -20, duration: 300 }}>
 			{player.name}
 		</strong>

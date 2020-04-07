@@ -1,7 +1,22 @@
 <script>
+	export let redo = false;
+
 	import { socket } from '../connectivity.js';
 
+	const size = 60;
+	const width = 6;
+	const circumference = size * Math.PI;
+
+	let allowed = !redo;
+
+	if (!allowed) {
+		setTimeout(() => (allowed = true), 5000);
+	}
+
 	function startGame() {
+		if (!allowed) {
+			return;
+		}
 		socket.emit('startRoom');
 	}
 
@@ -13,38 +28,112 @@
 </script>
 
 <style>
-	.play-wrapper {
-		cursor: pointer;
+	.paused-wrapper {
 		padding: 3em 0;
 		height: 100%;
+		width: 100%;
+	}
+
+	.paused-wrapper.allowed {
+		cursor: pointer;
 	}
 
 	@media only screen and (min-width: 800px) {
-		.play-wrapper {
+		.paused-wrapper {
 			padding: 0;
 		}
 	}
 
-	.play {
+	button {
 		display: block;
 		border: 0;
 		background: none;
 		margin: auto;
+		position: relative;
+		font-size: 0;
 	}
 
-	.play:after {
+	.arrow:after {
 		content: '';
 		display: block;
 		width: 0;
 		height: 0;
-		border: 2em solid transparent;
-		border-left: 3.5em solid var(--saturatedColor);
+		border: 32px solid transparent;
+		border-left: 56px solid var(--saturatedColor);
 		border-right-width: 0;
+	}
+
+	.redo {
+		animation: waiting-rotate 5s linear forwards;
+	}
+
+	@keyframes waiting-rotate {
+		0% {
+			transform: rotate(0);
+		}
+		80% {
+			transform: rotate(360deg);
+		}
+		100% {
+			transform: rotate(720deg);
+		}
+	}
+
+	.redo .arrow {
+		position: absolute;
+		top: -4px;
+		right: -25px;
+		transform: scale(0.36) rotate(71deg);
+		animation: waiting-show 5s linear forwards;
+	}
+
+	@keyframes waiting-show {
+		0%,
+		98% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+
+	circle {
+		stroke: var(--saturatedColor);
+		animation: waiting-stroke 5s linear forwards;
+	}
+
+	@keyframes waiting-stroke {
+		0% {
+			stroke-dasharray: 0 0 0 0 0 999px;
+		}
+		80% {
+			stroke-dasharray: 0 0 0 0 188px 999px;
+		}
+		90% {
+			stroke-dasharray: 0 0 0 188px 188px 999px;
+		}
+		100% {
+			stroke-dasharray: 0 16px 188px 188px 188px 999px;
+		}
 	}
 </style>
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div class="play-wrapper center-contents" on:click={startGame}>
-	<button class="play" />
+<div class="paused-wrapper center-contents" class:allowed on:click={startGame}>
+	{#if redo}
+		<button class="redo">
+			<svg height={size} width={size}>
+				<circle
+					stroke-width={width}
+					fill="none"
+					r={(size - width) / 2}
+					cx={size / 2}
+					cy={size / 2} />
+			</svg>
+			<div class="arrow" />
+		</button>
+	{:else}
+		<button class="arrow" />
+	{/if}
 </div>
