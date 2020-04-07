@@ -54,7 +54,15 @@
 		}
 	}
 
-	socket.on('movePlayed', attemptSelectionClear);
+	socket.on('movePlayed', function(data) {
+		if (data.player.connectionId == socket.id) {
+			attemptSelectionClear();
+		} else {
+			selection = selection.filter(
+				card => !arrayContainsCard(data.cards, card)
+			);
+		}
+	});
 
 	function handleKeydown(e) {
 		if (['Backspace', 'Escape', 'Delete'].includes(e.code)) {
