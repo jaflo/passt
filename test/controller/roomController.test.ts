@@ -125,7 +125,7 @@ describe('RoomController', () => {
 		it('should remove all of the old players that are inactive and disconnected', async () => {
 			await RoomController.flushInactiveDisconnectedPlayers();
 
-			assert.strictEqual(await Player.count({}), 4);
+			assert.strictEqual(await Player.count({}), 3);
 		});
 
 		it('should return the affected rooms and the affected player IDs', async () => {

@@ -46,6 +46,7 @@ export class RoomController {
 			},
 			relations: ['room'],
 		});
+		await Player.remove(inactiveDisconnectedPlayers);
 
 		for (const player of inactiveDisconnectedPlayers) {
 			if (
@@ -254,8 +255,10 @@ export class RoomController {
 			};
 		}
 
-		// Replace as many of the cards drawn as possible
-		room.placeCardsOnBoard(numToDraw);
+		// Replace cards if there aren't enough.
+		if (room.board.length < RoomController.INITIAL_BOARD_SIZE) {
+			room.placeCardsOnBoard(numToDraw);
+		}
 
 		// If a set isn't on the board, draw numToDraw more cards until one exists. (Shouldn't exceed 20).
 		while (!findSetIn(...room.board)) {
