@@ -34,7 +34,7 @@
 	}
 
 	socket.on('exception', data => {
-		if (data.includes('EntityNotFound')) {
+		if (data.includes('EntityNotFound') || data.includes('already in')) {
 			unavailable = true;
 			joining = false;
 		}

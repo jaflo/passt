@@ -37,7 +37,7 @@
 
 	socket.on('joinedSuccessfully', function(data) {
 		loadRoom(data);
-		state = 'waiting';
+		state = data.started ? 'playing' : 'waiting';
 		localStorage.setItem('oldConnectionId', socket.id);
 	});
 
@@ -78,6 +78,7 @@
 				return;
 			}
 		});
+		players = players;
 	});
 
 	socket.on('playersRemoved', function(connectionId) {
@@ -92,7 +93,10 @@
 				points: player.points,
 				connected: player.connected,
 			},
-			...players,
+			...players.filter(
+				// remove old player if needed
+				player => player.connectionId != player.oldConnectionId
+			),
 		];
 	});
 </script>
