@@ -140,6 +140,10 @@ export class RoomController {
 		);
 		const { room } = player;
 
+		if (room.board.length !== 0) {
+			throw Error(`Cannot start a game that is already in progress!`);
+		}
+
 		const cards = shuffle(allCards());
 
 		if (initialBoard) {
@@ -217,6 +221,9 @@ export class RoomController {
 		// If no moves can be played, the game is over.
 		if (room.cantPlayAnotherMove()) {
 			await room.reload();
+			room.board = [];
+			room.availableCards = [];
+			await room.save();
 			return {
 				player,
 				cards,

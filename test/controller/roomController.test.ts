@@ -243,6 +243,13 @@ describe('RoomController', () => {
 			);
 		});
 
+		it('should fail if the room has already started', async () => {
+			await setUpARoom(false, [MOCK_CONNECTION_ID], [MOCK_PLAYER_NAME]);
+
+			await RoomController.startRoom(MOCK_CONNECTION_ID);
+			assert.rejects(RoomController.startRoom(MOCK_CONNECTION_ID));
+		});
+
 		it('should fail if the room does not exist', async () => {
 			assert.rejects(RoomController.startRoom(MOCK_CONNECTION_ID));
 		});
