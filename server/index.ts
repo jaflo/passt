@@ -127,12 +127,16 @@ io.on('connection', socket => {
 
 // Every hour, "garbage collect" the database and let all affected rooms know.
 setInterval(() => {
-	RoomController.flushInactiveDisconnectedPlayers().then(affectedRooms => {
-		for (const roomCode of Object.keys(affectedRooms)) {
-			const removedPlayers = affectedRooms[roomCode];
-			io.to(roomCode).emit(SocketEvent.PLAYERS_REMOVED, {removedPlayers});
-		}
-	}).then(() => RoomController.flushEmptyRooms());
+	RoomController.flushInactiveDisconnectedPlayers()
+		.then(affectedRooms => {
+			for (const roomCode of Object.keys(affectedRooms)) {
+				const removedPlayers = affectedRooms[roomCode];
+				io.to(roomCode).emit(SocketEvent.PLAYERS_REMOVED, {
+					removedPlayers,
+				});
+			}
+		})
+		.then(() => RoomController.flushEmptyRooms());
 }, RoomController.FLUSH_INTERVAL_MILLIS);
 
 createConnection().then(() =>
