@@ -55,12 +55,17 @@ describe('RoomController', () => {
 			}
 		});
 		it('should flush all of the rooms that are empty', async () => {
-			const deadRoom = new Room();
-			deadRoom.roomCode = 'dead';
-			deadRoom.lastActive = new Date(
-				Date.now() - RoomController.FLUSH_INTERVAL_MILLIS
-			);
-			await deadRoom.save();
+			await getConnection()
+				.createQueryBuilder()
+				.insert()
+				.into(Room)
+				.values({
+					roomCode: 'dead',
+					lastActive: new Date(
+						Date.now() - RoomController.FLUSH_INTERVAL_MILLIS
+					),
+				})
+				.execute();
 
 			await RoomController.flushEmptyRooms();
 

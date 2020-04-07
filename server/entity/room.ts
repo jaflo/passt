@@ -1,4 +1,11 @@
-import { Entity, Column, OneToMany, BaseEntity, PrimaryColumn } from 'typeorm';
+import {
+	Entity,
+	Column,
+	OneToMany,
+	BaseEntity,
+	PrimaryColumn,
+	UpdateDateColumn,
+} from 'typeorm';
 import { Player } from './player';
 import { findSetIn } from '../shared';
 
@@ -76,9 +83,7 @@ export class Room extends BaseEntity {
 	@Column({ type: 'jsonb', default: [] })
 	availableCards!: Card[];
 
-	@Column({
-		default: () => 'NOW()',
-	})
+	@UpdateDateColumn({ nullable: false })
 	lastActive!: Date;
 
 	/**
