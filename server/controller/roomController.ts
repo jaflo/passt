@@ -1,31 +1,67 @@
-import { Room, allCards, Card, cardsAreEqual } from '../entity/room';
+import { Room, allCards, Card } from '../entity/room';
 import { Player } from '../entity/player';
 import { customAlphabet } from 'nanoid';
 import { shuffle, isASet, findSetIn } from '../shared';
+import { LessThan, LessThanOrEqual } from 'typeorm';
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
 const nanoid = customAlphabet(ALPHABET, 6);
 
-interface MovePlayed {
-	player: Player;
-	cards: Card[];
-	updated: boolean;
-	board: Card[];
-	roomCode: string;
-}
-
-interface GameOver {
-	isOver: boolean;
-	players?: Player[];
-}
-
 export class RoomController {
 	static INITIAL_BOARD_SIZE = 12;
 	static NUM_TO_DRAW = 3;
+	static FLUSH_INTERVAL_MILLIS = 10 * 60 * 1000; // 10 min
+
+	/**
+	 * Removes all of the rooms that have no players.
+	 */
+	static async flushEmptyRooms() {
+		const flushCutoff = new Date(
+			Date.now() - RoomController.FLUSH_INTERVAL_MILLIS
+		);
+		const allRooms = await Room.find({
+			where: { lastActive: LessThan(flushCutoff) },
+		});
+		const emptyRooms = allRooms.filter(room => room.players.length === 0);
+		await Room.remove(emptyRooms);
+	}
+
+	/**
+	 * Remove all players that are inactive and disconnected.
+	 */
+	static async flushInactiveDisconnectedPlayers(): Promise<{
+		[key: string]: string[];
+	}> {
+		const flushCutoff = new Date(
+			Date.now() - RoomController.FLUSH_INTERVAL_MILLIS
+		);
+		const affectedRoomsAndDisconnectedPlayers: {
+			[key: string]: string[];
+		} = {};
+		const inactiveDisconnectedPlayers = await Player.find({
+			where: {
+				lastActive: LessThanOrEqual(flushCutoff),
+				connected: false,
+			},
+			relations: ['room'],
+		});
+
+		for (const player of inactiveDisconnectedPlayers) {
+			if (
+				!(player.room.roomCode in affectedRoomsAndDisconnectedPlayers)
+			) {
+				affectedRoomsAndDisconnectedPlayers[player.room.roomCode] = [];
+			}
+			affectedRoomsAndDisconnectedPlayers[player.room.roomCode].push(
+				player.connectionId
+			);
+		}
+		return affectedRoomsAndDisconnectedPlayers;
+	}
 	/**
 	 * Creates a new {@link Room} and returns it.
 	 */
-	async createRoom(open: boolean, roomCode?: string) {
+	static async createRoom(open: boolean, roomCode?: string) {
 		if (!roomCode) {
 			roomCode = nanoid();
 		}
@@ -41,7 +77,11 @@ export class RoomController {
 	 * @param connectionId The connectionId of the {@link Player}
 	 * @param playerName The name of the {@link Player}
 	 */
-	async joinRoom(roomCode: string, connectionId: string, playerName: string) {
+	static async joinRoom(
+		roomCode: string,
+		connectionId: string,
+		playerName: string
+	) {
 		const room = await Room.findOneOrFail({ roomCode });
 		const player = new Player();
 		player.connectionId = connectionId;
@@ -53,29 +93,32 @@ export class RoomController {
 		return { room, player };
 	}
 
+	static async rejoinRoom(oldConnectionId: string, newConnectionId: string) {
+		const player = await Player.findOneOrFail(
+			{
+				connectionId: oldConnectionId,
+			},
+			{ relations: ['room'] }
+		);
+		player.connectionId = newConnectionId;
+		await player.save();
+
+		const { room } = player;
+		await room.reload();
+
+		return { room, player };
+	}
+
 	/**
-	 * Removes a {@link Player} from an {@link Room}. If the room is empty after removing the Player, removes the Room.
-	 * @param connectionId The connectionId of the {@link Player} that is leaving
+	 * Finds the room that a {@link Player} is a part of, and returns it
+	 * @param connectionId The connectionId of the {@link Player}
 	 */
-	async leaveRoom(connectionId: string): Promise<Room | undefined> {
-		const player = await Player.findOne(
+	static async getRoom(connectionId: string): Promise<Room> {
+		const player = await Player.findOneOrFail(
 			{ connectionId },
 			{ relations: ['room'] }
 		);
-		if (!player) {
-			console.error("Player not found. Can't notify rooms.");
-			return undefined;
-		}
-		const { roomCode } = player.room;
-
-		await player.remove();
-		if (player.room.players.length - 1 === 0) {
-			console.log('No players remaining.');
-			await Room.delete({ roomCode });
-			return undefined;
-		}
-		const room = await Room.findOne({ roomCode });
-		return room;
+		return player.room;
 	}
 
 	/**
@@ -85,7 +128,7 @@ export class RoomController {
 	 * @param initialBoard The initial board state (overrides default generation behavior)
 	 * @param initialAvailbleCards The initial availableCards state (overrides default generation behavior)
 	 */
-	async startRoom(
+	static async startRoom(
 		connectionId: string,
 		initialBoardSize = RoomController.INITIAL_BOARD_SIZE,
 		initialBoard?: Card[],
@@ -121,7 +164,7 @@ export class RoomController {
 	 * @param cardIds The IDs of the {@link Card}s being played.
 	 * @param numToDraw The number of {@link Card}s to draw. Default: {@see RoomController.NUM_TO_DRAW}
 	 */
-	async playMove(
+	static async playMove(
 		connectionId: string,
 		cards: Card[],
 		numToDraw = RoomController.NUM_TO_DRAW

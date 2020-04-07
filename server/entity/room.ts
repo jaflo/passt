@@ -1,11 +1,4 @@
-import {
-	Entity,
-	Column,
-	UpdateDateColumn,
-	OneToMany,
-	BaseEntity,
-	PrimaryColumn,
-} from 'typeorm';
+import { Entity, Column, OneToMany, BaseEntity, PrimaryColumn } from 'typeorm';
 import { Player } from './player';
 import { findSetIn } from '../shared';
 
@@ -71,7 +64,7 @@ export class Room extends BaseEntity {
 	started!: boolean;
 
 	@OneToMany(
-		type => Player,
+		() => Player,
 		player => player.room,
 		{ eager: true }
 	)
@@ -83,8 +76,8 @@ export class Room extends BaseEntity {
 	@Column({ type: 'jsonb', default: [] })
 	availableCards!: Card[];
 
-	@UpdateDateColumn({
-		nullable: false,
+	@Column({
+		default: () => 'NOW()',
 	})
 	lastActive!: Date;
 
