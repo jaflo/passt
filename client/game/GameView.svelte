@@ -14,8 +14,7 @@
 	let plays = [];
 	let cards = [];
 	let players = [];
-	let started = false;
-	let hasJoined = false;
+	let state = 'joining'; // joining, waiting, playing, ended
 
 	function loadRoom(data) {
 		cards = inPlaceReplace(
@@ -31,21 +30,25 @@
 			})
 		);
 		players = data.players || players;
-		started = data.started || started;
+		if (data.started) {
+			state = 'playing';
+		}
 	}
-
-	socket.on('roomStarted', function(data) {
-		loadRoom(data);
-		started = true;
-	});
 
 	socket.on('joinedSuccessfully', function(data) {
 		loadRoom(data);
-		hasJoined = true;
+		state = 'waiting';
+		localStorage.setItem('oldConnectionId', socket.id);
 	});
 
-	socket.on('gameOver', function(data) {
-		started = false;
+	socket.on('roomStarted', function(data) {
+		loadRoom(data);
+		state = 'playing';
+		plays = [];
+	});
+
+	socket.on('gameOver', function() {
+		state = 'ended';
 	});
 
 	socket.on('movePlayed', function(data) {
@@ -68,16 +71,26 @@
 		});
 	});
 
-	socket.on('playerDisconnected', function(data) {
-		players = players.filter(player => player.connectionId != data);
+	socket.on('playerDisconnected', function(connectionId) {
+		players.forEach(player => {
+			if (player.connectionId == connectionId) {
+				player.connected = false;
+				return;
+			}
+		});
 	});
 
-	socket.on('newPlayer', function(data) {
+	socket.on('playersRemoved', function(connectionId) {
+		players = players.filter(player => player.connectionId != connectionId);
+	});
+
+	socket.on('newPlayer', function(player) {
 		players = [
 			{
-				connectionId: data.connectionId,
-				name: data.name,
-				points: data.points,
+				connectionId: player.connectionId,
+				name: player.name,
+				points: player.points,
+				connected: player.connected,
 			},
 			...players,
 		];
@@ -146,17 +159,17 @@
 </style>
 
 <div class="game">
-	{#if !hasJoined}
+	{#if state == 'joining'}
 		<JoinPrompt {roomCode} />
 	{:else}
 		<div class="ticker">
 			<Ticker {plays} />
 		</div>
 		<div class="main center-contents">
-			{#if started}
+			{#if state == 'playing'}
 				<Board {cards} />
 			{:else}
-				<PauseScreen />
+				<PauseScreen redo={state == 'ended'} />
 			{/if}
 		</div>
 		<div class="sidebar">

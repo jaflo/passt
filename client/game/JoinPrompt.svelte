@@ -28,6 +28,7 @@
 		socket.emit('joinRoom', {
 			roomCode: roomCode,
 			playerName: playerName || randomName,
+			oldConnectionId: localStorage.getItem('oldConnectionId'),
 		});
 		joining = true;
 	}
