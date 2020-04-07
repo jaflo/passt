@@ -3,6 +3,7 @@ import { Player } from '../entity/player';
 import { customAlphabet } from 'nanoid';
 import { shuffle, isASet, findSetIn } from '../shared';
 import { LessThan, LessThanOrEqual } from 'typeorm';
+import { request } from 'http';
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
 const nanoid = customAlphabet(ALPHABET, 6);
@@ -71,42 +72,49 @@ export class RoomController {
 		return newRoom.save();
 	}
 
+	private static async createNewPlayer(
+		connectionId: string,
+		name: string,
+		room: Room
+	): Promise<Player> {
+		const player = new Player();
+		player.connectionId = connectionId;
+		player.name = name;
+		player.room = room;
+		return player.save();
+	}
+
 	/**
 	 * Creates a new {@link Player} and adds them to the {@link Room} specified by "roomCode"
 	 * @param roomCode The code of the room the {@link Player} wants to join
-	 * @param connectionId The connectionId of the {@link Player}
+	 * @param newConnectionId The connectionId of the {@link Player}
 	 * @param playerName The name of the {@link Player}
 	 */
 	static async joinRoom(
 		roomCode: string,
-		connectionId: string,
-		playerName: string
+		newConnectionId: string,
+		playerName: string,
+		oldConnectionId?: string
 	) {
-		const room = await Room.findOneOrFail({ roomCode });
-		const player = new Player();
-		player.connectionId = connectionId;
-		player.name = playerName;
-		player.room = room;
-		await player.save();
-
-		await room.reload();
-		return { room, player };
-	}
-
-	static async rejoinRoom(oldConnectionId: string, newConnectionId: string) {
-		const player = await Player.findOneOrFail(
-			{
-				connectionId: oldConnectionId,
-			},
-			{ relations: ['room'] }
+		const requestedRoom = await Room.findOneOrFail({ roomCode });
+		const existingPlayer = requestedRoom.players.find(
+			player => player.connectionId === oldConnectionId
 		);
-		player.connectionId = newConnectionId;
-		await player.save();
+		if (existingPlayer) {
+			existingPlayer.connectionId = newConnectionId;
+			existingPlayer.name = playerName;
+			await existingPlayer.save();
+			await requestedRoom.reload();
+			return { room: requestedRoom, player: existingPlayer };
+		}
 
-		const { room } = player;
-		await room.reload();
-
-		return { room, player };
+		const newPlayer = await RoomController.createNewPlayer(
+			newConnectionId,
+			playerName,
+			requestedRoom
+		);
+		await requestedRoom.reload();
+		return { room: requestedRoom, player: newPlayer };
 	}
 
 	/**
@@ -140,6 +148,10 @@ export class RoomController {
 		);
 		const { room } = player;
 
+		if (room.board.length !== 0) {
+			throw Error(`Cannot start a game that is already in progress!`);
+		}
+
 		const cards = shuffle(allCards());
 
 		if (initialBoard) {
@@ -152,6 +164,9 @@ export class RoomController {
 			room.availableCards = initialAvailbleCards;
 		} else {
 			room.availableCards = cards.slice(initialBoardSize);
+		}
+		for (const player of room.players) {
+			player.points = 0;
 		}
 		room.started = true;
 
@@ -217,6 +232,9 @@ export class RoomController {
 		// If no moves can be played, the game is over.
 		if (room.cantPlayAnotherMove()) {
 			await room.reload();
+			room.board = [];
+			room.availableCards = [];
+			await room.save();
 			return {
 				player,
 				cards,

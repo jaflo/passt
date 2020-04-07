@@ -40,15 +40,18 @@ io.on('connection', socket => {
 		async ({
 			roomCode,
 			playerName,
+			oldConnectionId,
 		}: {
 			roomCode: string;
 			playerName: string;
+			oldConnectionId?: string;
 		}) => {
 			try {
 				const { room, player } = await RoomController.joinRoom(
 					roomCode,
 					socket.id,
-					playerName
+					playerName,
+					oldConnectionId
 				);
 				socket.join(room.roomCode);
 				socket.broadcast

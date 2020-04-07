@@ -173,43 +173,30 @@ describe('RoomController', () => {
 				)
 			);
 		});
-	});
-
-	describe('rejoinRoom', () => {
-		let room: Room;
-		let players: Player[];
-		beforeEach(async () => {
-			const result = await setUpARoom(
-				false,
-				[MOCK_CONNECTION_ID],
-				[MOCK_PLAYER_NAME]
-			);
-			room = result.room;
-			players = result.players;
-		});
 
 		it('should allow a user to rejoin a room that they disconnected from', async () => {
 			const newMockConnectionId = 'NEW_MOCK_CONNECTION_ID';
-			await RoomController.getRoom(MOCK_CONNECTION_ID);
-
-			const { room, player } = await RoomController.rejoinRoom(
+			let room = await RoomController.createRoom(false);
+			const result = await RoomController.joinRoom(
+				room.roomCode,
 				MOCK_CONNECTION_ID,
-				newMockConnectionId
+				MOCK_PLAYER_NAME
 			);
+			room = result.room;
+
+			const rejoinResult = await RoomController.joinRoom(
+				room.roomCode,
+				newMockConnectionId,
+				MOCK_PLAYER_NAME,
+				MOCK_CONNECTION_ID
+			);
+			room = rejoinResult.room;
+			const player = rejoinResult.player;
 
 			assert.strictEqual(player.connectionId, newMockConnectionId);
 			assert.strictEqual(
 				room.players[0].connectionId,
 				newMockConnectionId
-			);
-		});
-
-		it('should fail if the old connection ID does not exist', async () => {
-			assert.rejects(
-				RoomController.rejoinRoom(
-					'weird_old_connection_id',
-					'new_connection_id'
-				)
 			);
 		});
 	});
@@ -241,6 +228,13 @@ describe('RoomController', () => {
 				updatedRoom.board.length,
 				RoomController.INITIAL_BOARD_SIZE
 			);
+		});
+
+		it('should fail if the room has already started', async () => {
+			await setUpARoom(false, [MOCK_CONNECTION_ID], [MOCK_PLAYER_NAME]);
+
+			await RoomController.startRoom(MOCK_CONNECTION_ID);
+			assert.rejects(RoomController.startRoom(MOCK_CONNECTION_ID));
 		});
 
 		it('should fail if the room does not exist', async () => {
