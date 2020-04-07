@@ -1,16 +1,19 @@
 import {
 	Entity,
 	Column,
-	PrimaryColumn,
-	UpdateDateColumn,
 	ManyToOne,
 	BaseEntity,
+	JoinColumn,
+	PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Room } from './room';
 
 @Entity()
 export class Player extends BaseEntity {
-	@PrimaryColumn()
+	@PrimaryGeneratedColumn()
+	id!: number;
+
+	@Column({ type: 'varchar', nullable: false, unique: true })
 	connectionId!: string;
 
 	@Column({
@@ -27,13 +30,21 @@ export class Player extends BaseEntity {
 	points!: number;
 
 	@ManyToOne(
-		type => Room,
+		() => Room,
 		room => room.players
 	)
+	@JoinColumn({ name: 'roomCode' })
 	room!: Room;
 
-	@UpdateDateColumn({
-		nullable: false,
+	@Column({
+		default: () => 'NOW()',
 	})
 	lastActive!: Date;
+
+	@Column({
+		type: 'boolean',
+		default: true,
+		nullable: false,
+	})
+	connected!: boolean;
 }

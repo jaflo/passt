@@ -2,23 +2,21 @@ import '../testSetup.test';
 import { RoomController } from '../../server/controller/roomController';
 import assert from 'assert';
 import { Player } from '../../server/entity/player';
+import { Room, Card, Color, Shape, FillStyle } from '../../server/entity/room';
+import { getConnection } from 'typeorm';
 import { findSetIn } from '../../server/shared';
-import { Color, Shape, Card, FillStyle, Room } from '../../server/entity/room';
+import { customAlphabet } from 'nanoid';
 
 const MOCK_CONNECTION_ID = 'MOCK_CONNECTION_ID';
-const MOCK_PLAYER_NAME = 'MOCK_NAME';
-describe('RoomController', () => {
-	let roomController: RoomController;
-	beforeEach(() => {
-		roomController = new RoomController();
-	});
+const MOCK_PLAYER_NAME = 'MOCK_PLAYER_NAME';
 
+describe('RoomController', () => {
 	const setUpARoom = async (
 		open: boolean,
 		connectionIds: string[],
 		playerNames: string[]
 	) => {
-		let room = await roomController.createRoom(open);
+		let room = await RoomController.createRoom(open);
 		assert.strictEqual(
 			connectionIds.length,
 			playerNames.length,
@@ -29,7 +27,7 @@ describe('RoomController', () => {
 			const {
 				room: updatedRoom,
 				player: newPlayer,
-			} = await roomController.joinRoom(
+			} = await RoomController.joinRoom(
 				room.roomCode,
 				connectionIds[i],
 				playerNames[i]
@@ -39,18 +37,125 @@ describe('RoomController', () => {
 		}
 		return { room, players };
 	};
+
+	describe('flushOldRooms', () => {
+		const NUM_ROOMS_WITH_PLAYERS = 10;
+		const NUM_PLAYERS = 1;
+		const ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
+		const nanoid = customAlphabet(ALPHABET, 23);
+		beforeEach(async () => {
+			for (let i = 0; i < NUM_ROOMS_WITH_PLAYERS; ++i) {
+				const mockConnectionIds: string[] = [];
+				const mockNames: string[] = [];
+				for (let j = 0; j < NUM_PLAYERS; ++j) {
+					mockConnectionIds.push(nanoid());
+					mockNames.push(nanoid());
+				}
+				await setUpARoom(false, mockConnectionIds, mockNames);
+			}
+		});
+		it('should flush all of the rooms that are empty', async () => {
+			const deadRoom = new Room();
+			deadRoom.roomCode = 'dead';
+			deadRoom.lastActive = new Date(
+				Date.now() - RoomController.FLUSH_INTERVAL_MILLIS
+			);
+			await deadRoom.save();
+
+			await RoomController.flushEmptyRooms();
+
+			assert.strictEqual(await Room.count({}), NUM_ROOMS_WITH_PLAYERS);
+		});
+	});
+
+	describe('flushInactiveDisconnectedPlayers', () => {
+		const DISCONNECTED_INACTIVE_PLAYER_ID = '1';
+		const MOCK_PLAYER_VALUES = [
+			{
+				// Inactive AND disconnected
+				connectionId: DISCONNECTED_INACTIVE_PLAYER_ID,
+				name: 'A',
+				lastActive: new Date(
+					Date.now() - RoomController.FLUSH_INTERVAL_MILLIS
+				),
+				connected: false,
+			},
+			{
+				// Active AND disconnected
+				connectionId: '2',
+				name: 'B',
+				lastActive: new Date(
+					Date.now() -
+						Math.floor(RoomController.FLUSH_INTERVAL_MILLIS / 2)
+				),
+				connected: false,
+			},
+			{
+				// Active and connected
+				connectionId: '3',
+				name: 'C',
+				lastActive: new Date(
+					Date.now() -
+						Math.floor(RoomController.FLUSH_INTERVAL_MILLIS / 2)
+				),
+				connected: true,
+			},
+			{
+				// Active and disconnected
+				connectionId: '4',
+				name: 'D',
+				lastActive: new Date(
+					Date.now() -
+						Math.floor(RoomController.FLUSH_INTERVAL_MILLIS / 2)
+				),
+				connected: false,
+			},
+		];
+		let room: Room;
+		beforeEach(async () => {
+			room = (await setUpARoom(false, [], [])).room;
+			await getConnection()
+				.createQueryBuilder()
+				.insert()
+				.into(Player)
+				.values(MOCK_PLAYER_VALUES.map(v => ({ ...v, room })))
+				.execute();
+		});
+
+		it('should remove all of the old players that are inactive and disconnected', async () => {
+			await RoomController.flushInactiveDisconnectedPlayers();
+
+			assert.strictEqual(await Player.count({}), 4);
+		});
+
+		it('should return the affected rooms and the affected player IDs', async () => {
+			const affectedRooms = await RoomController.flushInactiveDisconnectedPlayers();
+
+			assert.strictEqual(Object.keys(affectedRooms).length, 1);
+			const affectedRoomCode = Object.keys(affectedRooms)[0];
+
+			assert.strictEqual(affectedRoomCode, room.roomCode);
+			const affectedPlayerIds = affectedRooms[affectedRoomCode];
+
+			assert.strictEqual(affectedPlayerIds.length, 1);
+			assert.strictEqual(
+				affectedPlayerIds[0],
+				DISCONNECTED_INACTIVE_PLAYER_ID
+			);
+		});
+	});
 	describe('createRoom', () => {
 		it('should create a room and return it', async () => {
-			const newRoom = await roomController.createRoom(false);
+			const newRoom = await RoomController.createRoom(false);
 			assert.notStrictEqual(newRoom, null);
 		});
 	});
 
 	describe('joinRoom', () => {
 		it('should add the player to the room', async () => {
-			const newRoom = await roomController.createRoom(false);
+			const newRoom = await RoomController.createRoom(false);
 
-			const { room: updatedRoom } = await roomController.joinRoom(
+			const { room: updatedRoom } = await RoomController.joinRoom(
 				newRoom.roomCode,
 				MOCK_CONNECTION_ID,
 				MOCK_PLAYER_NAME
@@ -61,7 +166,7 @@ describe('RoomController', () => {
 
 		it('should fail if the room does not exist', async () => {
 			assert.rejects(
-				roomController.joinRoom(
+				RoomController.joinRoom(
 					'bad',
 					MOCK_CONNECTION_ID,
 					MOCK_PLAYER_NAME
@@ -70,50 +175,56 @@ describe('RoomController', () => {
 		});
 	});
 
-	describe('leaveRoom', () => {
-		it('should remove the player from the room', async () => {
-			const { room } = await setUpARoom(
+	describe('rejoinRoom', () => {
+		let room: Room;
+		let players: Player[];
+		beforeEach(async () => {
+			const result = await setUpARoom(
 				false,
-				[MOCK_CONNECTION_ID, 'MOCK_CONNECTION_ID_2'],
-				[MOCK_PLAYER_NAME, 'MOCK_PLAYER_NAME_2']
+				[MOCK_CONNECTION_ID],
+				[MOCK_PLAYER_NAME]
 			);
-			assert.strictEqual(room.players.length, 2);
-
-			const updatedRoom = (await roomController.leaveRoom(
-				MOCK_CONNECTION_ID
-			))!;
-
-			assert.strictEqual(updatedRoom.players.length, 1);
+			room = result.room;
+			players = result.players;
 		});
 
-		it('should delete the player from the database', async () => {
-			const { room } = await setUpARoom(
-				false,
-				[MOCK_CONNECTION_ID, 'MOCK_CONNECTION_ID_2'],
-				[MOCK_PLAYER_NAME, 'MOCK_PLAYER_NAME_2']
+		it('should allow a user to rejoin a room that they disconnected from', async () => {
+			const newMockConnectionId = 'NEW_MOCK_CONNECTION_ID';
+			await RoomController.getRoom(MOCK_CONNECTION_ID);
+
+			const { room, player } = await RoomController.rejoinRoom(
+				MOCK_CONNECTION_ID,
+				newMockConnectionId
 			);
-			assert.strictEqual(room.players.length, 2);
 
-			await roomController.leaveRoom(MOCK_CONNECTION_ID);
-
-			const player = await Player.findOne({
-				connectionId: MOCK_CONNECTION_ID,
-			});
-			assert.strictEqual(player, undefined);
+			assert.strictEqual(player.connectionId, newMockConnectionId);
+			assert.strictEqual(
+				room.players[0].connectionId,
+				newMockConnectionId
+			);
 		});
 
-		it('should remove the room if there was only one player', async () => {
-			const { room } = await setUpARoom(
+		it('should fail if the old connection ID does not exist', async () => {
+			assert.rejects(
+				RoomController.rejoinRoom(
+					'weird_old_connection_id',
+					'new_connection_id'
+				)
+			);
+		});
+	});
+
+	describe('getRoom', () => {
+		it('should retrieve the room a player is a part of', async () => {
+			const { room, players } = await setUpARoom(
 				false,
 				[MOCK_CONNECTION_ID],
 				[MOCK_PLAYER_NAME]
 			);
 
-			const updatedRoom = await roomController.leaveRoom(
-				MOCK_CONNECTION_ID
-			);
+			const playerRoom = await RoomController.getRoom(MOCK_CONNECTION_ID);
 
-			assert.strictEqual(updatedRoom, undefined);
+			assert.strictEqual(room.roomCode, playerRoom?.roomCode);
 		});
 	});
 
@@ -121,7 +232,7 @@ describe('RoomController', () => {
 		it('should start the room', async () => {
 			await setUpARoom(false, [MOCK_CONNECTION_ID], [MOCK_PLAYER_NAME]);
 
-			const updatedRoom = await roomController.startRoom(
+			const updatedRoom = await RoomController.startRoom(
 				MOCK_CONNECTION_ID
 			);
 
@@ -133,7 +244,7 @@ describe('RoomController', () => {
 		});
 
 		it('should fail if the room does not exist', async () => {
-			assert.rejects(roomController.startRoom(MOCK_CONNECTION_ID));
+			assert.rejects(RoomController.startRoom(MOCK_CONNECTION_ID));
 		});
 	});
 
@@ -162,7 +273,7 @@ describe('RoomController', () => {
 		it('should return the new board if successful', async () => {
 			await setUpARoom(false, [MOCK_CONNECTION_ID], [MOCK_PLAYER_NAME]);
 			// Mathematical proof indicating that a set must exist within 20 cards
-			const { board } = await roomController.startRoom(
+			const { board } = await RoomController.startRoom(
 				MOCK_CONNECTION_ID,
 				20
 			);
@@ -171,7 +282,7 @@ describe('RoomController', () => {
 			const {
 				board: updatedBoard,
 				updated,
-			} = await roomController.playMove(MOCK_CONNECTION_ID, realSet);
+			} = await RoomController.playMove(MOCK_CONNECTION_ID, realSet);
 
 			assert.strictEqual(updated, true);
 			const playedCardsStillOnBoard = updatedBoard.filter(c =>
@@ -184,24 +295,24 @@ describe('RoomController', () => {
 			await setUpARoom(false, [MOCK_CONNECTION_ID], [MOCK_PLAYER_NAME]);
 
 			assert.rejects(
-				roomController.playMove(MOCK_CONNECTION_ID, fakeSet)
+				RoomController.playMove(MOCK_CONNECTION_ID, fakeSet)
 			);
 		});
 
 		it('should fail if the Player does not exist', async () => {
-			await roomController.createRoom(false);
+			await RoomController.createRoom(false);
 
 			assert.rejects(
-				roomController.playMove(MOCK_CONNECTION_ID, fakeSet)
+				RoomController.playMove(MOCK_CONNECTION_ID, fakeSet)
 			);
 		});
 
 		it('should fail if an improper number of cards are provided', async () => {
 			await setUpARoom(false, [MOCK_CONNECTION_ID], [MOCK_PLAYER_NAME]);
-			await roomController.startRoom(MOCK_CONNECTION_ID);
+			await RoomController.startRoom(MOCK_CONNECTION_ID);
 
 			assert.rejects(
-				roomController.playMove(MOCK_CONNECTION_ID, fakeSet.slice(0, 2))
+				RoomController.playMove(MOCK_CONNECTION_ID, fakeSet.slice(0, 2))
 			);
 		});
 
@@ -228,14 +339,14 @@ describe('RoomController', () => {
 			];
 			const initialAvailableCards = [];
 			await setUpARoom(false, [MOCK_CONNECTION_ID], [MOCK_PLAYER_NAME]);
-			await roomController.startRoom(
+			await RoomController.startRoom(
 				MOCK_CONNECTION_ID,
 				3,
 				initialBoard,
 				initialAvailableCards
 			);
 
-			const result = await roomController.playMove(
+			const result = await RoomController.playMove(
 				MOCK_CONNECTION_ID,
 				initialBoard
 			);
@@ -266,14 +377,14 @@ describe('RoomController', () => {
 			];
 			const initialAvailableCards = [];
 			await setUpARoom(false, [MOCK_CONNECTION_ID], [MOCK_PLAYER_NAME]);
-			await roomController.startRoom(
+			await RoomController.startRoom(
 				MOCK_CONNECTION_ID,
 				3,
 				initialBoard,
 				initialAvailableCards
 			);
 
-			const result = await roomController.playMove(
+			const result = await RoomController.playMove(
 				MOCK_CONNECTION_ID,
 				initialBoard
 			);

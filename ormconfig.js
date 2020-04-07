@@ -7,6 +7,6 @@ module.exports = {
    entities: ["build/server/entity/*.js"],
    migrations: ["build/server/migrations/*.js"],
    cli: {
-      migrationsDir: "build/server/migrations"
+      migrationsDir: "server/migrations"
    }
 }
