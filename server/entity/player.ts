@@ -5,6 +5,7 @@ import {
 	BaseEntity,
 	JoinColumn,
 	PrimaryGeneratedColumn,
+	UpdateDateColumn,
 } from 'typeorm';
 import { Room } from './room';
 
@@ -36,8 +37,8 @@ export class Player extends BaseEntity {
 	@JoinColumn({ name: 'roomCode' })
 	room!: Room;
 
-	@Column({
-		default: () => 'NOW()',
+	@UpdateDateColumn({
+		nullable: false,
 	})
 	lastActive!: Date;
 
