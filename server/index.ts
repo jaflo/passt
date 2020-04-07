@@ -50,7 +50,8 @@ io.on('connection', socket => {
 				const { room, player } = await RoomController.joinRoom(
 					roomCode,
 					socket.id,
-					playerName
+					playerName,
+					oldConnectionId
 				);
 				socket.join(room.roomCode);
 				socket.broadcast

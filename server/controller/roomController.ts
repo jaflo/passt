@@ -97,24 +97,24 @@ export class RoomController {
 		oldConnectionId?: string
 	) {
 		const requestedRoom = await Room.findOneOrFail({ roomCode });
-		let existingPlayer = await Player.findOne(
-			{
-				connectionId: oldConnectionId,
-			},
-			{ relations: ['room'] }
+		const existingPlayer = requestedRoom.players.find(
+			player => player.connectionId === oldConnectionId
 		);
 		if (existingPlayer) {
 			existingPlayer.connectionId = newConnectionId;
+			existingPlayer.name = playerName;
 			await existingPlayer.save();
-		} else {
-			existingPlayer = await RoomController.createNewPlayer(
-				newConnectionId,
-				playerName,
-				requestedRoom
-			);
+			await requestedRoom.reload();
+			return { room: requestedRoom, player: existingPlayer };
 		}
+
+		const newPlayer = await RoomController.createNewPlayer(
+			newConnectionId,
+			playerName,
+			requestedRoom
+		);
 		await requestedRoom.reload();
-		return { room: requestedRoom, player: existingPlayer };
+		return { room: requestedRoom, player: newPlayer };
 	}
 
 	/**
