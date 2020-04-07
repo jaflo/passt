@@ -21,7 +21,7 @@ enum SocketEvent {
 	MOVE_PLAYED = 'movePlayed',
 	GAME_OVER = 'gameOver',
 	PLAYER_DISCONNECTED = 'playerDisconnected',
-	PLAYER_REMOVED = 'playerRemoved',
+	PLAYERS_REMOVED = 'playersRemoved',
 	EXCEPTION = 'exception',
 }
 
@@ -127,13 +127,12 @@ io.on('connection', socket => {
 
 // Every hour, "garbage collect" the database and let all affected rooms know.
 setInterval(() => {
-	// Step 1: Find all connectionIds of disconnected players older than FLUSH_CUTOFF_TIME, grouped by room code
-	// Step 2: Loop through all room codes, and emit to each room that the following connectionIds have been removed
-	// Step 3: Remove all the old players
-	// Step 4: Remove all the old rooms
-	RoomController.flushEmptyRooms();
-
-	io.emit(SocketEvent.PLAYER_REMOVED);
+	RoomController.flushInactiveDisconnectedPlayers().then(affectedRooms => {
+		for (const roomCode of Object.keys(affectedRooms)) {
+			const removedPlayers = affectedRooms[roomCode];
+			io.to(roomCode).emit(SocketEvent.PLAYERS_REMOVED, {removedPlayers});
+		}
+	}).then(() => RoomController.flushEmptyRooms());
 }, RoomController.FLUSH_INTERVAL_MILLIS);
 
 createConnection().then(() =>
