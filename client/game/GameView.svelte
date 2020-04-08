@@ -35,7 +35,7 @@
 		}
 	}
 
-	socket.on('joinedSuccessfully', function(data) {
+	socket.on('joinedSuccessfully', data => {
 		loadRoom(data);
 		if (data.started) {
 			if (data.board.length > 0) {
@@ -49,17 +49,17 @@
 		localStorage.setItem('oldConnectionId', socket.id);
 	});
 
-	socket.on('roomStarted', function(data) {
+	socket.on('roomStarted', data => {
 		loadRoom(data);
 		state = 'playing';
 		plays = [];
 	});
 
-	socket.on('gameOver', function() {
+	socket.on('gameOver', () => {
 		state = 'ended';
 	});
 
-	socket.on('movePlayed', function(data) {
+	socket.on('movePlayed', data => {
 		loadRoom(data);
 		plays = [
 			{
@@ -79,7 +79,7 @@
 		});
 	});
 
-	socket.on('playerDisconnected', function(connectionId) {
+	socket.on('playerDisconnected', connectionId => {
 		players.forEach(player => {
 			if (player.connectionId == connectionId) {
 				player.connected = false;
@@ -89,14 +89,14 @@
 		players = players;
 	});
 
-	socket.on('playersRemoved', function(data) {
+	socket.on('playersRemoved', data => {
 		const removedPlayers = data.removedPlayers;
 		players = players.filter(
 			player => !removedPlayers.includes(player.connectionId)
 		);
 	});
 
-	socket.on('newPlayer', function(player) {
+	socket.on('newPlayer', player => {
 		players = [
 			{
 				connectionId: player.connectionId,

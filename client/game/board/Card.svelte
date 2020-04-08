@@ -6,7 +6,7 @@
 	import CardSymbol from './CardSymbol.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { arrayContainsCard } from '../shared.js';
+	import { arrayContainsCard, hasModifierKey } from '../shared.js';
 
 	const dispatch = createEventDispatcher();
 	let humanReadable =
@@ -31,8 +31,9 @@
 	}
 
 	function handleKeydown(e) {
-		if (e.code == 'Key' + letter) {
+		if (e.code == 'Key' + letter && !hasModifierKey(e)) {
 			click();
+			e.preventDefault();
 		}
 	}
 </script>
@@ -48,7 +49,7 @@
 		cursor: pointer;
 		border-radius: 0.3em;
 		transition: all 0.2s ease-in-out;
-		background: rgba(255, 255, 255, 0.3);
+		background: var(--cardBgColor);
 	}
 
 	.card:hover {
@@ -95,11 +96,11 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div class="card" title={humanReadable} on:click={click}>
+<div class="card" aria-label={humanReadable} on:click={click}>
 	<CardSymbol {shape} {fillStyle} {color} {number} />
 	<div class="letter">{letter}</div>
 	{#if selected}
-		<div in:fade={{ duration: 100 }} out:fade={{ duration: 300 }}>
+		<div in:fade={{ duration: 100 }} out:fade={{ duration: 200 }}>
 			<div class="selection-border" />
 		</div>
 	{/if}

@@ -23,6 +23,7 @@
 	function handleKeydown(e) {
 		if (['Enter', 'Space'].includes(e.code)) {
 			startGame();
+			e.preventDefault();
 		}
 	}
 </script>
