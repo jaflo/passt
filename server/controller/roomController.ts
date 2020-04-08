@@ -269,6 +269,8 @@ export class RoomController {
 			room.placeCardsOnBoard(numToDraw);
 		}
 
+		room.board = shuffle(room.board);
+
 		// Update database records
 		await room.save();
 
