@@ -37,7 +37,15 @@
 
 	socket.on('joinedSuccessfully', function(data) {
 		loadRoom(data);
-		state = data.started ? 'playing' : 'waiting';
+		if (data.started) {
+			if (data.board.length > 0) {
+				state = 'playing';
+			} else {
+				state = 'ended';
+			}
+		} else {
+			state = 'waiting';
+		}
 		localStorage.setItem('oldConnectionId', socket.id);
 	});
 
