@@ -5,7 +5,7 @@
 	import { scale, fly } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import { socket } from '../../connectivity.js';
-	import { areCardsEqual, arrayContainsCard } from '../shared.js';
+	import { areCardsEqual, arrayContainsCard, justCard } from '../shared.js';
 
 	const keyboardMap = ['qwertyu', 'asdfghj', 'zxcvbnm'].map(line =>
 		line.split('')
@@ -54,7 +54,7 @@
 		}
 	}
 
-	socket.on('movePlayed', function(data) {
+	socket.on('movePlayed', data => {
 		if (data.player.connectionId == socket.id) {
 			attemptSelectionClear();
 		} else {
@@ -64,9 +64,16 @@
 		}
 	});
 
+	socket.on('exception', data => {
+		if (isSubmitting && data.includes('Error')) {
+			attemptSelectionClear();
+		}
+	});
+
 	function handleKeydown(e) {
 		if (['Backspace', 'Escape', 'Delete'].includes(e.code)) {
 			selection = [];
+			e.preventDefault();
 		}
 	}
 
@@ -80,28 +87,25 @@
 
 <style>
 	.board {
+		display: inline-flex;
+		flex-wrap: wrap;
 		margin: auto;
 		font-size: 0;
 		width: 360px;
 		padding: 12px 12px 0 0;
-		text-align: center;
 		box-sizing: border-box;
 	}
 
 	.card-wrapper {
 		margin: 0 0 12px 12px;
-		display: inline-block;
 	}
 
 	@media only screen and (min-width: 500px) {
 		.board {
+			flex-direction: column;
+			align-content: center;
 			width: 100%;
 			height: 390px;
-			display: inline-flex;
-			flex-direction: column;
-			flex-wrap: wrap;
-			align-items: flex-start;
-			align-content: center;
 			padding: 20px 20px 0 0;
 		}
 
@@ -120,7 +124,7 @@
 				in:fly={{ y: 30, duration: 300, delay: cardDelay(i) }}
 				out:fly={{ y: -30, duration: 300, delay: cardDelay(i) }}>
 				<Card
-					{...card}
+					{...justCard(card)}
 					selected={arrayContainsCard(selection, card)}
 					on:click={cardClicked}
 					letter={getKey(i)} />

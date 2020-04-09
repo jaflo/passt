@@ -6,25 +6,21 @@ const cardStructure = {
 };
 
 export function areCardsEqual(a, b) {
-	let isSame = true;
-	Object.keys(cardStructure).forEach((property) => {
+	for (const property of Object.keys(cardStructure)) {
 		if (a[property] !== b[property]) {
-			isSame = false;
-			return;
+			return false;
 		}
-	});
-	return isSame;
+	}
+	return true;
 }
 
 export function arrayContainsCard(list, card) {
-	let doesContain = false;
-	list.forEach((current) => {
+	for (const current of list) {
 		if (areCardsEqual(current, card)) {
-			doesContain = true;
-			return;
+			return true;
 		}
-	});
-	return doesContain;
+	}
+	return false;
 }
 
 function randomElement(list) {
@@ -33,18 +29,17 @@ function randomElement(list) {
 
 export function randomCard() {
 	let card = {};
-	Object.keys(cardStructure).forEach((property) => {
+	for (const property of Object.keys(cardStructure)) {
 		card[property] = randomElement(cardStructure[property]);
-	});
+	}
 	return card;
 }
 
 export function isValidPlay(cards) {
 	if (cards.length != 3) return false;
 
-	let isValid = true;
 	const [a, b, c] = cards;
-	Object.keys(cardStructure).forEach((property) => {
+	for (const property of Object.keys(cardStructure)) {
 		// written this way for easier understanding
 		if (a[property] === b[property] && b[property] === c[property]) {
 			// a = b = c, we good
@@ -55,16 +50,15 @@ export function isValidPlay(cards) {
 		) {
 			// a != b != c, we good
 		} else {
-			isValid = false;
-			return;
+			return false;
 		}
-	});
-	return isValid;
+	}
+	return true;
 }
 
 export function cardAsString(card) {
 	let result = '';
-	Object.keys(cardStructure).forEach((property) => {
+	Object.keys(cardStructure).forEach(property => {
 		result += card[property];
 	});
 	return result;
@@ -72,7 +66,7 @@ export function cardAsString(card) {
 
 export function inPlaceReplace(before, after) {
 	let final = [];
-	before.forEach((card) => {
+	before.forEach(card => {
 		// is the card still there?
 		let index = -1;
 		after.forEach((current, i) => {
@@ -92,10 +86,27 @@ export function inPlaceReplace(before, after) {
 		}
 	});
 	// replace all placeholders with new elements
-	final = final.map((card) => card || after.pop());
+	final = final.map(card => card || after.pop());
 	// remove any placeholders that weren't filled
-	final = final.filter((card) => !!card);
+	final = final.filter(card => !!card);
 	// add any remaining elements
 	final = [...final, ...after];
 	return final;
+}
+
+export function justCard(card) {
+	let filtered = {};
+	for (const property of Object.keys(cardStructure)) {
+		filtered[property] = card[property];
+	}
+	return filtered;
+}
+
+export function hasModifierKey(e) {
+	for (const modifier of ['Alt', 'Control', 'Meta', 'Shift']) {
+		if (e.getModifierState(modifier)) {
+			return true;
+		}
+	}
+	return false;
 }
