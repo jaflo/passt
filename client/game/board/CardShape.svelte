@@ -4,11 +4,12 @@
 
 	const randomPatternId = 'pattern' + Math.random();
 
-	let remappedColor = {
-		red: '#E4572E',
-		blue: '#17BEBB',
-		green: '#F0A202',
-	}[color];
+	let remappedColor =
+		{
+			red: '#E4572E',
+			blue: '#17BEBB',
+			green: '#F0A202',
+		}[color] || color;
 
 	let remappedStyle = {
 		fill: {

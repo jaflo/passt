@@ -68,13 +68,6 @@
 		width: 100%;
 	}
 
-	button {
-		font-size: 2em;
-		color: var(--saturatedColor);
-		padding: 0.4em 1em;
-		margin: 0;
-	}
-
 	.blink {
 		animation: blink 1s steps(2, start) infinite;
 		padding: 0.4em 0;

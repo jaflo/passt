@@ -22,6 +22,7 @@
 		height: 1em;
 		text-indent: -9em;
 		overflow: hidden;
+		padding: 0;
 	}
 
 	button:before,

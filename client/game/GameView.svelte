@@ -123,6 +123,8 @@
 	.main {
 		-webkit-user-select: none;
 		user-select: none;
+		background: var(--bgColor);
+		color: var(--textColor);
 	}
 
 	.ticker {
@@ -164,7 +166,7 @@
 		.main {
 			flex: 1;
 			position: relative;
-			margin-top: 3em;
+			margin: 3em 0 0 0;
 		}
 
 		.sidebar {
@@ -183,7 +185,7 @@
 		</div>
 		<div class="main center-contents">
 			{#if state == 'playing'}
-				<Board {cards} />
+				<Board {cards} on:excessiveMisplays />
 			{:else}
 				<PauseScreen redo={state == 'ended'} />
 			{/if}

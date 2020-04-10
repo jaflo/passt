@@ -2,15 +2,23 @@
 	export let cards = [];
 
 	import Card from './Card.svelte';
+	import { createEventDispatcher } from 'svelte';
 	import { scale, fly } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import { socket } from '../../connectivity.js';
-	import { areCardsEqual, arrayContainsCard, justCard } from '../shared.js';
+	import {
+		areCardsEqual,
+		arrayContainsCard,
+		justCard,
+		isValidPlay,
+	} from '../shared.js';
 
+	const dispatch = createEventDispatcher();
 	const keyboardMap = ['qwertyu', 'asdfghj', 'zxcvbnm'].map(line =>
 		line.split('')
 	);
 	const NUM_CARDS_FOR_PLAY = 3;
+	const EXCESSIVE_MISPLAYS = 8;
 
 	function getKey(i) {
 		if (i >= keyboardMap.length * keyboardMap[0].length) {
@@ -23,6 +31,7 @@
 	let selection = [];
 	let isSubmitting = false;
 	let selectionDeselectClearSteps = 2;
+	let incorrectStreak = 0;
 
 	function attemptSelectionClear() {
 		selectionDeselectClearSteps--;
@@ -46,6 +55,14 @@
 			selection = [...selection, card];
 			if (selection.length == NUM_CARDS_FOR_PLAY) {
 				isSubmitting = true;
+				if (isValidPlay(selection)) {
+					incorrectStreak = 0;
+				} else {
+					incorrectStreak++;
+					if (incorrectStreak > EXCESSIVE_MISPLAYS) {
+						dispatch('excessiveMisplays');
+					}
+				}
 				socket.emit('play', {
 					cards: selection,
 				});
