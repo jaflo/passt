@@ -25,18 +25,25 @@
 		} else {
 			localStorage.removeItem('name');
 		}
-		socket.emit('joinRoom', {
-			roomCode: roomCode,
-			playerName: playerName || randomName,
-			oldConnectionId: localStorage.getItem('oldConnectionId'),
-		});
+		attemptJoin();
 		joining = true;
 	}
 
+	function attemptJoin() {
+		socket.emit('joinRoom', {
+			roomCode: roomCode,
+			playerName: playerName || randomName,
+			oldConnectionId: localStorage.getItem('old connection id'),
+		});
+	}
+
 	socket.on('exception', data => {
-		if (data.includes('EntityNotFound') || data.includes('already in')) {
+		if (data.includes('EntityNotFound')) {
 			unavailable = true;
 			joining = false;
+		} else if (data.includes('already in')) {
+			localStorage.setItem('new tab ' + roomCode, socket.id);
+			setTimeout(attemptJoin, 100);
 		}
 	});
 
