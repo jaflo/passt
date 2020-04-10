@@ -46,7 +46,7 @@
 		} else {
 			state = 'waiting';
 		}
-		localStorage.setItem('oldConnectionId', socket.id);
+		localStorage.setItem('old connection id', socket.id);
 	});
 
 	socket.on('roomStarted', data => {
@@ -110,6 +110,18 @@
 			),
 		];
 	});
+
+	function closeIfDuplicate(e) {
+		if (e.key == 'new tab') {
+			const newTabConnectionId = localStorage.getItem('new tab');
+			if (newTabConnectionId && newTabConnectionId != socket.id) {
+				socket.close();
+				window.location = window.location;
+			} else {
+				localStorage.removeItem('new tab');
+			}
+		}
+	}
 </script>
 
 <style>
@@ -175,6 +187,8 @@
 		}
 	}
 </style>
+
+<svelte:window on:storage={closeIfDuplicate} />
 
 <div class="game">
 	{#if state == 'joining'}
