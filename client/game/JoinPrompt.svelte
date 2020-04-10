@@ -25,7 +25,6 @@
 		} else {
 			localStorage.removeItem('name');
 		}
-		localStorage.setItem('new tab', socket.id);
 		attemptJoin();
 		joining = true;
 	}
@@ -43,6 +42,7 @@
 			unavailable = true;
 			joining = false;
 		} else if (data.includes('already in')) {
+			localStorage.setItem('new tab ' + roomCode, socket.id);
 			setTimeout(attemptJoin, 100);
 		}
 	});

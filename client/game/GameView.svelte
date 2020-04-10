@@ -47,6 +47,7 @@
 			state = 'waiting';
 		}
 		localStorage.setItem('old connection id', socket.id);
+		localStorage.removeItem('new tab ' + roomCode);
 	});
 
 	socket.on('roomStarted', data => {
@@ -112,13 +113,13 @@
 	});
 
 	function closeIfDuplicate(e) {
-		if (e.key == 'new tab') {
-			const newTabConnectionId = localStorage.getItem('new tab');
+		if (e.key == 'new tab ' + roomCode) {
+			const newTabConnectionId = localStorage.getItem(
+				'new tab ' + roomCode
+			);
 			if (newTabConnectionId && newTabConnectionId != socket.id) {
 				socket.close();
 				window.location = window.location;
-			} else {
-				localStorage.removeItem('new tab');
 			}
 		}
 	}
