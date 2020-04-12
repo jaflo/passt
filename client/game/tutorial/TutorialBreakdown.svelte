@@ -1,6 +1,7 @@
 <script>
 	export let cards;
 	export let breakdownDepth = 0;
+	export let resultScale = 1;
 
 	import CardSymbol from '../board/CardSymbol.svelte';
 	import TutorialEquality from './TutorialEquality.svelte';
@@ -110,7 +111,7 @@
 		{/each}
 		<tr class="main" class:separated={breakdownDepth > 0}>
 			{#each cards as card, i}
-				<td class="combined">
+				<td class="combined" style="transform:scale({resultScale})">
 					<CardSymbol {...combinedCard(card)} />
 				</td>
 				<td class="equality">
