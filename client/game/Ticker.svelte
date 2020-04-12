@@ -20,6 +20,10 @@
 		align-items: center;
 	}
 
+	.invalid.play {
+		opacity: 0.4;
+	}
+
 	.card {
 		position: relative;
 		width: 24px;
@@ -48,10 +52,6 @@
 		text-overflow: ellipsis;
 	}
 
-	.player.highlight {
-		font-weight: bold;
-	}
-
 	.placeholder {
 		text-align: center;
 		opacity: 0.3;
@@ -62,6 +62,7 @@
 	{#each plays as play (play.id)}
 		<div
 			class="play"
+			class:invalid={!play.valid}
 			animate:flip={{ duration: 400 }}
 			in:fade={{ delay: 300, duration: 300 }}>
 			{#each play.cards as card}
@@ -71,7 +72,7 @@
 					</div>
 				</div>
 			{/each}
-			<div class="player" class:highlight={play.valid}>{play.player}</div>
+			<div class="player">{play.player}</div>
 		</div>
 	{:else}
 		<div class="placeholder" out:fade={{ duration: 300 }}>

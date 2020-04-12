@@ -1,6 +1,7 @@
 <script>
 	export let roomCode;
 
+	import { createEventDispatcher } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { socket } from '../connectivity.js';
 	import {
@@ -9,6 +10,8 @@
 		colors,
 		animals,
 	} from 'unique-names-generator';
+
+	const dispatch = createEventDispatcher();
 
 	const randomName = uniqueNamesGenerator({
 		dictionaries: [colors, animals],
@@ -30,15 +33,19 @@
 	}
 
 	function attemptJoin() {
+		const claimedPlayerName = playerName || randomName;
+		dispatch('claimedName', { playerName: claimedPlayerName });
 		socket.emit('joinRoom', {
-			roomCode: roomCode,
-			playerName: playerName || randomName,
+			roomCode,
+			playerName: claimedPlayerName,
 			oldConnectionId: localStorage.getItem('old connection id'),
 		});
 	}
 
 	socket.on('exception', data => {
-		if (data.includes('EntityNotFound')) {
+		if (data.includes('Could not find any entity of type "Player"')) {
+			window.location = window.location;
+		} else if (data.includes('EntityNotFound')) {
 			unavailable = true;
 			joining = false;
 		} else if (data.includes('already in')) {

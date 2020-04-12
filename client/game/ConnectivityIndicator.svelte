@@ -3,7 +3,7 @@
 
 	let connected = socket.connected;
 
-	socket.on('connect', () => (connected = true));
+	socket.on('joinedSuccessfully', () => (connected = true));
 	socket.on('disconnect', () => (connected = false));
 </script>
 

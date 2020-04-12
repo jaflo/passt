@@ -67,22 +67,20 @@
 
 <style>
 	.tutorial-wrapper {
-		margin: 2em 0;
+		padding: 2em 0;
+		min-height: 100vh;
+		box-sizing: border-box;
 	}
 
 	.slides {
 		margin: 1em 0;
-	}
-
-	.spacer {
-		height: 50vh;
-		margin-top: -170px;
+		max-width: 860px;
+		text-align: center;
 	}
 
 	.slide {
-		margin-bottom: 2em;
-		flex: 1 0 100vw;
-		display: flex;
+		margin: 0 0 2em 2em;
+		display: inline-flex;
 		align-items: flex-start;
 	}
 

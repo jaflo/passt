@@ -1,5 +1,6 @@
 <script>
 	export let players = [];
+	export let roomCode;
 
 	import ConnectivityIndicator from './ConnectivityIndicator.svelte';
 	import { fly, fade } from 'svelte/transition';
@@ -8,13 +9,23 @@
 
 	$: points = players.filter(player => player.connectionId == socket.id)[0]
 		.points;
+
+	function selectAndCopy() {
+		this.select();
+		const range = document.createRange();
+		range.selectNodeContents(this);
+		const selection = window.getSelection();
+		selection.removeAllRanges();
+		selection.addRange(range);
+		this.setSelectionRange(0, 99999);
+		document.execCommand('copy');
+	}
 </script>
 
 <style>
 	.header {
 		margin-bottom: 0.5em;
 		display: flex;
-		flex-direction: row;
 		align-content: center;
 		align-items: center;
 	}
@@ -22,6 +33,10 @@
 	.count {
 		font-weight: bold;
 		font-size: 4em;
+		flex: 1;
+	}
+
+	.players {
 		flex: 1;
 	}
 
@@ -44,6 +59,24 @@
 	.connectivity-wrapper {
 		float: right;
 	}
+
+	.more a,
+	.more input {
+		width: 100%;
+		display: block;
+		box-sizing: border-box;
+		border: 0;
+		background: none;
+		margin: 0.5em 0 0 0;
+		padding: 0.5em 0 0 0;
+		border-radius: 0.3em;
+		text-decoration: none;
+		text-align: right;
+	}
+
+	.more a {
+		text-transform: uppercase;
+	}
 </style>
 
 <div class="header">
@@ -53,13 +86,23 @@
 	</div>
 </div>
 
-{#each players
-	.filter(player => player.connected)
-	.sort((a, b) => b.points - a.points) as player (player.connectionId)}
-	<div class="player" animate:flip={{ duration: 300 }}>
-		<strong transition:fly={{ x: -20, duration: 300 }}>
-			{player.name}
-		</strong>
-		<span transition:fade={{ duration: 300 }}>{player.points}</span>
-	</div>
-{/each}
+<div class="players">
+	{#each players
+		.filter(player => player.connected)
+		.sort((a, b) => b.points - a.points) as player (player.connectionId)}
+		<div class="player" animate:flip={{ duration: 300 }}>
+			<strong transition:fly={{ x: -20, duration: 300 }}>
+				{player.name}
+			</strong>
+			<span transition:fade={{ duration: 300 }}>{player.points}</span>
+		</div>
+	{/each}
+</div>
+
+<div class="more">
+	<a href="./">new game &rarr;</a>
+	<input
+		type="text"
+		value={window.location.href.split('?')[0] + '?room=' + roomCode}
+		on:click={selectAndCopy} />
+</div>

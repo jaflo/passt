@@ -1,5 +1,6 @@
 <script>
 	export let cards = [];
+	export let disabled = false;
 
 	import Card from './Card.svelte';
 	import { createEventDispatcher } from 'svelte';
@@ -18,7 +19,6 @@
 		line.split('')
 	);
 	const NUM_CARDS_FOR_PLAY = 3;
-	const EXCESSIVE_MISPLAYS = 8;
 
 	function getKey(i) {
 		if (i >= keyboardMap.length * keyboardMap[0].length) {
@@ -43,7 +43,11 @@
 	}
 
 	function cardClicked(e) {
-		if (isSubmitting || selection.length >= NUM_CARDS_FOR_PLAY) {
+		if (
+			isSubmitting ||
+			selection.length >= NUM_CARDS_FOR_PLAY ||
+			disabled
+		) {
 			return;
 		}
 		const card = e.detail.card;
@@ -59,9 +63,10 @@
 					incorrectStreak = 0;
 				} else {
 					incorrectStreak++;
-					if (incorrectStreak > EXCESSIVE_MISPLAYS) {
-						dispatch('excessiveMisplays');
-					}
+					dispatch('misplay', {
+						count: incorrectStreak,
+						cards: selection,
+					});
 				}
 				socket.emit('play', {
 					cards: selection,
@@ -74,7 +79,7 @@
 	socket.on('movePlayed', data => {
 		if (data.player.connectionId == socket.id) {
 			attemptSelectionClear();
-		} else {
+		} else if (data.updated) {
 			selection = selection.filter(
 				card => !arrayContainsCard(data.cards, card)
 			);
