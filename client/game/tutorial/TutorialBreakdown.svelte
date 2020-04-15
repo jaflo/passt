@@ -29,10 +29,6 @@
 		}
 		return combinedCard(isolated);
 	}
-
-	function validate(cards) {
-		return isValidPlay(cards) ? 'yes' : 'no';
-	}
 </script>
 
 <style>

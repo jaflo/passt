@@ -18,12 +18,7 @@ jobs:
         run: |
           npm install
           npm run build:client
-      - name: Cachebust
-        uses: jacobtomlinson/gha-find-replace@master
-        with:
-          find: BUILD_ID
-          replace: ${{ env.GITHUB_SHA }}
-          include: public/.*
+          sed -i 's/BUILD_ID/$GITHUB_SHA/g' public/index.html
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
