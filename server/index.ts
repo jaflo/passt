@@ -125,6 +125,7 @@ io.on('connection', socket => {
 			const { room, cleared } = result;
 			io.to(room.roomCode).emit(SocketEvent.VOTE_TO_CLEAR_ADDED, {
 				connectionId: socket.id,
+				votesToClear: room.votesToClear,
 				board: room.board,
 				cleared,
 			});

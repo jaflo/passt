@@ -471,7 +471,7 @@ describe('RoomController', () => {
 				MOCK_CONNECTION_ID
 			))!;
 			assert.strictEqual(room.votesToClear.length, 1);
-			assert.strictEqual(room.votesToClear[0], MOCK_PLAYER_NAME);
+			assert.strictEqual(room.votesToClear[0], MOCK_CONNECTION_ID);
 		});
 
 		it("should not add a player's vote twice", async () => {

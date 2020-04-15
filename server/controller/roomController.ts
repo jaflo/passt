@@ -133,7 +133,7 @@ export class RoomController {
 		);
 		player.connected = false;
 		player.room.votesToClear = player.room.votesToClear.filter(
-			name => name !== player.name
+			connectionId => connectionId !== player.connectionId
 		);
 		await player.room.save();
 		await player.save();
@@ -309,10 +309,10 @@ export class RoomController {
 			);
 		}
 
-		if (room.votesToClear.includes(player.name)) {
+		if (room.votesToClear.includes(player.connectionId)) {
 			return null;
 		}
-		room.votesToClear.push(player.name);
+		room.votesToClear.push(player.connectionId);
 
 		// This vote makes a majority, flush the board
 		const needToClear =
