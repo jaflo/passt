@@ -18,11 +18,6 @@ jobs:
         run: |
           npm install
           npm run build:client
-      - name: Cachebust
-        run: |
-          echo $GITHUB_SHA
-          sed -i 's/BUILD_ID/$GITHUB_SHA/g' public/index.html
-          cat public/index.html
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
