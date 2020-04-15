@@ -1,10 +1,14 @@
 # Based on https://dev.to/heroku/deploying-to-heroku-from-github-actions-29ej
-name: Deploy
+name: Deploy server
 
 on:
   push:
     branches:
       - master
+    paths:
+    - server/**.ts
+    - docker-compose.yml
+    - Dockerfile
 
 env:
   HEROKU_APP_NAME: passt
@@ -27,18 +31,3 @@ jobs:
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: heroku container:release -a $HEROKU_APP_NAME web
-  deploy-to-gh-pages:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@master
-      - name: Install and build
-        run: |
-          npm install
-          npm run build:client
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@releases/v3
-        with:
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: public
