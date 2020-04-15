@@ -83,6 +83,9 @@ export class Room extends BaseEntity {
 	@Column({ type: 'jsonb', default: [] })
 	availableCards!: Card[];
 
+	@Column({ type: 'jsonb', default: [] })
+	votesToClear!: string[];
+
 	@UpdateDateColumn({ nullable: false })
 	lastActive!: Date;
 
@@ -97,6 +100,13 @@ export class Room extends BaseEntity {
 
 		this.board.push(...drawnCards);
 		this.availableCards = availableCards;
+	}
+
+	/**
+	 * Destroys all cards on the board.
+	 */
+	clearBoard(): void {
+		this.board = [];
 	}
 
 	/**

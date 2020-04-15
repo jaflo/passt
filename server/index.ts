@@ -19,6 +19,8 @@ enum SocketEvent {
 	ROOM_STARTED = 'roomStarted',
 	PLAY = 'play',
 	MOVE_PLAYED = 'movePlayed',
+	VOTE_TO_CLEAR = 'voteToClear',
+	VOTE_TO_CLEAR_ADDED = 'voteToClearAdded',
 	GAME_OVER = 'gameOver',
 	PLAYER_DISCONNECTED = 'playerDisconnected',
 	PLAYERS_REMOVED = 'playersRemoved',
@@ -110,6 +112,24 @@ io.on('connection', socket => {
 			});
 		} catch (err) {
 			console.error(err);
+			socket.emit(SocketEvent.EXCEPTION, err.toString());
+		}
+	});
+
+	socket.on(SocketEvent.VOTE_TO_CLEAR, async () => {
+		try {
+			const result = await RoomController.voteToClearBoard(socket.id);
+			if (result === null) {
+				return;
+			}
+			const { room, cleared } = result;
+			io.to(room.roomCode).emit(SocketEvent.VOTE_TO_CLEAR_ADDED, {
+				connectionId: socket.id,
+				votesToClear: room.votesToClear,
+				board: room.board,
+				cleared,
+			});
+		} catch (err) {
 			socket.emit(SocketEvent.EXCEPTION, err.toString());
 		}
 	});

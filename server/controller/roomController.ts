@@ -3,7 +3,6 @@ import { Player } from '../entity/player';
 import { customAlphabet } from 'nanoid';
 import { shuffle, isASet, findSetIn } from '../shared';
 import { LessThan, LessThanOrEqual } from 'typeorm';
-import { request } from 'http';
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
 const nanoid = customAlphabet(ALPHABET, 6);
@@ -132,6 +131,10 @@ export class RoomController {
 			{ relations: ['room'] }
 		);
 		player.connected = false;
+		player.room.votesToClear = player.room.votesToClear.filter(
+			connectionId => connectionId !== player.connectionId
+		);
+		await player.room.save();
 		await player.save();
 		await player.room.reload();
 		return player.room;
@@ -240,6 +243,7 @@ export class RoomController {
 		player.points += 1;
 		await player.save();
 
+		room.votesToClear = [];
 		room.removeCardsFromBoard(cards);
 
 		// If no moves can be played, the game is over.
@@ -280,5 +284,46 @@ export class RoomController {
 			isOver: false,
 			roomCode: room.roomCode,
 		};
+	}
+
+	/**
+	 * Adds the player's vote to clear the board. If the players who voted to clear the board constitute a majority,
+	 * clears the board and redraws INITIAL_BOARD_SIZE cards.
+	 * @param connectionId The connection ID of the player who is voting to clear the board
+	 */
+	static async voteToClearBoard(
+		connectionId: string
+	): Promise<{ room: Room; cleared: boolean } | null> {
+		const player = await Player.findOneOrFail(
+			{ connectionId },
+			{ relations: ['room'] }
+		);
+		const room = await Room.findOneOrFail({
+			roomCode: player.room.roomCode,
+		});
+
+		if (!room.started) {
+			throw new Error(
+				`A vote was cast to clear the board for room ${room.roomCode}, but it has not started yet.`
+			);
+		}
+
+		if (room.votesToClear.includes(player.connectionId)) {
+			return null;
+		}
+		room.votesToClear.push(player.connectionId);
+
+		const connectedPlayers = room.players.filter(
+			player => player.connected
+		);
+		const needToClear =
+			room.votesToClear.length >= Math.round(connectedPlayers.length / 2);
+		if (needToClear) {
+			room.clearBoard();
+			room.votesToClear = [];
+			room.placeCardsOnBoard(RoomController.INITIAL_BOARD_SIZE);
+		}
+		await room.save();
+		return { room, cleared: needToClear };
 	}
 }
