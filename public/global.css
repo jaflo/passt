@@ -28,6 +28,11 @@ a:hover {
 	text-decoration: underline;
 }
 
+h2 {
+	font-size: 1.4em;
+	margin: 1em 0;
+}
+
 label {
 	display: block;
 }

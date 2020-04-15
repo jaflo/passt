@@ -17,6 +17,7 @@
 		generateSet('random'),
 		generateSet('almost'),
 		generateSet('almost'),
+		generateSet('almost'),
 	];
 
 	function confirm() {
@@ -26,14 +27,19 @@
 
 <style>
 	.tutorial-wrapper {
-		padding: 1em 0;
+		padding-bottom: 2em;
 		min-height: 100vh;
 		box-sizing: border-box;
 		margin-bottom: env(safe-area-inset-bottom);
+		text-align: center;
+	}
+
+	.explanation {
+		margin: 0 1em;
 	}
 
 	.slides {
-		margin-bottom: 1em;
+		margin: -1em 0 1em 0;
 		max-width: 800px;
 		text-align: center;
 	}
@@ -46,14 +52,7 @@
 		padding: 1em;
 		border-radius: 0.4em;
 		box-sizing: border-box;
-	}
-
-	.padded {
-		margin-bottom: 0.8em;
-	}
-
-	.padded:last-child {
-		margin-bottom: 0;
+		width: 320px;
 	}
 
 	@media only screen and (max-width: 500px) {
@@ -63,25 +62,22 @@
 
 		.slide {
 			flex-direction: column;
+			margin: 0.5em;
 		}
 	}
 </style>
 
 <div class="tutorial-wrapper center-contents">
+	<h2>Tutorial</h2>
+	<div class="explanation">
+		Form sets of three cards where the shape, fill, number, and color are
+		all the same or different.
+	</div>
+	<h2>Examples</h2>
 	<div class="slides">
-		{#each Array(samples.length + 1) as _, i}
+		{#each samples as cards}
 			<div class="slide">
-				{#if i == 0}
-					{#each simple as cards}
-						<div class="padded">
-							<TutorialBreakdown {cards} />
-						</div>
-					{/each}
-				{:else}
-					<TutorialBreakdown
-						cards={samples[i - 1]}
-						breakdownDepth={4} />
-				{/if}
+				<TutorialBreakdown {cards} />
 			</div>
 		{/each}
 	</div>

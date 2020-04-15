@@ -1,6 +1,5 @@
 <script>
 	export let cards;
-	export let breakdownDepth = 0;
 	export let resultScale = 1;
 
 	import CardSymbol from '../board/CardSymbol.svelte';
@@ -8,7 +7,20 @@
 	import { areCardsEqual, isValidPlay } from '../shared.js';
 
 	const properties = ['shape', 'fillStyle', 'number', 'color']; // order matters so not pulled from shared.js
-	$: breakdown = properties.slice(0, breakdownDepth);
+
+	for (const i of [1, 2, 1]) {
+		for (const property of properties) {
+			// A != B != A
+			if (
+				cards[0][property] == cards[2][property] &&
+				cards[0][property] != cards[1][property]
+			) {
+				const flip = cards[0];
+				cards[0] = cards[i];
+				cards[i] = flip;
+			}
+		}
+	}
 
 	const defaultCard = {
 		shape: 'circle',
@@ -51,10 +63,6 @@
 		height: 60px;
 	}
 
-	.separated .combined {
-		border-top: 1em solid transparent;
-	}
-
 	.property {
 		position: relative;
 		height: 32px;
@@ -78,7 +86,7 @@
 
 <table>
 	<tbody>
-		{#each breakdown as property, i}
+		{#each properties as property, i}
 			<tr class="breakdown">
 				{#each cards as card, i}
 					<td class="property">
@@ -107,13 +115,13 @@
 				</td>
 			</tr>
 		{/each}
-		<tr class="main" class:separated={breakdownDepth > 0}>
+		<tr class="main">
 			{#each cards as card, i}
 				<td class="combined" style="transform:scale({resultScale})">
 					<CardSymbol {...combinedCard(card)} />
 				</td>
 				<td class="equality">
-					{#if breakdownDepth == 0 && i < cards.length - 1}
+					{#if i < cards.length - 1}
 						<TutorialEquality
 							equal={areCardsEqual(combinedCard(card), combinedCard(cards[i + 1]))} />
 					{/if}

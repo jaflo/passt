@@ -60,7 +60,7 @@
 <div class="cover center-contents" transition:fade={{ duration: 200 }}>
 	<div class="explained" transition:fly={{ y: 30, duration: 200 }}>
 		<div class="tutorial-wrapper">
-			<TutorialBreakdown {cards} breakdownDepth={4} resultScale={0.8} />
+			<TutorialBreakdown {cards} resultScale={0.8} />
 		</div>
 		<button
 			on:click={understood}
