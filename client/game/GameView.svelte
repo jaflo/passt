@@ -156,7 +156,6 @@
 <style>
 	.game {
 		display: flex;
-		min-height: 100vh;
 		flex-direction: column;
 	}
 
@@ -220,6 +219,7 @@
 		display: flex;
 		flex-direction: column;
 		z-index: 2;
+		margin-bottom: env(safe-area-inset-bottom);
 	}
 
 	.sidebar.highlight {

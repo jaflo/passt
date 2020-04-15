@@ -19,7 +19,6 @@
 		selection.removeAllRanges();
 		selection.addRange(range);
 		this.setSelectionRange(0, 99999);
-		document.execCommand('copy');
 	}
 
 	function redoTutorial() {
@@ -64,6 +63,10 @@
 
 	.connectivity-wrapper {
 		float: right;
+	}
+
+	.more {
+		padding-top: 1em;
 	}
 
 	.more a,

@@ -29,6 +29,7 @@
 		padding: 1em 0;
 		min-height: 100vh;
 		box-sizing: border-box;
+		margin-bottom: env(safe-area-inset-bottom);
 	}
 
 	.slides {
