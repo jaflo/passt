@@ -103,9 +103,11 @@
 					</td>
 				{/each}
 				<td class="result">
-					{validate(cards.map(card =>
+					{#if !isValidPlay(cards.map(card =>
 							simplifiedProperty(card, property)
 						))}
+						no
+					{/if}
 				</td>
 			</tr>
 		{/each}
@@ -121,7 +123,7 @@
 					{/if}
 				</td>
 			{/each}
-			<td class="result">{validate(cards)}</td>
+			<td class="result">{isValidPlay(cards) ? 'yes' : 'no'}</td>
 		</tr>
 	</tbody>
 </table>

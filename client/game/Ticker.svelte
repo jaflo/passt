@@ -10,7 +10,6 @@
 <style>
 	.ticker {
 		padding: 1em;
-		opacity: 0.9;
 		white-space: nowrap;
 	}
 
@@ -44,7 +43,6 @@
 
 	.player {
 		margin: 0 1.2em 0 0.2em;
-		opacity: 0.6;
 		white-space: nowrap;
 		max-width: 10em;
 		white-space: nowrap;

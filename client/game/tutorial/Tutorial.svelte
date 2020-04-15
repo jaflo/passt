@@ -1,6 +1,7 @@
 <script>
 	import TutorialBreakdown from './TutorialBreakdown.svelte';
 	import { createEventDispatcher } from 'svelte';
+	import { generateSet } from '../shared.js';
 
 	const dispatch = createEventDispatcher();
 
@@ -10,54 +11,12 @@
 		[{}, {}, { shape: 'triangle' }],
 	];
 
-	const steps = [
-		[
-			{
-				shape: 'circle',
-				fillStyle: 'empty',
-			},
-			{
-				shape: 'triangle',
-				fillStyle: 'lined',
-			},
-			{
-				shape: 'square',
-				fillStyle: 'filled',
-			},
-		],
-		[
-			{
-				shape: 'circle',
-				fillStyle: 'empty',
-			},
-			{
-				shape: 'square',
-				fillStyle: 'lined',
-			},
-			{
-				shape: 'square',
-				fillStyle: 'filled',
-			},
-		],
-		[
-			{
-				shape: 'circle',
-				fillStyle: 'lined',
-				color: 'red',
-			},
-			{
-				shape: 'circle',
-				fillStyle: 'empty',
-				color: 'green',
-				number: 2,
-			},
-			{
-				shape: 'circle',
-				fillStyle: 'filled',
-				color: 'blue',
-				number: 3,
-			},
-		],
+	const samples = [
+		generateSet('correct'),
+		generateSet('correct'),
+		generateSet('random'),
+		generateSet('almost'),
+		generateSet('almost'),
 	];
 
 	function confirm() {
@@ -67,34 +26,20 @@
 
 <style>
 	.tutorial-wrapper {
-		padding: 2em 0;
+		padding: 1em 0;
 		min-height: 100vh;
 		box-sizing: border-box;
 	}
 
 	.slides {
-		margin: 1em 0;
-		max-width: 860px;
+		margin-bottom: 1em;
+		max-width: 800px;
 		text-align: center;
 	}
 
 	.slide {
-		margin: 0 0 2em 2em;
-		display: inline-flex;
-		align-items: flex-start;
-	}
-
-	.number {
-		border: 0.12em solid;
-		border-radius: 9em;
-		width: 2em;
-		height: 2em;
-		line-height: 2em;
-		text-align: center;
-		margin-right: 1em;
-	}
-
-	.content {
+		margin: 1em;
+		display: inline-block;
 		background: var(--bgColor);
 		color: var(--textColor);
 		padding: 1em;
@@ -102,47 +47,40 @@
 		box-sizing: border-box;
 	}
 
-	@media only screen and (max-width: 500px) {
-		.spacer {
-			display: none;
-		}
+	.padded {
+		margin-bottom: 0.8em;
+	}
 
-		.slides,
-		.content {
+	.padded:last-child {
+		margin-bottom: 0;
+	}
+
+	@media only screen and (max-width: 500px) {
+		.slides {
 			width: 100%;
 		}
 
 		.slide {
 			flex-direction: column;
 		}
-
-		.number {
-			margin: 0 auto 1em auto;
-		}
-
-		.content {
-			border-radius: 0;
-		}
 	}
 </style>
 
 <div class="tutorial-wrapper center-contents">
-	<div class="spacer" />
 	<div class="slides">
-		{#each Array(steps.length + 1) as _, i}
+		{#each Array(samples.length + 1) as _, i}
 			<div class="slide">
-				<div class="number">{i + 1}</div>
-				<div class="content">
-					{#if i == 0}
-						{#each simple as cards}
+				{#if i == 0}
+					{#each simple as cards}
+						<div class="padded">
 							<TutorialBreakdown {cards} />
-						{/each}
-					{:else}
-						<TutorialBreakdown
-							cards={steps[i - 1]}
-							breakdownDepth={i + 1} />
-					{/if}
-				</div>
+						</div>
+					{/each}
+				{:else}
+					<TutorialBreakdown
+						cards={samples[i - 1]}
+						breakdownDepth={4} />
+				{/if}
 			</div>
 		{/each}
 	</div>
