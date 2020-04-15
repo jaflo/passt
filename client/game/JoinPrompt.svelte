@@ -89,11 +89,7 @@
 </style>
 
 <div class="cover join-wrapper center-contents" out:fade={{ duration: 200 }}>
-	{#if joining}
-		<div in:fade={{ duration: 300, delay: 400 }}>
-			<div class="spinner" />
-		</div>
-	{:else if unavailable}
+	{#if unavailable}
 		<div class="blink error">?</div>
 		<!-- svelte-ignore a11y-autofocus -->
 		<button type="button" class="large" on:click={back} autofocus>
@@ -108,7 +104,7 @@
 				bind:value={playerName}
 				placeholder={randomName}
 				autofocus />
-			<button type="submit" class="large">
+			<button type="submit" class="large" class:loading={joining}>
 				<span>Join</span>
 				&rarr;
 			</button>
