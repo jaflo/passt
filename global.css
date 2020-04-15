@@ -40,11 +40,26 @@ h1 {
 	font-size: 2em;
 	margin: 0;
 	text-transform: uppercase;
-	letter-spacing: 0.1em;
+	letter-spacing: 0.3em;
+	display: flex;
+	align-items: center;
+}
+
+h1 a {
+	flex: 1;
 }
 
 h1 a:hover {
 	text-decoration: none;
+}
+
+h1 svg {
+	height: 1em;
+	width: auto;
+}
+
+h1 svg path {
+	fill: var(--bgColor);
 }
 
 h2 {
@@ -85,6 +100,29 @@ button:hover {
 	color: rgba(255, 255, 255, 0.4);
 }
 
+.spinner,
+button.large:after {
+	width: 0;
+	height: 0;
+	padding: 1em;
+	border: 0.2em solid transparent;
+	border-top-color: inherit;
+	border-radius: 9em;
+	animation: spin 0.5s infinite linear;
+	margin: auto;
+	content: '';
+	display: block;
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
 button {
 	outline: none;
 	cursor: pointer;
@@ -102,10 +140,11 @@ button.large {
 	border-radius: 9em;
 	padding: 0.4em 1em;
 	margin: 0 auto;
-	transition: 0.1s box-shadow ease-in-out;
+	transition: 0.1s box-shadow ease-in-out, 0.1s color;
 	text-transform: uppercase;
 	display: flex;
 	align-items: center;
+	position: relative;
 }
 
 button.large:hover,
@@ -118,31 +157,40 @@ button.large span {
 	margin-right: 0.4em;
 }
 
+button.large:after {
+	visibility: hidden;
+	position: absolute;
+	right: 0.4em;
+	top: 50%;
+	margin-top: -0.65em;
+	padding: 0.5em;
+	border-width: 0.15em;
+	transition: visibility 0.3s linear 0.3s;
+}
+
+button.large.loading {
+	color: transparent;
+	opacity: 0.8;
+	box-shadow: none;
+	cursor: default;
+	transition-delay: 0.3s;
+}
+
+button.large.loading:after {
+	visibility: visible;
+}
+
+button.large.loading span,
+button.large.loading:after {
+	color: var(--saturatedColor);
+	border-top-color: var(--saturatedColor);
+}
+
 .center-contents {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
-}
-
-.spinner {
-	width: 0;
-	height: 0;
-	padding: 1em;
-	border: 0.2em solid transparent;
-	border-top-color: inherit;
-	border-radius: 9em;
-	animation: spin 0.5s infinite linear;
-	margin: auto;
-}
-
-@keyframes spin {
-	from {
-		transform: rotate(0deg);
-	}
-	to {
-		transform: rotate(360deg);
-	}
 }
 
 .cover {
