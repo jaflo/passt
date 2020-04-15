@@ -97,6 +97,7 @@
 		<div class="blink error">?</div>
 		<!-- svelte-ignore a11y-autofocus -->
 		<button type="button" class="large" on:click={back} autofocus>
+			<span>Back</span>
 			&larr;
 		</button>
 	{:else}
@@ -107,7 +108,10 @@
 				bind:value={playerName}
 				placeholder={randomName}
 				autofocus />
-			<button type="submit" class="large">&rarr;</button>
+			<button type="submit" class="large">
+				<span>Join</span>
+				&rarr;
+			</button>
 		</form>
 	{/if}
 </div>

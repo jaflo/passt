@@ -1,15 +1,11 @@
 <script>
+	export let text = 'Play';
+
 	import TutorialBreakdown from './TutorialBreakdown.svelte';
-	import { createEventDispatcher } from 'svelte';
-	import { generateSet } from '../shared.js';
+	import { createEventDispatcher, onMount } from 'svelte';
+	import { generateSet, randomElement } from '../shared.js';
 
 	const dispatch = createEventDispatcher();
-
-	const simple = [
-		[{}, {}, {}],
-		[{}, { shape: 'square' }, { shape: 'triangle' }],
-		[{}, {}, { shape: 'triangle' }],
-	];
 
 	const samples = [
 		generateSet('correct'),
@@ -20,26 +16,42 @@
 		generateSet('almost'),
 	];
 
+	let loaded = [];
+
+	function loadMore() {
+		let added = [];
+		for (let i = 0; i < 4; i++) {
+			added.push(
+				generateSet(
+					randomElement(['correct', 'correct', 'almost', 'random'])
+				)
+			);
+		}
+		loaded = [...loaded, ...added];
+	}
+
 	function confirm() {
 		dispatch('complete');
 	}
+
+	const observer = new IntersectionObserver(loadMore);
+
+	onMount(async () => {
+		observer.observe(document.querySelector('.placeholder.slide'));
+	});
 </script>
 
 <style>
 	.tutorial-wrapper {
-		padding-bottom: 2em;
-		min-height: 100vh;
-		box-sizing: border-box;
-		margin-bottom: env(safe-area-inset-bottom);
 		text-align: center;
+		padding-bottom: 2em;
 	}
 
-	.explanation {
-		margin: 0 1em;
+	h2 {
+		margin-top: 2em;
 	}
 
 	.slides {
-		margin: -1em 0 1em 0;
 		max-width: 800px;
 		text-align: center;
 	}
@@ -55,6 +67,10 @@
 		width: 320px;
 	}
 
+	.placeholder {
+		height: 200px;
+	}
+
 	@media only screen and (max-width: 500px) {
 		.slides {
 			width: 100%;
@@ -68,11 +84,11 @@
 </style>
 
 <div class="tutorial-wrapper center-contents">
-	<h2>Tutorial</h2>
-	<div class="explanation">
-		Form sets of three cards where the shape, fill, number, and color are
-		all the same or different.
-	</div>
+	<!-- svelte-ignore a11y-autofocus -->
+	<button class="large" on:click={confirm} autofocus>
+		<span>{text}</span>
+		&rarr;
+	</button>
 	<h2>Examples</h2>
 	<div class="slides">
 		{#each samples as cards}
@@ -80,6 +96,12 @@
 				<TutorialBreakdown {cards} />
 			</div>
 		{/each}
+		{#each loaded as cards}
+			<div class="slide">
+				<TutorialBreakdown {cards} />
+			</div>
+		{/each}
+		<div class="placeholder slide" />
+		<div class="placeholder slide" />
 	</div>
-	<button class="large" on:click={confirm}>&rarr;</button>
 </div>

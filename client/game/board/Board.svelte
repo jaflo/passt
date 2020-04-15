@@ -116,6 +116,7 @@
 		width: 360px;
 		padding: 12px 12px 0 0;
 		box-sizing: border-box;
+		color: var(--textColor);
 	}
 
 	.card-wrapper {

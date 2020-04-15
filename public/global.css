@@ -28,6 +28,25 @@ a:hover {
 	text-decoration: underline;
 }
 
+main {
+	max-width: 30em;
+	margin: auto;
+	padding: 1em;
+	line-height: 1.3;
+	text-align: justify;
+}
+
+h1 {
+	font-size: 2em;
+	margin: 0;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+}
+
+h1 a:hover {
+	text-decoration: none;
+}
+
 h2 {
 	font-size: 1.4em;
 	margin: 1em 0;
@@ -82,14 +101,21 @@ button.large {
 	border: 0;
 	border-radius: 9em;
 	padding: 0.4em 1em;
-	margin: 0;
-	transition: 0.2s transform ease-in-out, 0.1s box-shadow ease-in-out;
+	margin: 0 auto;
+	transition: 0.1s box-shadow ease-in-out;
+	text-transform: uppercase;
+	display: flex;
+	align-items: center;
 }
 
 button.large:hover,
 button.large:focus {
-	transform: scale(1.1);
 	box-shadow: 0 0 0 6px var(--saturatedColor), 0 0 0 12px var(--bgColor);
+}
+
+button.large span {
+	font-size: 0.9em;
+	margin-right: 0.4em;
 }
 
 .center-contents {
@@ -126,6 +152,8 @@ button.large:focus {
 	right: 0;
 	bottom: 0;
 	z-index: 5;
+	background: var(--saturatedColor);
+	color: var(--bgColor);
 }
 
 .blink {
@@ -138,7 +166,6 @@ button.large:focus {
 	}
 }
 
-.no-js {
-	min-height: 100vh;
-	box-sizing: border-box;
+.faded {
+	opacity: 0.5;
 }
