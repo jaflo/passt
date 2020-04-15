@@ -1,15 +1,11 @@
 <script>
+	export let text = 'Play';
+
 	import TutorialBreakdown from './TutorialBreakdown.svelte';
-	import { createEventDispatcher } from 'svelte';
-	import { generateSet } from '../shared.js';
+	import { createEventDispatcher, onMount } from 'svelte';
+	import { generateSet, randomElement } from '../shared.js';
 
 	const dispatch = createEventDispatcher();
-
-	const simple = [
-		[{}, {}, {}],
-		[{}, { shape: 'square' }, { shape: 'triangle' }],
-		[{}, {}, { shape: 'triangle' }],
-	];
 
 	const samples = [
 		generateSet('correct'),
@@ -17,23 +13,45 @@
 		generateSet('random'),
 		generateSet('almost'),
 		generateSet('almost'),
+		generateSet('almost'),
 	];
+
+	let loaded = [];
+
+	function loadMore() {
+		let added = [];
+		for (let i = 0; i < 4; i++) {
+			added.push(
+				generateSet(
+					randomElement(['correct', 'correct', 'almost', 'random'])
+				)
+			);
+		}
+		loaded = [...loaded, ...added];
+	}
 
 	function confirm() {
 		dispatch('complete');
 	}
+
+	const observer = new IntersectionObserver(loadMore);
+
+	onMount(async () => {
+		observer.observe(document.querySelector('.placeholder.slide'));
+	});
 </script>
 
 <style>
 	.tutorial-wrapper {
-		padding: 1em 0;
-		min-height: 100vh;
-		box-sizing: border-box;
-		margin-bottom: env(safe-area-inset-bottom);
+		text-align: center;
+		padding-bottom: 2em;
+	}
+
+	h2 {
+		margin-top: 2em;
 	}
 
 	.slides {
-		margin-bottom: 1em;
 		max-width: 800px;
 		text-align: center;
 	}
@@ -46,14 +64,11 @@
 		padding: 1em;
 		border-radius: 0.4em;
 		box-sizing: border-box;
+		width: 320px;
 	}
 
-	.padded {
-		margin-bottom: 0.8em;
-	}
-
-	.padded:last-child {
-		margin-bottom: 0;
+	.placeholder {
+		height: 200px;
 	}
 
 	@media only screen and (max-width: 500px) {
@@ -63,27 +78,30 @@
 
 		.slide {
 			flex-direction: column;
+			margin: 0.5em;
 		}
 	}
 </style>
 
 <div class="tutorial-wrapper center-contents">
+	<!-- svelte-ignore a11y-autofocus -->
+	<button class="large" on:click={confirm} autofocus>
+		<span>{text}</span>
+		&rarr;
+	</button>
+	<h2>Examples</h2>
 	<div class="slides">
-		{#each Array(samples.length + 1) as _, i}
+		{#each samples as cards}
 			<div class="slide">
-				{#if i == 0}
-					{#each simple as cards}
-						<div class="padded">
-							<TutorialBreakdown {cards} />
-						</div>
-					{/each}
-				{:else}
-					<TutorialBreakdown
-						cards={samples[i - 1]}
-						breakdownDepth={4} />
-				{/if}
+				<TutorialBreakdown {cards} />
 			</div>
 		{/each}
+		{#each loaded as cards}
+			<div class="slide">
+				<TutorialBreakdown {cards} />
+			</div>
+		{/each}
+		<div class="placeholder slide" />
+		<div class="placeholder slide" />
 	</div>
-	<button class="large" on:click={confirm}>&rarr;</button>
 </div>

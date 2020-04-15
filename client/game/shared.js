@@ -23,7 +23,7 @@ export function arrayContainsCard(list, card) {
 	return false;
 }
 
-function randomElement(list) {
+export function randomElement(list) {
 	return list[Math.floor(Math.random() * list.length)];
 }
 

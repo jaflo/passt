@@ -30,7 +30,7 @@
 
 <style>
 	.paused-wrapper {
-		padding: 3em 0;
+		padding: 2em 0 4em 0;
 		height: 100%;
 		width: 100%;
 		position: absolute;
@@ -54,6 +54,16 @@
 		position: relative;
 		font-size: 0;
 		cursor: inherit;
+	}
+
+	button .label {
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		font-size: 16px;
+		padding: 1em;
+		text-transform: uppercase;
 	}
 
 	.arrow:after {
@@ -119,6 +129,20 @@
 			stroke-dasharray: 0 16px 188px 188px 188px 999px;
 		}
 	}
+
+	button.redo .label {
+		opacity: 0;
+		animation: waiting-fade-in 0.3s linear 5.3s forwards;
+	}
+
+	@keyframes waiting-fade-in {
+		0% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
 </style>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -135,8 +159,11 @@
 					cy={size / 2} />
 			</svg>
 			<div class="arrow" />
+			<span class="label">Restart</span>
 		</button>
 	{:else}
-		<button class="arrow" />
+		<button class="arrow">
+			<span class="label">Play</span>
+		</button>
 	{/if}
 </div>

@@ -1,6 +1,7 @@
 <script>
 	export let roomCode;
 
+	import NoLanding from '../NoLanding.svelte';
 	import Board from './board/Board.svelte';
 	import Sidebar from './Sidebar.svelte';
 	import Ticker from './Ticker.svelte';
@@ -164,7 +165,7 @@
 		-webkit-user-select: none;
 		user-select: none;
 		background: var(--bgColor);
-		color: var(--textColor);
+		color: var(--saturatedColor);
 	}
 
 	.ticker {
@@ -173,6 +174,7 @@
 		left: 0;
 		right: 0;
 		overflow: hidden;
+		color: var(--textColor);
 	}
 
 	.main {
@@ -266,6 +268,7 @@
 	}
 </style>
 
+<NoLanding />
 <svelte:window on:storage={closeIfDuplicate} />
 
 <div class="game">
