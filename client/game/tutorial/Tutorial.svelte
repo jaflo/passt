@@ -1,5 +1,6 @@
 <script>
 	export let text = 'Play';
+	export let loading = false;
 
 	import TutorialBreakdown from './TutorialBreakdown.svelte';
 	import { createEventDispatcher, onMount } from 'svelte';
@@ -85,7 +86,7 @@
 
 <div class="tutorial-wrapper center-contents">
 	<!-- svelte-ignore a11y-autofocus -->
-	<button class="large" on:click={confirm} autofocus>
+	<button class="large" on:click|once={confirm} autofocus class:loading>
 		<span>{text}</span>
 		&rarr;
 	</button>
@@ -93,12 +94,12 @@
 	<div class="slides">
 		{#each samples as cards}
 			<div class="slide">
-				<TutorialBreakdown {cards} />
+				<TutorialBreakdown {cards} resultScale={0.8} />
 			</div>
 		{/each}
 		{#each loaded as cards}
 			<div class="slide">
-				<TutorialBreakdown {cards} />
+				<TutorialBreakdown {cards} resultScale={0.8} />
 			</div>
 		{/each}
 		<div class="placeholder slide" />

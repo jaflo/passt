@@ -21,7 +21,21 @@
 		localStorage.setItem('tutorial complete', 'yeah');
 		incompleteTutorial = false;
 	}
+
+	function closeIfDuplicate(e) {
+		if (e.key == 'new tab ' + roomCode) {
+			const newTabConnectionId = localStorage.getItem(
+				'new tab ' + roomCode
+			);
+			if (newTabConnectionId && newTabConnectionId != socket.id) {
+				socket.close();
+				window.location = window.location;
+			}
+		}
+	}
 </script>
+
+<svelte:window on:storage={closeIfDuplicate} />
 
 {#if roomCode == ''}
 	<HomeView />

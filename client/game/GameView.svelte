@@ -1,7 +1,6 @@
 <script>
 	export let roomCode;
 
-	import NoLanding from '../NoLanding.svelte';
 	import Board from './board/Board.svelte';
 	import Sidebar from './Sidebar.svelte';
 	import Ticker from './Ticker.svelte';
@@ -131,18 +130,6 @@
 		];
 	});
 
-	function closeIfDuplicate(e) {
-		if (e.key == 'new tab ' + roomCode) {
-			const newTabConnectionId = localStorage.getItem(
-				'new tab ' + roomCode
-			);
-			if (newTabConnectionId && newTabConnectionId != socket.id) {
-				socket.close();
-				window.location = window.location;
-			}
-		}
-	}
-
 	function claimedName(e) {
 		playerName = e.detail.playerName;
 	}
@@ -268,8 +255,13 @@
 	}
 </style>
 
-<NoLanding />
-<svelte:window on:storage={closeIfDuplicate} />
+<svelte:head>
+	<style>
+		main {
+			display: none;
+		}
+	</style>
+</svelte:head>
 
 <div class="game">
 	{#if state == 'joining'}
