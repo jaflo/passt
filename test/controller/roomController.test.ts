@@ -453,7 +453,7 @@ describe('RoomController', () => {
 		});
 	});
 
-	describe('voteToClear', () => {
+	describe('voteToClearBoard', () => {
 		const MOCK_CONNECTION_IDS = [
 			MOCK_CONNECTION_ID,
 			'MOCK_CONNECTION_ID_2',
@@ -513,6 +513,17 @@ describe('RoomController', () => {
 				)
 				.every(b => b);
 			assert.strictEqual(boardHasntChanged, true);
+		});
+
+		it('should not count disconnected players in the voting majority', async () => {
+			await setUpARoom(false, MOCK_CONNECTION_IDS, MOCK_NAMES);
+			await RoomController.startRoom(MOCK_CONNECTION_ID);
+			await RoomController.leaveRoom(MOCK_CONNECTION_ID);
+
+			const { cleared } = (await RoomController.voteToClearBoard(
+				MOCK_CONNECTION_IDS[1]
+			))!;
+			assert.strictEqual(cleared, true);
 		});
 
 		it('should clear the room if a majority vote to clear', async () => {

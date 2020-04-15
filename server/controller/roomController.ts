@@ -313,9 +313,11 @@ export class RoomController {
 		}
 		room.votesToClear.push(player.connectionId);
 
-		// This vote makes a majority, flush the board
+		const connectedPlayers = room.players.filter(
+			player => player.connected
+		);
 		const needToClear =
-			room.votesToClear.length >= Math.round(room.players.length / 2);
+			room.votesToClear.length >= Math.round(connectedPlayers.length / 2);
 		if (needToClear) {
 			room.clearBoard();
 			room.votesToClear = [];
