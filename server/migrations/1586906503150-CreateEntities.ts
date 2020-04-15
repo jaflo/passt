@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateEntities1586281677574 implements MigrationInterface {
-	name = 'CreateEntities1586281677574';
+export class CreateEntities1586906503150 implements MigrationInterface {
+	name = 'CreateEntities1586906503150';
 
 	async up(queryRunner: QueryRunner): Promise<void> {
 		await queryRunner.query(
-			`CREATE TABLE "room" ("roomCode" character varying NOT NULL, "open" boolean NOT NULL DEFAULT false, "started" boolean NOT NULL DEFAULT false, "board" jsonb NOT NULL DEFAULT '[]', "availableCards" jsonb NOT NULL DEFAULT '[]', "lastActive" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_ed1cf5b851e5b2893251111fd79" PRIMARY KEY ("roomCode"))`,
+			`CREATE TABLE "room" ("roomCode" character varying NOT NULL, "open" boolean NOT NULL DEFAULT false, "started" boolean NOT NULL DEFAULT false, "board" jsonb NOT NULL DEFAULT '[]', "availableCards" jsonb NOT NULL DEFAULT '[]', "votesToClear" jsonb NOT NULL DEFAULT '[]', "lastActive" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_ed1cf5b851e5b2893251111fd79" PRIMARY KEY ("roomCode"))`,
 			undefined
 		);
 		await queryRunner.query(

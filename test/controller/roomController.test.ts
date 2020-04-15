@@ -2,7 +2,14 @@ import '../testSetup.test';
 import { RoomController } from '../../server/controller/roomController';
 import assert from 'assert';
 import { Player } from '../../server/entity/player';
-import { Room, Card, Color, Shape, FillStyle } from '../../server/entity/room';
+import {
+	Room,
+	Card,
+	Color,
+	Shape,
+	FillStyle,
+	cardsAreEqual,
+} from '../../server/entity/room';
 import { getConnection } from 'typeorm';
 import { findSetIn } from '../../server/shared';
 import { customAlphabet } from 'nanoid';
@@ -231,6 +238,25 @@ describe('RoomController', () => {
 			assert.strictEqual(room.roomCode, playerRoom?.roomCode);
 			assert.strictEqual(playerRoom.players[0].connected, false);
 		});
+
+		it("should remove the player's vote from the votesToClear", async () => {
+			await setUpARoom(
+				false,
+				[MOCK_CONNECTION_ID, 'DUMMY', 'DUMMY2'],
+				[MOCK_PLAYER_NAME, 'B', 'C']
+			);
+			await RoomController.startRoom(MOCK_CONNECTION_ID);
+
+			const { room } = (await RoomController.voteToClearBoard(
+				MOCK_CONNECTION_ID
+			))!;
+			assert.strictEqual(room.votesToClear.length, 1);
+
+			const playerRoom = await RoomController.leaveRoom(
+				MOCK_CONNECTION_ID
+			);
+			assert.strictEqual(playerRoom.votesToClear.length, 0);
+		});
 	});
 
 	describe('startRoom', () => {
@@ -301,6 +327,28 @@ describe('RoomController', () => {
 				realSet.includes(c)
 			).length;
 			assert.strictEqual(playedCardsStillOnBoard, 0);
+		});
+
+		it('should clear votesToClear', async () => {
+			const {
+				room: { roomCode },
+			} = await setUpARoom(
+				false,
+				[MOCK_CONNECTION_ID, 'DUMMY', 'DUMMY2'],
+				[MOCK_PLAYER_NAME, 'B', 'C']
+			);
+			const { board } = await RoomController.startRoom(
+				MOCK_CONNECTION_ID,
+				20
+			);
+			await RoomController.voteToClearBoard(MOCK_CONNECTION_ID);
+			const room = await Room.findOneOrFail({ roomCode });
+			assert.strictEqual(room.votesToClear.length, 1);
+			const realSet = findSetIn(...board)!;
+
+			await RoomController.playMove(MOCK_CONNECTION_ID, realSet);
+			await room.reload();
+			assert.strictEqual(room.votesToClear.length, 0);
 		});
 
 		it('should fail if the room has not started', async () => {
@@ -402,6 +450,101 @@ describe('RoomController', () => {
 			);
 
 			assert.strictEqual(result.players![0].points, 1);
+		});
+	});
+
+	describe('voteToClear', () => {
+		const MOCK_CONNECTION_IDS = [
+			MOCK_CONNECTION_ID,
+			'MOCK_CONNECTION_ID_2',
+			'MOCK_CONNECTION_ID_3',
+		];
+		const MOCK_NAMES = [MOCK_PLAYER_NAME, 'B', 'C'];
+		it("should add a player's vote to clear the room", async () => {
+			await setUpARoom(false, MOCK_CONNECTION_IDS, MOCK_NAMES);
+			const startedRoom = await RoomController.startRoom(
+				MOCK_CONNECTION_ID
+			);
+			assert.strictEqual(startedRoom.votesToClear.length, 0);
+
+			const { room } = (await RoomController.voteToClearBoard(
+				MOCK_CONNECTION_ID
+			))!;
+			assert.strictEqual(room.votesToClear.length, 1);
+			assert.strictEqual(room.votesToClear[0], MOCK_PLAYER_NAME);
+		});
+
+		it("should not add a player's vote twice", async () => {
+			const {
+				room: { roomCode },
+			} = await setUpARoom(false, MOCK_CONNECTION_IDS, MOCK_NAMES);
+			await RoomController.startRoom(MOCK_CONNECTION_ID);
+
+			await RoomController.voteToClearBoard(MOCK_CONNECTION_ID);
+			const result = await RoomController.voteToClearBoard(
+				MOCK_CONNECTION_ID
+			);
+
+			assert.strictEqual(result, null);
+			const room = await Room.findOneOrFail({ roomCode });
+			assert.strictEqual(room.votesToClear.length, 1);
+		});
+
+		it('should not clear the board if a minority have voted', async () => {
+			await setUpARoom(false, MOCK_CONNECTION_IDS, MOCK_NAMES);
+			const startedRoom = await RoomController.startRoom(
+				MOCK_CONNECTION_ID
+			);
+			assert.strictEqual(startedRoom.votesToClear.length, 0);
+
+			const { room, cleared } = (await RoomController.voteToClearBoard(
+				MOCK_CONNECTION_ID
+			))!;
+
+			assert.strictEqual(cleared, false);
+			const expectedBoard = startedRoom.board;
+			const actualBoard = room.board;
+			const boardHasntChanged = expectedBoard
+				.map(
+					expectedCard =>
+						actualBoard.filter(actualCard =>
+							cardsAreEqual(expectedCard, actualCard)
+						).length === 1
+				)
+				.every(b => b);
+			assert.strictEqual(boardHasntChanged, true);
+		});
+
+		it('should clear the room if a majority vote to clear', async () => {
+			await setUpARoom(false, MOCK_CONNECTION_IDS, MOCK_NAMES);
+			const startedRoom = await RoomController.startRoom(
+				MOCK_CONNECTION_ID
+			);
+			assert.strictEqual(startedRoom.votesToClear.length, 0);
+
+			await RoomController.voteToClearBoard(MOCK_CONNECTION_ID);
+			const { room, cleared } = (await RoomController.voteToClearBoard(
+				MOCK_CONNECTION_IDS[1]
+			))!;
+
+			assert.strictEqual(cleared, true);
+			const expectedBoard = startedRoom.board;
+			const actualBoard = room.board;
+			const boardHasntChanged = expectedBoard
+				.map(
+					expectedCard =>
+						actualBoard.filter(actualCard =>
+							cardsAreEqual(expectedCard, actualCard)
+						).length === 1
+				)
+				.every(b => b);
+			assert.strictEqual(boardHasntChanged, false);
+		});
+
+		it('should fail if the room has not started', async () => {
+			await setUpARoom(false, MOCK_CONNECTION_IDS, MOCK_NAMES);
+
+			assert.rejects(RoomController.voteToClearBoard(MOCK_CONNECTION_ID));
 		});
 	});
 
