@@ -23,7 +23,7 @@ jobs:
         with:
           find: BUILD_ID
           replace: ${{ env.GITHUB_SHA }}
-          include: public/
+          include: public/.*
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
