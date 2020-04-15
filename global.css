@@ -122,3 +122,18 @@ button.large:focus {
 	bottom: 0;
 	z-index: 5;
 }
+
+.blink {
+	animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+	to {
+		visibility: hidden;
+	}
+}
+
+.no-js {
+	min-height: 100vh;
+	box-sizing: border-box;
+}
