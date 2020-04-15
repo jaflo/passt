@@ -3,7 +3,6 @@ import { Player } from '../entity/player';
 import { customAlphabet } from 'nanoid';
 import { shuffle, isASet, findSetIn } from '../shared';
 import { LessThan, LessThanOrEqual } from 'typeorm';
-import { request } from 'http';
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
 const nanoid = customAlphabet(ALPHABET, 6);
