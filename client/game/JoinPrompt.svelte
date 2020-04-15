@@ -64,6 +64,11 @@
 		text-align: center;
 	}
 
+	.error {
+		padding: 0.4em 0;
+		margin-bottom: 0.5em;
+	}
+
 	form {
 		width: 100%;
 	}
@@ -74,24 +79,12 @@
 	}
 
 	input,
-	.blink {
+	.error {
 		font-size: 4em;
 		text-align: center;
 		background: none;
 		border: 0;
 		width: 100%;
-	}
-
-	.blink {
-		animation: blink 1s steps(2, start) infinite;
-		padding: 0.4em 0;
-		margin-bottom: 0.5em;
-	}
-
-	@keyframes blink {
-		to {
-			visibility: hidden;
-		}
 	}
 </style>
 
@@ -101,7 +94,7 @@
 			<div class="spinner" />
 		</div>
 	{:else if unavailable}
-		<div class="blink">?</div>
+		<div class="blink error">?</div>
 		<!-- svelte-ignore a11y-autofocus -->
 		<button type="button" class="large" on:click={back} autofocus>
 			&larr;

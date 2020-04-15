@@ -1,7 +1,6 @@
 <script>
 	export let roomCode;
 
-	import { createEventDispatcher } from 'svelte';
 	import Board from './board/Board.svelte';
 	import Sidebar from './Sidebar.svelte';
 	import Ticker from './Ticker.svelte';
@@ -11,11 +10,8 @@
 	import { socket } from '../connectivity.js';
 	import { cardAsString, inPlaceReplace } from './shared.js';
 
-	const dispatch = createEventDispatcher();
-
 	const MAX_TICKER_COUNT = 10; // limit to prevent too much memory used
 	const EXPLAIN_MISPLAY = 5;
-	const REDO_TUTORIAL = 10;
 
 	let plays = [];
 	let cards = [];
@@ -24,7 +20,6 @@
 	let playerName;
 
 	let incorrectPlay = false;
-	let correctPlay = false;
 	let explainCards = [];
 
 	function loadRoom(data) {
@@ -98,12 +93,8 @@
 				return player;
 			}
 		});
-		if (data.player.connectionId == socket.id) {
-			if (data.updated) {
-				correctPlay = true;
-			} else {
-				incorrectPlay = true;
-			}
+		if (data.player.connectionId == socket.id && !data.updated) {
+			incorrectPlay = true;
 		}
 	});
 
@@ -156,9 +147,7 @@
 	}
 
 	function judgeMisplay(e) {
-		if (e.detail.count > REDO_TUTORIAL) {
-			dispatch('excessiveMisplays');
-		} else if (e.detail.count > EXPLAIN_MISPLAY) {
+		if (e.detail.count > EXPLAIN_MISPLAY) {
 			explainCards = e.detail.cards;
 		}
 	}
@@ -275,33 +264,6 @@
 			width: 260px;
 		}
 	}
-
-	.overlay {
-		position: fixed;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		background: rgba(255, 255, 255, 0.3);
-		opacity: 0;
-		pointer-events: none;
-	}
-
-	.overlay.flash {
-		animation: flash 0.3s linear forwards;
-	}
-
-	@keyframes flash {
-		0% {
-			opacity: 0;
-		}
-		20% {
-			opacity: 1;
-		}
-		100% {
-			opacity: 0;
-		}
-	}
 </style>
 
 <svelte:window on:storage={closeIfDuplicate} />
@@ -338,9 +300,5 @@
 		<div class="sidebar" class:highlight={state == 'ended'}>
 			<Sidebar {players} {roomCode} />
 		</div>
-		<div
-			class="overlay"
-			class:flash={correctPlay}
-			on:animationend={() => (correctPlay = false)} />
 	{/if}
 </div>

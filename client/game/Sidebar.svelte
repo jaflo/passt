@@ -9,6 +9,7 @@
 
 	$: points = players.filter(player => player.connectionId == socket.id)[0]
 		.points;
+	$: correctPlay = points > 0 ? true : false;
 
 	function selectAndCopy() {
 		this.select();
@@ -19,6 +20,11 @@
 		selection.addRange(range);
 		this.setSelectionRange(0, 99999);
 		document.execCommand('copy');
+	}
+
+	function redoTutorial() {
+		localStorage.removeItem('tutorial complete');
+		window.location = window.location;
 	}
 </script>
 
@@ -61,6 +67,7 @@
 	}
 
 	.more a,
+	.more button,
 	.more input {
 		width: 100%;
 		display: block;
@@ -74,13 +81,35 @@
 		text-align: right;
 	}
 
-	.more a {
+	.more a,
+	.more button {
 		text-transform: uppercase;
+	}
+
+	.flash {
+		animation: flash 0.3s linear forwards;
+	}
+
+	@keyframes flash {
+		0%,
+		40%,
+		100% {
+			opacity: 1;
+		}
+		20%,
+		60% {
+			opacity: 0;
+		}
 	}
 </style>
 
 <div class="header">
-	<div class="count">{points}</div>
+	<div
+		class="count"
+		class:flash={correctPlay}
+		on:animationend={() => (correctPlay = false)}>
+		{points}
+	</div>
 	<div class="connectivity-wrapper">
 		<ConnectivityIndicator />
 	</div>
@@ -100,7 +129,8 @@
 </div>
 
 <div class="more">
-	<a href="./">new game &rarr;</a>
+	<button on:click={redoTutorial}>tutorial &rarr;</button>
+	<a href="./">leave & create new &rarr;</a>
 	<input
 		type="text"
 		value={window.location.href.split('?')[0] + '?room=' + roomCode}

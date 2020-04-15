@@ -35,6 +35,44 @@ export function randomCard() {
 	return card;
 }
 
+export function generateSet(type) {
+	// type is one of correct (default), random, almost
+	if (type == 'random') {
+		return [randomCard(), randomCard(), randomCard()];
+	}
+	let cards = [randomCard(), {}, {}];
+	for (const property of Object.keys(cardStructure)) {
+		if (Math.random() < 0.5) {
+			cards[2][property] = cards[1][property] = cards[0][property];
+		} else {
+			const used = cardStructure[property].indexOf(cards[0][property]);
+			const otherA = (used + 1) % 3;
+			const otherB = (used + 2) % 3;
+			cards[1][property] = cardStructure[property][otherA];
+			cards[2][property] = cardStructure[property][otherB];
+		}
+	}
+	if (type == 'almost') {
+		for (let i = 0; i < Math.random() * 2; i++) {
+			const wrongProp = randomElement(Object.keys(cardStructure));
+			const wrongCard = randomElement(cards);
+			const used = cardStructure[wrongProp].indexOf(wrongCard[wrongProp]);
+			const wrongChoice = parseInt(used + Math.random() + 1) % 3;
+			wrongCard[wrongProp] = cardStructure[wrongProp][wrongChoice];
+		}
+	}
+	if (
+		areCardsEqual(cards[0], cards[1]) ||
+		areCardsEqual(cards[1], cards[2]) ||
+		areCardsEqual(cards[0], cards[2])
+	) {
+		// has duplicated, try again
+		return generateSet(type);
+	} else {
+		return cards;
+	}
+}
+
 export function isValidPlay(cards) {
 	if (cards.length != 3) return false;
 

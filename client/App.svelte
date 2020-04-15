@@ -21,13 +21,6 @@
 		localStorage.setItem('tutorial complete', 'yeah');
 		incompleteTutorial = false;
 	}
-
-	function redoTutorial() {
-		localStorage.removeItem('tutorial complete');
-		incompleteTutorial = true;
-		socket.close();
-		socket.open();
-	}
 </script>
 
 {#if roomCode == ''}
@@ -35,5 +28,5 @@
 {:else if incompleteTutorial}
 	<Tutorial on:complete={tutorialComplete} />
 {:else}
-	<GameView {roomCode} on:excessiveMisplays={redoTutorial} />
+	<GameView {roomCode} />
 {/if}
