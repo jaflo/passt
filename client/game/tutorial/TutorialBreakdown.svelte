@@ -87,7 +87,7 @@
 <table>
 	<tbody>
 		{#each properties as property, i}
-			<tr class="breakdown">
+			<tr>
 				{#each cards as card, i}
 					<td class="property">
 						{#if property == 'number'}
@@ -120,12 +120,7 @@
 				<td class="combined" style="transform:scale({resultScale})">
 					<CardSymbol {...combinedCard(card)} />
 				</td>
-				<td class="equality">
-					{#if i < cards.length - 1}
-						<TutorialEquality
-							equal={areCardsEqual(combinedCard(card), combinedCard(cards[i + 1]))} />
-					{/if}
-				</td>
+				<td />
 			{/each}
 			<td class="result">{isValidPlay(cards) ? 'yes' : 'no'}</td>
 		</tr>

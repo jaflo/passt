@@ -1,7 +1,7 @@
 <script>
 	export let redo = false;
 
-	import { socket } from '../connectivity.js';
+	import { startRoom } from '../connectivity.js';
 
 	const size = 60;
 	const width = 6;
@@ -17,7 +17,7 @@
 		if (!allowed) {
 			return;
 		}
-		socket.emit('startRoom');
+		startRoom();
 	}
 
 	function handleKeydown(e) {
