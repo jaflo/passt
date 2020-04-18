@@ -136,7 +136,7 @@ button.large {
 	font-size: 2em;
 	color: var(--saturatedColor);
 	background: var(--bgColor);
-	border: 0;
+	border: 6px solid var(--saturatedColor);
 	border-radius: 9em;
 	padding: 0.4em 1em;
 	margin: 0 auto;
@@ -149,12 +149,17 @@ button.large {
 
 button.large:hover,
 button.large:focus {
-	box-shadow: 0 0 0 6px var(--saturatedColor), 0 0 0 12px var(--bgColor);
+	box-shadow: 0 0 0 6px var(--bgColor);
 }
 
 button.large span {
 	font-size: 0.9em;
 	margin-right: 0.4em;
+}
+
+button.large.back span {
+	margin-right: 0;
+	margin-left: 0.4em;
 }
 
 button.large:after {
@@ -194,7 +199,7 @@ button.large.loading:after {
 }
 
 .cover {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
