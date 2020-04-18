@@ -34,11 +34,11 @@
 
 	.explained {
 		margin: 1em;
+		color: var(--textColor);
 	}
 
 	.tutorial-wrapper {
 		background: var(--cardBgColor);
-		color: var(--saturatedColor);
 		border: 1px solid rgba(0, 0, 0, 0.1);
 		padding: 1em;
 		border-radius: 0.3em;

@@ -1,10 +1,9 @@
 <script>
-	export let plays = [];
-
 	import CardSymbol from './board/CardSymbol.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
+	import { plays } from '../stores.js';
 </script>
 
 <style>
@@ -57,7 +56,7 @@
 </style>
 
 <div class="ticker">
-	{#each plays as play (play.id)}
+	{#each $plays as play (play.id)}
 		<div
 			class="play"
 			class:invalid={!play.valid}

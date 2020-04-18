@@ -1,14 +1,14 @@
 <script>
-	export let players = [];
-	export let roomCode;
+	export let players;
 
 	import ConnectivityIndicator from './ConnectivityIndicator.svelte';
 	import { fly, fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
-	import { socket } from '../connectivity.js';
+	import { socket, closeAndReload } from '../connectivity.js';
+	import { roomCode } from '../stores.js';
 
-	$: points = players.filter(player => player.connectionId == socket.id)[0]
-		.points;
+	$: myself = players.filter(player => player.connectionId == socket.id)[0];
+	$: points = myself ? myself.points : 0;
 	$: correctPlay = points > 0 ? true : false;
 
 	function selectAndCopy() {
@@ -23,7 +23,7 @@
 
 	function redoTutorial() {
 		localStorage.removeItem('tutorial complete');
-		window.location = window.location;
+		closeAndReload();
 	}
 </script>
 

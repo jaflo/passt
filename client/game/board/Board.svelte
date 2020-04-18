@@ -6,7 +6,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { scale, fly } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
-	import { socket } from '../../connectivity.js';
+	import { socket, playCards } from '../../connectivity.js';
 	import {
 		areCardsEqual,
 		arrayContainsCard,
@@ -19,6 +19,7 @@
 		line.split('')
 	);
 	const NUM_CARDS_FOR_PLAY = 3;
+	const EXPLAIN_MISPLAY = 5;
 
 	function getKey(i) {
 		if (i >= keyboardMap.length * keyboardMap[0].length) {
@@ -31,7 +32,7 @@
 	let selection = [];
 	let isSubmitting = false;
 	let selectionDeselectClearSteps = 2;
-	let incorrectStreak = 0;
+	let incorrectStreak = EXPLAIN_MISPLAY; // assume they don't know
 
 	function attemptSelectionClear() {
 		selectionDeselectClearSteps--;
@@ -63,14 +64,14 @@
 					incorrectStreak = 0;
 				} else {
 					incorrectStreak++;
-					dispatch('misplay', {
-						count: incorrectStreak,
-						cards: selection,
-					});
+					if (incorrectStreak > EXPLAIN_MISPLAY) {
+						dispatch('misplay', {
+							count: incorrectStreak,
+							cards: selection,
+						});
+					}
 				}
-				socket.emit('play', {
-					cards: selection,
-				});
+				playCards(selection);
 				setTimeout(attemptSelectionClear, 300);
 			}
 		}

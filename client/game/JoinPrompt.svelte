@@ -1,30 +1,28 @@
 <script>
-	export let roomCode;
-
-	import { createEventDispatcher } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { socket } from '../connectivity.js';
+	import {
+		socket,
+		requestJoinRoom,
+		closeAndReload,
+	} from '../connectivity.js';
+	import { roomCode, playerName } from '../stores.js';
 	import {
 		uniqueNamesGenerator,
-		adjectives,
 		colors,
 		animals,
 	} from 'unique-names-generator';
-
-	const dispatch = createEventDispatcher();
 
 	const randomName = uniqueNamesGenerator({
 		dictionaries: [colors, animals],
 		separator: ' ',
 		length: 2,
 	});
-	let playerName = localStorage.getItem('name') || '';
 	let joining = false;
 	let unavailable = false;
 
 	function joinRoom() {
-		if (playerName) {
-			localStorage.setItem('name', playerName);
+		if ($playerName) {
+			localStorage.setItem('name', $playerName);
 		} else {
 			localStorage.removeItem('name');
 		}
@@ -33,18 +31,12 @@
 	}
 
 	function attemptJoin() {
-		const claimedPlayerName = playerName || randomName;
-		dispatch('claimedName', { playerName: claimedPlayerName });
-		socket.emit('joinRoom', {
-			roomCode,
-			playerName: claimedPlayerName,
-			oldConnectionId: localStorage.getItem('old connection id'),
-		});
+		requestJoinRoom($playerName || randomName);
 	}
 
 	socket.on('exception', data => {
 		if (data.includes('Could not find any entity of type "Player"')) {
-			window.location = window.location;
+			closeAndReload();
 		} else if (data.includes('EntityNotFound')) {
 			unavailable = true;
 			joining = false;
@@ -101,7 +93,7 @@
 			<!-- svelte-ignore a11y-autofocus -->
 			<input
 				type="text"
-				bind:value={playerName}
+				bind:value={$playerName}
 				placeholder={randomName}
 				autofocus />
 			<button type="submit" class="large" class:loading={joining}>

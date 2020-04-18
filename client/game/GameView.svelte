@@ -1,143 +1,24 @@
 <script>
-	export let roomCode;
-
 	import Board from './board/Board.svelte';
 	import Sidebar from './Sidebar.svelte';
 	import Ticker from './Ticker.svelte';
 	import JoinPrompt from './JoinPrompt.svelte';
 	import PauseScreen from './PauseScreen.svelte';
 	import MiniExplainer from './tutorial/MiniExplainer.svelte';
-	import { socket } from '../connectivity.js';
-	import { cardAsString, inPlaceReplace } from './shared.js';
-
-	const MAX_TICKER_COUNT = 10; // limit to prevent too much memory used
-	const EXPLAIN_MISPLAY = 5;
-
-	let plays = [];
-	let cards = [];
-	let players = [];
-	let state = 'joining'; // joining, waiting, playing, ended
-	let playerName;
+	import { socket, requestJoinRoom } from '../connectivity.js';
+	import { state, players, cards, playerName } from '../stores.js';
 
 	let incorrectPlay = false;
 	let explainCards = [];
 
-	function loadRoom(data) {
-		cards = inPlaceReplace(
-			cards,
-			data.board.map(card => {
-				return {
-					shape: card.shape,
-					fillStyle: card.fillStyle,
-					color: card.color,
-					number: card.number,
-					id: cardAsString(card),
-				};
-			})
-		);
-		players = data.players || players;
-		if (data.started) {
-			state = 'playing';
-		}
-	}
-
-	socket.on('joinedSuccessfully', data => {
-		loadRoom(data);
-		if (data.started) {
-			if (data.board.length > 0) {
-				state = 'playing';
-			} else {
-				state = 'ended';
-			}
-		} else {
-			state = 'waiting';
-		}
-		localStorage.setItem('old connection id', socket.id);
-		localStorage.removeItem('new tab ' + roomCode);
-	});
-
-	socket.on('reconnect', () => {
-		if (state == 'joining') return;
-		socket.emit('joinRoom', {
-			roomCode,
-			playerName,
-			oldConnectionId: localStorage.getItem('old connection id'),
-		});
-	});
-
-	socket.on('roomStarted', data => {
-		loadRoom(data);
-		state = 'playing';
-		plays = [];
-	});
-
-	socket.on('gameOver', () => {
-		state = 'ended';
-	});
-
 	socket.on('movePlayed', data => {
-		loadRoom(data);
-		plays = [
-			{
-				cards: data.cards,
-				player: data.player.name,
-				valid: data.updated,
-				id: Math.random(),
-			},
-			...plays.slice(0, MAX_TICKER_COUNT),
-		];
-		players = players.map(player => {
-			if (player.connectionId == data.player.connectionId) {
-				return data.player;
-			} else {
-				return player;
-			}
-		});
 		if (data.player.connectionId == socket.id && !data.updated) {
 			incorrectPlay = true;
 		}
 	});
 
-	socket.on('playerDisconnected', connectionId => {
-		players.forEach(player => {
-			if (player.connectionId == connectionId) {
-				player.connected = false;
-				return;
-			}
-		});
-		players = players;
-	});
-
-	socket.on('playersRemoved', data => {
-		const removedPlayers = data.removedPlayers;
-		players = players.filter(
-			player => !removedPlayers.includes(player.connectionId)
-		);
-	});
-
-	socket.on('newPlayer', player => {
-		players = [
-			{
-				connectionId: player.connectionId,
-				name: player.name,
-				points: player.points,
-				connected: player.connected,
-			},
-			...players.filter(
-				// remove old player if needed
-				oldPlayer => oldPlayer.connectionId != player.oldConnectionId
-			),
-		];
-	});
-
-	function claimedName(e) {
-		playerName = e.detail.playerName;
-	}
-
-	function judgeMisplay(e) {
-		if (e.detail.count > EXPLAIN_MISPLAY) {
-			explainCards = e.detail.cards;
-		}
+	function showMisplay(e) {
+		explainCards = e.detail.cards;
 	}
 </script>
 
@@ -264,14 +145,14 @@
 </svelte:head>
 
 <div class="game">
-	{#if state == 'joining'}
-		<JoinPrompt {roomCode} on:claimedName={claimedName} />
+	{#if $state == 'joining'}
+		<JoinPrompt />
 	{:else}
 		<div class="ticker">
-			<Ticker {plays} />
+			<Ticker />
 		</div>
 		<div class="main center-contents">
-			{#if state == 'playing'}
+			{#if $state == 'playing'}
 				{#if explainCards.length > 0}
 					<MiniExplainer
 						cards={explainCards}
@@ -284,16 +165,16 @@
 					class:shake={incorrectPlay}
 					on:animationend={() => (incorrectPlay = false)}>
 					<Board
-						{cards}
-						on:misplay={judgeMisplay}
+						cards={$cards}
+						on:misplay={showMisplay}
 						disabled={explainCards.length > 0} />
 				</div>
 			{:else}
-				<PauseScreen redo={state == 'ended'} />
+				<PauseScreen redo={$state == 'ended'} />
 			{/if}
 		</div>
-		<div class="sidebar" class:highlight={state == 'ended'}>
-			<Sidebar {players} {roomCode} />
+		<div class="sidebar" class:highlight={$state == 'ended'}>
+			<Sidebar players={$players} />
 		</div>
 	{/if}
 </div>
