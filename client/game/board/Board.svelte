@@ -32,7 +32,7 @@
 	let selection = [];
 	let isSubmitting = false;
 	let selectionDeselectClearSteps = 2;
-	let incorrectStreak = EXPLAIN_MISPLAY; // assume they don't know
+	let incorrectStreak = EXPLAIN_MISPLAY - 2; // allow two  misplays before explaining
 
 	function attemptSelectionClear() {
 		selectionDeselectClearSteps--;

@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { state, roomCode } from './stores.js';
+import { state, roomCode, playerName, setPlayerName } from './stores.js';
 
 export const socket = io.connect('https://passt.herokuapp.com');
 
@@ -7,7 +7,8 @@ export function requestRoomCreation() {
 	socket.emit('createRoom', { open: false });
 }
 
-export function requestJoinRoom(playerName) {
+export function requestJoinRoom(newPlayerName) {
+	setPlayerName(newPlayerName);
 	socket.emit('joinRoom', {
 		roomCode,
 		playerName,
@@ -47,6 +48,6 @@ socket.on('exception', data => {
 
 socket.on('reconnect', () => {
 	if (!isJoining) {
-		requestJoinRoom($playerName);
+		requestJoinRoom(playerName);
 	}
 });

@@ -28,9 +28,13 @@
 			}
 		}
 	}
+
+	function beforeunload() {
+		socket.close();
+	}
 </script>
 
-<svelte:window on:storage={closeIfDuplicate} />
+<svelte:window on:storage={closeIfDuplicate} on:beforeunload={beforeunload} />
 
 {#if roomCode == ''}
 	<HomeView />
