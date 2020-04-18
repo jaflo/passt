@@ -5,8 +5,8 @@
 	import JoinPrompt from './JoinPrompt.svelte';
 	import PauseScreen from './PauseScreen.svelte';
 	import MiniExplainer from './tutorial/MiniExplainer.svelte';
-	import { socket, requestJoinRoom } from '../connectivity.js';
-	import { state, players, cards, playerName } from '../stores.js';
+	import { socket } from '../connectivity.js';
+	import { state, players, cards } from '../stores.js';
 
 	let incorrectPlay = false;
 	let explainCards = [];

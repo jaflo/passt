@@ -82,14 +82,45 @@
 			margin: 0.5em;
 		}
 	}
+
+	.sticky {
+		position: sticky;
+		top: 0;
+		width: 100%;
+		z-index: 3;
+		box-sizing: border-box;
+		padding: 2em 1em 6em 1em;
+		margin: -2em 0 -7em 0;
+		background: linear-gradient(
+			to bottom,
+			rgba(34, 85, 96, 1) 0%,
+			rgba(34, 85, 96, 0.987) 8.1%,
+			rgba(34, 85, 96, 0.951) 15.5%,
+			rgba(34, 85, 96, 0.896) 22.5%,
+			rgba(34, 85, 96, 0.825) 29%,
+			rgba(34, 85, 96, 0.741) 35.3%,
+			rgba(34, 85, 96, 0.648) 41.2%,
+			rgba(34, 85, 96, 0.55) 47.1%,
+			rgba(34, 85, 96, 0.45) 52.9%,
+			rgba(34, 85, 96, 0.352) 58.8%,
+			rgba(34, 85, 96, 0.259) 64.7%,
+			rgba(34, 85, 96, 0.175) 71%,
+			rgba(34, 85, 96, 0.104) 77.5%,
+			rgba(34, 85, 96, 0.049) 84.5%,
+			rgba(34, 85, 96, 0.013) 91.9%,
+			rgba(34, 85, 96, 0) 100%
+		);
+	}
 </style>
 
 <div class="tutorial-wrapper center-contents">
-	<!-- svelte-ignore a11y-autofocus -->
-	<button class="large" on:click|once={confirm} autofocus class:loading>
-		<span>{text}</span>
-		&rarr;
-	</button>
+	<div class="sticky">
+		<!-- svelte-ignore a11y-autofocus -->
+		<button class="large" on:click={confirm} autofocus class:loading>
+			<span>{text}</span>
+			&rarr;
+		</button>
+	</div>
 	<h2>Examples</h2>
 	<div class="slides">
 		{#each samples as cards}

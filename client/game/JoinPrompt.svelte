@@ -19,10 +19,11 @@
 	});
 	let joining = false;
 	let unavailable = false;
+	let sessionPlayerName = playerName;
 
 	function joinRoom() {
-		if ($playerName) {
-			localStorage.setItem('name', $playerName);
+		if (sessionPlayerName) {
+			localStorage.setItem('name', sessionPlayerName);
 		} else {
 			localStorage.removeItem('name');
 		}
@@ -31,7 +32,7 @@
 	}
 
 	function attemptJoin() {
-		requestJoinRoom($playerName || randomName);
+		requestJoinRoom(sessionPlayerName || randomName);
 	}
 
 	socket.on('exception', data => {
@@ -84,16 +85,16 @@
 	{#if unavailable}
 		<div class="blink error">?</div>
 		<!-- svelte-ignore a11y-autofocus -->
-		<button type="button" class="large" on:click={back} autofocus>
-			<span>Back</span>
+		<button type="button" class="large back" on:click={back} autofocus>
 			&larr;
+			<span>Back</span>
 		</button>
 	{:else}
-		<form on:submit|preventDefault|once={joinRoom}>
+		<form on:submit|preventDefault={joinRoom}>
 			<!-- svelte-ignore a11y-autofocus -->
 			<input
 				type="text"
-				bind:value={$playerName}
+				bind:value={sessionPlayerName}
 				placeholder={randomName}
 				autofocus />
 			<button type="submit" class="large" class:loading={joining}>
