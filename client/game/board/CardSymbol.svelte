@@ -39,7 +39,6 @@
 				{shape}
 				{fillStyle}
 				{color}
-				{number}
 				size={countToSize[number - 1]} />
 		</div>
 	{/each}

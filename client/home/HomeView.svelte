@@ -1,6 +1,7 @@
 <script>
 	import Tutorial from '../game/tutorial/Tutorial.svelte';
-	import { socket, requestRoomCreation } from '../connectivity.js';
+	import socket from '../socket.js';
+	import { requestRoomCreation } from '../connectivity.js';
 
 	let waiting = socket.connected;
 

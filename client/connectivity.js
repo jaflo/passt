@@ -1,7 +1,5 @@
-import io from 'socket.io-client';
+import socket from './socket.js';
 import { state, roomCode, playerName, setPlayerName } from './stores.js';
-
-export const socket = io.connect('https://passt.herokuapp.com');
 
 export function requestRoomCreation() {
 	socket.emit('createRoom', { open: false });
@@ -51,3 +49,21 @@ socket.on('reconnect', () => {
 		requestJoinRoom(playerName);
 	}
 });
+
+let refreshTimeout;
+
+socket.on('joinedSuccessfully', () => {
+	clearTimeout(refreshTimeout);
+});
+
+function retryConnect() {
+	refreshTimeout = setTimeout(() => {
+		if (socket.connected) {
+			closeAndReload();
+		} else {
+			retryConnect();
+		}
+	}, 10000);
+}
+
+socket.on('disconnect', retryConnect);
