@@ -7,7 +7,10 @@ import { Card, Room } from './entity/room';
 const PORT = process.env.PORT || 3000;
 
 const app = http.createServer();
-const io = socketIo(app);
+const io = socketIo(app, {
+	pingInterval: 5000, // ping every 5 seconds
+	pingTimeout: 1000, // disconnect after not receiving a response
+});
 
 enum SocketEvent {
 	CREATE_ROOM = 'createRoom',
