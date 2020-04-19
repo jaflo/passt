@@ -2,7 +2,8 @@
 	import HomeView from './home/HomeView.svelte';
 	import GameView from './game/GameView.svelte';
 	import Tutorial from './game/tutorial/Tutorial.svelte';
-	import { socket, closeAndReload } from './connectivity.js';
+	import socket from './socket.js';
+	import { closeAndReload } from './connectivity.js';
 	import { roomCode } from './stores.js';
 
 	let incompleteTutorial = !localStorage.getItem('tutorial complete');

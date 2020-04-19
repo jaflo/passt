@@ -2,11 +2,12 @@
 	import Board from './board/Board.svelte';
 	import Sidebar from './Sidebar.svelte';
 	import Ticker from './Ticker.svelte';
+	import ReconnectingScreen from './ReconnectingScreen.svelte';
 	import JoinPrompt from './JoinPrompt.svelte';
 	import PauseScreen from './PauseScreen.svelte';
 	import MiniExplainer from './tutorial/MiniExplainer.svelte';
-	import { socket } from '../connectivity.js';
-	import { state, players, cards } from '../stores.js';
+	import socket from '../socket.js';
+	import { state, players, cards, connected } from '../stores.js';
 
 	let incorrectPlay = false;
 	let explainCards = [];
@@ -152,6 +153,9 @@
 			<Ticker />
 		</div>
 		<div class="main center-contents">
+			{#if !$connected}
+				<ReconnectingScreen />
+			{/if}
 			{#if $state == 'playing'}
 				{#if explainCards.length > 0}
 					<MiniExplainer
@@ -167,7 +171,7 @@
 					<Board
 						cards={$cards}
 						on:misplay={showMisplay}
-						disabled={explainCards.length > 0} />
+						disabled={!$connected || explainCards.length > 0} />
 				</div>
 			{:else}
 				<PauseScreen redo={$state == 'ended'} />

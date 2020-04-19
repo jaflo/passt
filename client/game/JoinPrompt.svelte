@@ -1,10 +1,7 @@
 <script>
 	import { fade } from 'svelte/transition';
-	import {
-		socket,
-		requestJoinRoom,
-		closeAndReload,
-	} from '../connectivity.js';
+	import socket from '../socket.js';
+	import { requestJoinRoom, closeAndReload } from '../connectivity.js';
 	import { roomCode, playerName } from '../stores.js';
 	import {
 		uniqueNamesGenerator,

@@ -6,7 +6,8 @@
 	import { createEventDispatcher } from 'svelte';
 	import { scale, fly } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
-	import { socket, playCards } from '../../connectivity.js';
+	import socket from '../../socket.js';
+	import { playCards } from '../../connectivity.js';
 	import {
 		areCardsEqual,
 		arrayContainsCard,

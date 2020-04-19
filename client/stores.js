@@ -1,5 +1,5 @@
-import { readable, writable } from 'svelte/store';
-import { socket } from './connectivity.js';
+import { readable } from 'svelte/store';
+import socket from './socket.js';
 import { cardAsString, inPlaceReplace } from './game/shared.js';
 
 const MAX_TICKER_COUNT = 10; // limit to prevent too much memory used
@@ -12,6 +12,23 @@ export function setPlayerName(newName) {
 
 export const roomCode =
 	new URLSearchParams(window.location.search).get('room') || '';
+
+export const connected = readable(true, function start(set) {
+	function joinedSuccessfully() {
+		set(true);
+	}
+	socket.on('joinedSuccessfully', joinedSuccessfully);
+
+	function disconnect() {
+		set(false);
+	}
+	socket.on('disconnect', disconnect);
+
+	return function stop() {
+		socket.off('joinedSuccessfully', joinedSuccessfully);
+		socket.off('disconnect', disconnect);
+	};
+});
 
 function onMultiple(events, callback) {
 	for (const event of events) {

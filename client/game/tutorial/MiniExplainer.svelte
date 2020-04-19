@@ -30,6 +30,7 @@
 <style>
 	.cover {
 		background: var(--bgColor);
+		position: absolute;
 	}
 
 	.explained {

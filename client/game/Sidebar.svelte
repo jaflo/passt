@@ -1,11 +1,11 @@
 <script>
 	export let players;
 
-	import ConnectivityIndicator from './ConnectivityIndicator.svelte';
 	import { fly, fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
-	import { socket, closeAndReload } from '../connectivity.js';
-	import { roomCode } from '../stores.js';
+	import socket from '../socket.js';
+	import { closeAndReload } from '../connectivity.js';
+	import { roomCode, connected } from '../stores.js';
 
 	$: myself = players.filter(player => player.connectionId == socket.id)[0];
 	$: points = myself ? myself.points : 0;
@@ -113,9 +113,11 @@
 		on:animationend={() => (correctPlay = false)}>
 		{points}
 	</div>
-	<div class="connectivity-wrapper">
-		<ConnectivityIndicator />
-	</div>
+	{#if !$connected}
+		<div class="connectivity-wrapper">
+			<div class="spinner" />
+		</div>
+	{/if}
 </div>
 
 <div class="players">

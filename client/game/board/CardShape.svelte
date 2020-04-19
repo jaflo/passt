@@ -1,5 +1,5 @@
 <script>
-	export let shape, fillStyle, color, number;
+	export let shape, fillStyle, color;
 	export let size = 70;
 
 	const randomPatternId = 'pattern' + Math.random();
