@@ -541,7 +541,7 @@ describe('RoomController', () => {
 			assert.strictEqual(cleared, true);
 			const expectedBoard = startedRoom.board;
 			const actualBoard = room.board;
-			const boardHasntChanged = expectedBoard
+			const boardIsSame = expectedBoard
 				.map(
 					expectedCard =>
 						actualBoard.filter(actualCard =>
@@ -549,7 +549,7 @@ describe('RoomController', () => {
 						).length === 1
 				)
 				.every(b => b);
-			assert.strictEqual(boardHasntChanged, false);
+			assert.strictEqual(boardIsSame, false);
 		});
 
 		it('should fail if the room has not started', async () => {
