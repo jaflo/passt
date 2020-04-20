@@ -29,6 +29,10 @@ export function closeAndReload() {
 	window.location = window.location;
 }
 
+export function requestClearBoard() {
+	socket.emit('voteToClear');
+}
+
 socket.on('exception', data => {
 	console.error(data);
 });

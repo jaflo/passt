@@ -72,7 +72,12 @@ export const state = readable('joining', function start(set) {
 export const cards = readable([], function start(set) {
 	let cards = [];
 
-	const events = ['joinedSuccessfully', 'roomStarted', 'movePlayed'];
+	const events = [
+		'joinedSuccessfully',
+		'roomStarted',
+		'movePlayed',
+		'voteToClearAdded',
+	];
 	function update(data) {
 		cards = inPlaceReplace(
 			cards,
@@ -101,18 +106,24 @@ export const players = readable([], function start(set) {
 	const events = ['joinedSuccessfully', 'roomStarted'];
 	function update(data) {
 		players = data.players;
+		players.forEach(player => {
+			player.wantsToClear = data.votesToClear.includes(
+				player.connectionId
+			);
+		});
 		set(players);
 	}
 	onMultiple(events, update);
 
 	function movePlayed(data) {
-		players = players.map(player => {
-			if (player.connectionId == data.player.connectionId) {
-				return data.player;
-			} else {
-				return player;
-			}
-		});
+		if (data.updated) {
+			players.forEach(player => {
+				player.wantsToClear = false;
+				if (player.connectionId == data.player.connectionId) {
+					player.points = data.player.points;
+				}
+			});
+		}
 		set(players);
 	}
 	socket.on('movePlayed', movePlayed);
@@ -153,12 +164,23 @@ export const players = readable([], function start(set) {
 	}
 	socket.on('newPlayer', newPlayer);
 
+	function voteToClearAdded(data) {
+		players.forEach(player => {
+			player.wantsToClear = data.votesToClear.includes(
+				player.connectionId
+			);
+		});
+		set(players);
+	}
+	socket.on('voteToClearAdded', voteToClearAdded);
+
 	return function stop() {
 		offMultiple(events, update);
 		socket.off('movePlayed', movePlayed);
 		socket.off('playerDisconnected', playerDisconnected);
 		socket.off('playersRemoved', playersRemoved);
 		socket.off('newPlayer', newPlayer);
+		socket.off('voteToClearAdded', voteToClearAdded);
 	};
 });
 

@@ -18,6 +18,7 @@
 		roomCode,
 	} from '../stores.js';
 
+	let clearedBoard = false;
 	let incorrectPlay = false;
 	let explainCards = [];
 
@@ -51,6 +52,13 @@
 	}
 	socket.on('joinedSuccessfully', joinedSuccessfully);
 
+	function voteToClearAdded(data) {
+		if (data.cleared) {
+			clearedBoard = true;
+		}
+	}
+	socket.on('voteToClearAdded', voteToClearAdded);
+
 	function exception(data) {
 		if (data.includes('EntityNotFound') && $state != 'joining') {
 			closeAndReload();
@@ -62,6 +70,7 @@
 		socket.off('movePlayed', movePlayed);
 		socket.off('reconnect', reconnect);
 		socket.off('joinedSuccessfully', joinedSuccessfully);
+		socket.off('voteToClearAdded', voteToClearAdded);
 		socket.off('exception', exception);
 		clearTimeout(refreshTimeout);
 	});
@@ -122,6 +131,20 @@
 		0%,
 		100% {
 			transform: translateX(0);
+		}
+	}
+
+	.blink {
+		animation: blink-in 0.5s ease-out forwards;
+	}
+
+	@keyframes blink-in {
+		0%,
+		60% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
 		}
 	}
 
@@ -211,7 +234,8 @@
 				<div
 					class="shakeable"
 					class:shake={incorrectPlay}
-					on:animationend={() => (incorrectPlay = false)}>
+					class:blink={clearedBoard}
+					on:animationend={() => (clearedBoard = incorrectPlay = false)}>
 					<Board
 						cards={$cards}
 						on:misplay={showMisplay}
