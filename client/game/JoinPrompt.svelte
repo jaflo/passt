@@ -1,4 +1,5 @@
 <script>
+	import { onDestroy } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import socket from '../socket.js';
 	import { requestJoinRoom, closeAndReload } from '../connectivity.js';
@@ -16,11 +17,10 @@
 	});
 	let joining = false;
 	let unavailable = false;
-	let sessionPlayerName = playerName;
 
 	function joinRoom() {
-		if (sessionPlayerName) {
-			localStorage.setItem('name', sessionPlayerName);
+		if ($playerName) {
+			localStorage.setItem('name', $playerName);
 		} else {
 			localStorage.removeItem('name');
 		}
@@ -29,10 +29,10 @@
 	}
 
 	function attemptJoin() {
-		requestJoinRoom(sessionPlayerName || randomName);
+		requestJoinRoom($playerName || randomName);
 	}
 
-	socket.on('exception', data => {
+	function exception(data) {
 		if (data.includes('Could not find any entity of type "Player"')) {
 			closeAndReload();
 		} else if (data.includes('EntityNotFound')) {
@@ -42,11 +42,16 @@
 			localStorage.setItem('new tab ' + roomCode, socket.id);
 			setTimeout(attemptJoin, 100);
 		}
-	});
+	}
+	socket.on('exception', exception);
 
 	function back() {
 		window.location = window.location.pathname;
 	}
+
+	onDestroy(() => {
+		socket.off('exception', exception);
+	});
 </script>
 
 <style>
@@ -91,7 +96,7 @@
 			<!-- svelte-ignore a11y-autofocus -->
 			<input
 				type="text"
-				bind:value={sessionPlayerName}
+				bind:value={$playerName}
 				placeholder={randomName}
 				autofocus />
 			<button type="submit" class="large" class:loading={joining}>

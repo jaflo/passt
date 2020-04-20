@@ -1,14 +1,10 @@
-import { readable } from 'svelte/store';
+import { readable, writable } from 'svelte/store';
 import socket from './socket.js';
 import { cardAsString, inPlaceReplace } from './game/shared.js';
 
 const MAX_TICKER_COUNT = 10; // limit to prevent too much memory used
 
-export let playerName = localStorage.getItem('name') || '';
-
-export function setPlayerName(newName) {
-	playerName = newName;
-}
+export const playerName = writable(localStorage.getItem('name') || '');
 
 export const roomCode =
 	new URLSearchParams(window.location.search).get('room') || '';
