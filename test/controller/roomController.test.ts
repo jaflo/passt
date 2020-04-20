@@ -414,6 +414,52 @@ describe('RoomController', () => {
 			assert.strictEqual(result.isOver, true);
 		});
 
+		it('should clear the votesToClear if the game is over', async () => {
+			const initialBoard: Card[] = [
+				{
+					color: Color.RED,
+					shape: Shape.CIRCLE,
+					fillStyle: FillStyle.EMPTY,
+					number: 1,
+				},
+				{
+					color: Color.BLUE,
+					shape: Shape.SQUARE,
+					fillStyle: FillStyle.FILLED,
+					number: 2,
+				},
+				{
+					color: Color.GREEN,
+					shape: Shape.TRIANGLE,
+					fillStyle: FillStyle.LINED,
+					number: 3,
+				},
+			];
+			const initialAvailableCards = [];
+			const {
+				room: { roomCode },
+			} = await setUpARoom(
+				false,
+				[MOCK_CONNECTION_ID, '2', '3'],
+				[MOCK_PLAYER_NAME, 'A', 'B']
+			);
+			await RoomController.startRoom(
+				MOCK_CONNECTION_ID,
+				3,
+				initialBoard,
+				initialAvailableCards
+			);
+
+			const { room } = (await RoomController.voteToClearBoard(
+				MOCK_CONNECTION_ID
+			))!;
+			assert.strictEqual(room.votesToClear.length, 1);
+			await RoomController.playMove(MOCK_CONNECTION_ID, initialBoard);
+
+			const newRoom = await Room.findOneOrFail({ roomCode });
+			assert.strictEqual(newRoom.votesToClear.length, 0);
+		});
+
 		it('should provide the final player scores if the game is over', async () => {
 			const initialBoard: Card[] = [
 				{
