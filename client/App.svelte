@@ -1,4 +1,5 @@
 <script>
+	import { onDestroy } from 'svelte';
 	import HomeView from './home/HomeView.svelte';
 	import GameView from './game/GameView.svelte';
 	import Tutorial from './game/tutorial/Tutorial.svelte';
@@ -8,11 +9,12 @@
 
 	let incompleteTutorial = !localStorage.getItem('tutorial complete');
 
-	socket.on('roomCreated', data => {
+	function roomCreated(data) {
 		const queryParams = new URLSearchParams();
 		queryParams.set('room', data.roomCode);
 		window.location.search = '?' + queryParams.toString();
-	});
+	}
+	socket.on('roomCreated', roomCreated);
 
 	function tutorialComplete() {
 		localStorage.setItem('tutorial complete', 'yeah');
@@ -33,6 +35,10 @@
 	function beforeunload() {
 		socket.close();
 	}
+
+	onDestroy(() => {
+		socket.off('roomCreated', roomCreated);
+	});
 </script>
 
 <svelte:window on:storage={closeIfDuplicate} on:beforeunload={beforeunload} />

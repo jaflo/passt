@@ -1,4 +1,5 @@
 <script>
+	import { onDestroy } from 'svelte';
 	import Board from './board/Board.svelte';
 	import Sidebar from './Sidebar.svelte';
 	import Ticker from './Ticker.svelte';
@@ -7,20 +8,63 @@
 	import PauseScreen from './PauseScreen.svelte';
 	import MiniExplainer from './tutorial/MiniExplainer.svelte';
 	import socket from '../socket.js';
-	import { state, players, cards, connected } from '../stores.js';
+	import { requestJoinRoom, closeAndReload } from '../connectivity.js';
+	import {
+		state,
+		players,
+		cards,
+		connected,
+		playerName,
+		roomCode,
+	} from '../stores.js';
 
 	let incorrectPlay = false;
 	let explainCards = [];
 
-	socket.on('movePlayed', data => {
+	function movePlayed(data) {
 		if (data.player.connectionId == socket.id && !data.updated) {
 			incorrectPlay = true;
 		}
-	});
+	}
+	socket.on('movePlayed', movePlayed);
 
 	function showMisplay(e) {
 		explainCards = e.detail.cards;
 	}
+
+	let refreshTimeout;
+
+	function reconnect() {
+		if ($state != 'joining') {
+			requestJoinRoom($playerName);
+			refreshTimeout = setTimeout(() => {
+				closeAndReload();
+			}, 8000);
+		}
+	}
+	socket.on('reconnect', reconnect);
+
+	function joinedSuccessfully() {
+		localStorage.setItem('old connection id', socket.id);
+		localStorage.removeItem('new tab ' + roomCode);
+		clearTimeout(refreshTimeout);
+	}
+	socket.on('joinedSuccessfully', joinedSuccessfully);
+
+	function exception(data) {
+		if (data.includes('EntityNotFound') && $state != 'joining') {
+			closeAndReload();
+		}
+	}
+	socket.on('exception', exception);
+
+	onDestroy(() => {
+		socket.off('movePlayed', movePlayed);
+		socket.off('reconnect', reconnect);
+		socket.off('joinedSuccessfully', joinedSuccessfully);
+		socket.off('exception', exception);
+		clearTimeout(refreshTimeout);
+	});
 </script>
 
 <style>

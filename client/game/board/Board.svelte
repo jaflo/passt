@@ -3,7 +3,7 @@
 	export let disabled = false;
 
 	import Card from './Card.svelte';
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onDestroy } from 'svelte';
 	import { scale, fly } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import socket from '../../socket.js';
@@ -78,7 +78,7 @@
 		}
 	}
 
-	socket.on('movePlayed', data => {
+	function movePlayed(data) {
 		if (data.player.connectionId == socket.id) {
 			attemptSelectionClear();
 		} else if (data.updated) {
@@ -86,13 +86,15 @@
 				card => !arrayContainsCard(data.cards, card)
 			);
 		}
-	});
+	}
+	socket.on('movePlayed', movePlayed);
 
-	socket.on('exception', data => {
+	function exception(data) {
 		if (isSubmitting && data.includes('Error')) {
 			attemptSelectionClear();
 		}
-	});
+	}
+	socket.on('exception', exception);
 
 	function handleKeydown(e) {
 		if (['Backspace', 'Escape', 'Delete'].includes(e.code)) {
@@ -107,6 +109,11 @@
 		);
 		return dist * 50;
 	}
+
+	onDestroy(() => {
+		socket.off('movePlayed', movePlayed);
+		socket.off('exception', exception);
+	});
 </script>
 
 <style>
