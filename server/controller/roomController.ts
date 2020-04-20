@@ -319,8 +319,10 @@ export class RoomController {
 		const needToClear =
 			room.votesToClear.length >= Math.round(connectedPlayers.length / 2);
 		if (needToClear) {
+			const { board } = room;
 			room.clearBoard();
 			room.votesToClear = [];
+			room.availableCards = shuffle(room.availableCards.concat(board));
 			room.placeCardsOnBoard(RoomController.INITIAL_BOARD_SIZE);
 		}
 		await room.save();
