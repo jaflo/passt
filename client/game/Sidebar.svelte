@@ -4,12 +4,16 @@
 	import { fly, fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import socket from '../socket.js';
-	import { closeAndReload } from '../connectivity.js';
+	import { requestClearBoard, closeAndReload } from '../connectivity.js';
 	import { roomCode, connected } from '../stores.js';
 
 	$: myself = players.filter(player => player.connectionId == socket.id)[0];
 	$: points = myself ? myself.points : 0;
 	$: correctPlay = points > 0 ? true : false;
+
+	$: activePlayerCount = players.filter(player => player.connected).length;
+	$: wantClearCount = players.filter(player => player.wantsToClear).length;
+	$: requiredForClear = Math.round(activePlayerCount / 2);
 
 	function selectAndCopy() {
 		this.select();
@@ -55,10 +59,11 @@
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
+		padding-right: 0.5em;
 	}
 
 	.player span {
-		padding-left: 1em;
+		padding-left: 0.5em;
 	}
 
 	.connectivity-wrapper {
@@ -87,6 +92,23 @@
 	.more a,
 	.more button {
 		text-transform: uppercase;
+	}
+
+	.clear {
+		background: var(--bgColor);
+		width: 1em;
+		height: 1em;
+		border-radius: 9em 9em 0 9em;
+		position: relative;
+	}
+
+	.clear:after {
+		content: '';
+		display: block;
+		width: 0.2em;
+		height: 0.15em;
+		border: 0 solid var(--saturatedColor);
+		border-width: 0.3em 0 0.15em 0;
 	}
 
 	.flash {
@@ -128,14 +150,24 @@
 			<strong transition:fly={{ x: -20, duration: 300 }}>
 				{player.name}
 			</strong>
+			{#if player.wantsToClear}
+				<div
+					transition:fade={{ duration: 100 }}
+					title="Wants to clear board"
+					class="clear center-contents" />
+			{/if}
 			<span transition:fade={{ duration: 300 }}>{player.points}</span>
 		</div>
 	{/each}
 </div>
 
 <div class="more">
-	<button on:click={redoTutorial}>tutorial &rarr;</button>
-	<a href="./">leave & create new &rarr;</a>
+	<button on:click={requestClearBoard}>
+		clear board
+		{#if requiredForClear > 1}({wantClearCount}/{requiredForClear}){/if}
+	</button>
+	<button on:click={redoTutorial}>tutorial</button>
+	<a href="./">leave & create new</a>
 	<input
 		type="text"
 		value={window.location.href.split('?')[0] + '?room=' + roomCode}
