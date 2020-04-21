@@ -87,15 +87,21 @@ export class Room extends BaseEntity {
 	lastActive!: Date;
 
 	/**
-	 * Takes up to "numCardsToDraw" from "availableCards" and places them on "board". Does not save.
+	 * Takes up to "numCardsToDraw" from "availableCards" and places them on "board" until a set exists.
 	 * @param numCardsToDraw The number of cards to move from "availableCards" to "board"
 	 */
 	placeCardsOnBoard(numCardsToDraw: number): void {
 		const { availableCards } = this;
-		numCardsToDraw = Math.min(numCardsToDraw, availableCards.length);
-		const drawnCards = availableCards.splice(0, numCardsToDraw);
+		const moveCardsToBoard = () => {
+			numCardsToDraw = Math.min(numCardsToDraw, availableCards.length);
+			const drawnCards = availableCards.splice(0, numCardsToDraw);
+			this.board.push(...drawnCards);
+		};
 
-		this.board.push(...drawnCards);
+		moveCardsToBoard();
+		while (!findSetIn(...this.board) && !this.cantPlayAnotherMove()) {
+			moveCardsToBoard();
+		}
 		this.availableCards = availableCards;
 	}
 
