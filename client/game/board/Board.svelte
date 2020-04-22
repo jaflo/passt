@@ -34,6 +34,7 @@
 	let isSubmitting = false;
 	let selectionDeselectClearSteps = 2;
 	let incorrectStreak = EXPLAIN_MISPLAY - 2; // allow two  misplays before explaining
+	let hoverable = false;
 
 	function attemptSelectionClear() {
 		selectionDeselectClearSteps--;
@@ -101,6 +102,15 @@
 			selection = [];
 			e.preventDefault();
 		}
+		doesNotSupportHover();
+	}
+
+	function supportsHover() {
+		hoverable = true;
+	}
+
+	function doesNotSupportHover() {
+		hoverable = false;
 	}
 
 	function cardDelay(i) {
@@ -147,7 +157,10 @@
 	}
 </style>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window
+	on:keydown={handleKeydown}
+	on:mousemove={supportsHover}
+	on:touchstart={doesNotSupportHover} />
 
 <div class="board">
 	{#each cards as card, i (card.id)}
@@ -157,6 +170,7 @@
 				out:fly={{ y: -30, duration: 300, delay: cardDelay(i) }}>
 				<Card
 					{...justCard(card)}
+					{hoverable}
 					selected={arrayContainsCard(selection, card)}
 					on:click={cardClicked}
 					letter={getKey(i)} />
