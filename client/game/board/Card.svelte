@@ -2,6 +2,7 @@
 	export let shape, fillStyle, color, number;
 	export let letter = '';
 	export let selected = false;
+	export let hoverable = false;
 
 	import CardSymbol from './CardSymbol.svelte';
 	import { createEventDispatcher } from 'svelte';
@@ -52,7 +53,7 @@
 		background: var(--cardBgColor);
 	}
 
-	.card:hover {
+	.card.hoverable:hover {
 		box-shadow: 0 1em 2em rgba(0, 0, 0, 0.1);
 		transform: translateY(-0.2em);
 		border-color: rgba(0, 0, 0, 0.2);
@@ -96,7 +97,7 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div class="card" aria-label={humanReadable} on:click={click}>
+<div class="card" class:hoverable aria-label={humanReadable} on:click={click}>
 	<CardSymbol {shape} {fillStyle} {color} {number} />
 	<div class="letter">{letter}</div>
 	{#if selected}
