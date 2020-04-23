@@ -320,11 +320,14 @@ export class RoomController {
 		const needToClear =
 			room.votesToClear.length >= Math.round(connectedPlayers.length / 2);
 		if (needToClear) {
-			const { board } = room;
-			room.clearBoard();
 			room.votesToClear = [];
-			room.availableCards = shuffle(room.availableCards.concat(board));
-			room.placeCardsOnBoard(RoomController.INITIAL_BOARD_SIZE);
+			do {
+				room.availableCards = shuffle(
+					room.availableCards.concat(room.board)
+				);
+				room.clearBoard();
+				room.placeCardsOnBoard(RoomController.INITIAL_BOARD_SIZE);
+			} while (!findSetIn(...room.board) && !room.cantPlayAnotherMove());
 		}
 		await room.save();
 		return { room, cleared: needToClear };

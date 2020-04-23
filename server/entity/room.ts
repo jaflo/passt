@@ -95,16 +95,9 @@ export class Room extends BaseEntity {
 	 */
 	placeCardsOnBoard(numCardsToDraw: number): void {
 		const { availableCards } = this;
-		const moveCardsToBoard = () => {
-			numCardsToDraw = Math.min(numCardsToDraw, availableCards.length);
-			const drawnCards = availableCards.splice(0, numCardsToDraw);
-			this.board.push(...drawnCards);
-		};
-
-		moveCardsToBoard();
-		while (!findSetIn(...this.board) && !this.cantPlayAnotherMove()) {
-			moveCardsToBoard();
-		}
+		numCardsToDraw = Math.min(numCardsToDraw, availableCards.length);
+		const drawnCards = availableCards.splice(0, numCardsToDraw);
+		this.board.push(...drawnCards);
 		this.availableCards = availableCards;
 	}
 
