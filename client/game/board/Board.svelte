@@ -102,14 +102,20 @@
 			selection = [];
 			e.preventDefault();
 		}
-		doesNotSupportHover();
+		hoverable = false;
 	}
 
-	function supportsHover() {
-		hoverable = true;
+	let lastTouch = new Date();
+
+	function handleMousemove() {
+		// prevent emulated mouse
+		if (new Date() - lastTouch > 500) {
+			hoverable = true;
+		}
 	}
 
-	function doesNotSupportHover() {
+	function handleTouch() {
+		lastTouch = new Date();
 		hoverable = false;
 	}
 
@@ -159,8 +165,9 @@
 
 <svelte:window
 	on:keydown={handleKeydown}
-	on:mousemove={supportsHover}
-	on:touchstart={doesNotSupportHover} />
+	on:mousemove={handleMousemove}
+	on:touchstart={handleTouch}
+	on:touchend={handleTouch} />
 
 <div class="board">
 	{#each cards as card, i (card.id)}

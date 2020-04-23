@@ -107,7 +107,7 @@ export const players = readable([], function start(set) {
 	function update(data) {
 		players = data.players;
 		players.forEach(player => {
-			player.wantsToClear = data.votesToClear.includes(
+			player.wantsToClear = (data.votesToClear || []).includes(
 				player.connectionId
 			);
 		});
