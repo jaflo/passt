@@ -1,73 +1,53 @@
 <script>
 	export let cards = [];
 
-	import { createEventDispatcher } from 'svelte';
-	import { fade, fly } from 'svelte/transition';
+	import Alert from '../Alert.svelte';
 	import TutorialBreakdown from './TutorialBreakdown.svelte';
+	import {
+		isValidPlay,
+		cardStructure,
+		orderedProperties,
+	} from '../shared.js';
+	import { simplifiedProperty, combinedCard } from './sharedTutorial.js';
 
-	const dispatch = createEventDispatcher();
+	let explanations = [];
 
-	let allowed = false;
-
-	function understood() {
-		if (allowed) {
-			dispatch('understood');
+	orderedProperties.forEach(property => {
+		const wrong = !isValidPlay(
+			cards.map(card => simplifiedProperty(card, property))
+		);
+		if (wrong) {
+			const values = cards.map(card => card[property]);
+			const majority = values[0] == values[1] ? values[0] : values[2];
+			explanations.push(
+				`The ${property.replace('Style', '')}s are ${values.join(
+					', '
+				)}. All ${majority} or ${cardStructure[property].join(
+					', '
+				)} would be valid.`
+			);
 		}
-	}
-
-	setTimeout(() => {
-		allowed = true;
-	}, 2000);
-
-	function handleKeydown(e) {
-		if (['Enter', 'Space'].includes(e.code)) {
-			understood();
-			e.preventDefault();
-		}
-	}
+	});
 </script>
 
 <style>
-	.cover {
-		background: var(--bgColor);
-		position: absolute;
+	.explanation {
+		margin-top: 1em;
+		text-align: left;
 	}
 
-	.explained {
-		margin: 1em;
-		color: var(--textColor);
-	}
-
-	.tutorial-wrapper {
-		background: var(--cardBgColor);
-		border: 1px solid rgba(0, 0, 0, 0.1);
-		padding: 1em;
-		border-radius: 0.3em;
-	}
-
-	button {
-		margin: 1em 0 0 auto;
-		display: block;
-		padding: 0.4em 1em;
-	}
-
-	button.ignore {
-		cursor: inherit;
+	.explanation div {
+		margin-top: 0.5em;
 	}
 </style>
 
-<svelte:window on:keydown={handleKeydown} />
-
-<div class="cover center-contents" transition:fade={{ duration: 200 }}>
-	<div class="explained" transition:fly={{ y: 30, duration: 200 }}>
-		<div class="tutorial-wrapper">
-			<TutorialBreakdown {cards} resultScale={0.8} />
+<Alert on:dismiss continueText="Continue playing" timeout={2000}>
+	<TutorialBreakdown {cards} resultScale={0.8} />
+	{#if explanations.length > 0}
+		<div class="explanation">
+			{#each explanations as explanation}
+				<div>{explanation}</div>
+			{/each}
 		</div>
-		<button
-			on:click={understood}
-			in:fade={{ duration: 200, delay: 2000 }}
-			class:ignore={!allowed}>
-			&rarr;
-		</button>
-	</div>
-</div>
+	{/if}
+</Alert>

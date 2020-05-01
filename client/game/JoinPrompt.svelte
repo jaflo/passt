@@ -85,7 +85,7 @@
 
 <div class="cover join-wrapper center-contents" out:fade={{ duration: 200 }}>
 	{#if unavailable}
-		<div class="blink error">?</div>
+		<div class="blink error">Invalid Room</div>
 		<!-- svelte-ignore a11y-autofocus -->
 		<button type="button" class="large back" on:click={back} autofocus>
 			&larr;

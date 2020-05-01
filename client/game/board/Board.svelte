@@ -33,7 +33,7 @@
 	let selection = [];
 	let isSubmitting = false;
 	let selectionDeselectClearSteps = 2;
-	let incorrectStreak = EXPLAIN_MISPLAY - 2; // allow two  misplays before explaining
+	let incorrectStreak = EXPLAIN_MISPLAY - 2; // allow two misplays before explaining
 	let hoverable = false;
 
 	function attemptSelectionClear() {
