@@ -49,7 +49,7 @@
 	}
 
 	h2 {
-		margin-top: 2em;
+		margin: 2em 0 0 0;
 	}
 
 	.slides {
@@ -122,6 +122,11 @@
 		</button>
 	</div>
 	<h2>Examples</h2>
+	<main>
+		Groups of cards are valid if each of the properties shape, fill, number,
+		and color are all the same or all unique across the three cards. Further
+		information is available once you start playing.
+	</main>
 	<div class="slides">
 		{#each samples as cards}
 			<div class="slide">

@@ -1,12 +1,14 @@
-const cardStructure = {
+export const cardStructure = {
 	shape: ['square', 'circle', 'triangle'],
 	fillStyle: ['empty', 'lined', 'filled'],
 	color: ['red', 'green', 'blue'],
 	number: [1, 2, 3],
 };
 
+export const orderedProperties = ['shape', 'fillStyle', 'number', 'color'];
+
 export function areCardsEqual(a, b) {
-	for (const property of Object.keys(cardStructure)) {
+	for (const property of orderedProperties) {
 		if (a[property] !== b[property]) {
 			return false;
 		}
@@ -29,7 +31,7 @@ export function randomElement(list) {
 
 export function randomCard() {
 	let card = {};
-	for (const property of Object.keys(cardStructure)) {
+	for (const property of orderedProperties) {
 		card[property] = randomElement(cardStructure[property]);
 	}
 	return card;
@@ -41,7 +43,7 @@ export function generateSet(type) {
 	if (type == 'random') {
 		cards = [randomCard(), randomCard(), randomCard()];
 	} else {
-		for (const property of Object.keys(cardStructure)) {
+		for (const property of orderedProperties) {
 			if (Math.random() < 0.5) {
 				cards[2][property] = cards[1][property] = cards[0][property];
 			} else {
@@ -56,7 +58,7 @@ export function generateSet(type) {
 		}
 		if (type == 'almost') {
 			for (let i = 0; i < Math.random() * 2; i++) {
-				const wrongProp = randomElement(Object.keys(cardStructure));
+				const wrongProp = randomElement(orderedProperties);
 				const wrongCard = randomElement(cards);
 				const used = cardStructure[wrongProp].indexOf(
 					wrongCard[wrongProp]
@@ -82,7 +84,7 @@ export function isValidPlay(cards) {
 	if (cards.length != 3) return false;
 
 	const [a, b, c] = cards;
-	for (const property of Object.keys(cardStructure)) {
+	for (const property of orderedProperties) {
 		// written this way for easier understanding
 		if (a[property] === b[property] && b[property] === c[property]) {
 			// a = b = c, we good
@@ -101,7 +103,7 @@ export function isValidPlay(cards) {
 
 export function cardAsString(card) {
 	let result = '';
-	Object.keys(cardStructure).forEach(property => {
+	orderedProperties.forEach(property => {
 		result += card[property];
 	});
 	return result;
@@ -139,7 +141,7 @@ export function inPlaceReplace(before, after) {
 
 export function justCard(card) {
 	let filtered = {};
-	for (const property of Object.keys(cardStructure)) {
+	for (const property of orderedProperties) {
 		filtered[property] = card[property];
 	}
 	return filtered;

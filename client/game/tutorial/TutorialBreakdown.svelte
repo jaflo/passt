@@ -4,12 +4,15 @@
 
 	import CardSymbol from '../board/CardSymbol.svelte';
 	import TutorialEquality from './TutorialEquality.svelte';
-	import { areCardsEqual, isValidPlay } from '../shared.js';
-
-	const properties = ['shape', 'fillStyle', 'number', 'color']; // order matters so not pulled from shared.js
+	import {
+		areCardsEqual,
+		isValidPlay,
+		orderedProperties,
+	} from '../shared.js';
+	import { simplifiedProperty, combinedCard } from './sharedTutorial.js';
 
 	for (const i of [1, 2, 1]) {
-		for (const property of properties) {
+		for (const property of orderedProperties) {
 			// A != B != A
 			if (
 				cards[0][property] == cards[2][property] &&
@@ -20,26 +23,6 @@
 				cards[i] = flip;
 			}
 		}
-	}
-
-	const defaultCard = {
-		shape: 'circle',
-		fillStyle: 'empty',
-		color: '#2e282a', // var(--textColor)
-		number: 1,
-	};
-
-	function combinedCard(card) {
-		return { ...defaultCard, ...card };
-	}
-
-	function simplifiedProperty(card, property) {
-		let isolated = {};
-		isolated[property] = card[property];
-		if (property != 'fillStyle') {
-			isolated['fillStyle'] = 'filled';
-		}
-		return combinedCard(isolated);
 	}
 </script>
 
@@ -86,7 +69,7 @@
 
 <table>
 	<tbody>
-		{#each properties as property, i}
+		{#each orderedProperties as property, i}
 			<tr>
 				{#each cards as card, i}
 					<td class="property">

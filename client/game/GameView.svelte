@@ -7,6 +7,7 @@
 	import JoinPrompt from './JoinPrompt.svelte';
 	import PauseScreen from './PauseScreen.svelte';
 	import MiniExplainer from './tutorial/MiniExplainer.svelte';
+	import Alert from './Alert.svelte';
 	import socket from '../socket.js';
 	import { requestJoinRoom, closeAndReload } from '../connectivity.js';
 	import {
@@ -20,7 +21,12 @@
 
 	let clearedBoard = false;
 	let incorrectPlay = false;
+	let expiredRoom = false;
 	let explainCards = [];
+
+	function exitToHome() {
+		window.location = window.location.pathname;
+	}
 
 	function movePlayed(data) {
 		if (data.player.connectionId == socket.id && !data.updated) {
@@ -61,7 +67,7 @@
 
 	function exception(data) {
 		if (data.includes('EntityNotFound') && $state != 'joining') {
-			closeAndReload();
+			expiredRoom = true;
 		}
 	}
 	socket.on('exception', exception);
@@ -100,7 +106,8 @@
 	}
 
 	.main {
-		margin: 3em 0 1em 0;
+		margin-top: 3em;
+		padding-bottom: 1em;
 		min-height: 200px;
 		position: relative;
 	}
@@ -194,7 +201,7 @@
 
 		.main {
 			flex: 1;
-			margin: 3em 0 0 0;
+			padding-bottom: 0;
 		}
 
 		.sidebar {
@@ -227,9 +234,15 @@
 				{#if explainCards.length > 0}
 					<MiniExplainer
 						cards={explainCards}
-						on:understood={() => {
+						on:dismiss={() => {
 							explainCards = [];
 						}} />
+				{/if}
+				{#if expiredRoom}
+					<Alert on:dismiss={exitToHome} continueText="Exit" reverse>
+						This room was inactive for too long and has been
+						deleted. You have been disconnected.
+					</Alert>
 				{/if}
 				<div
 					class="shakeable"
