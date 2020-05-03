@@ -47,11 +47,13 @@
 
 	.players {
 		flex: 1;
+		overflow-y: auto;
 	}
 
 	.player {
 		display: flex;
 		transition: opacity 0.3s ease-in-out;
+		margin-bottom: 0.2em;
 	}
 
 	.player strong {
@@ -82,16 +84,10 @@
 		box-sizing: border-box;
 		border: 0;
 		background: none;
-		margin: 0.5em 0 0 0;
+		margin: 0.2em 0 0 0;
 		padding: 0.5em 0 0 0;
-		border-radius: 0.3em;
 		text-decoration: none;
 		text-align: right;
-	}
-
-	.more a,
-	.more button {
-		text-transform: uppercase;
 	}
 
 	.clear {
@@ -125,6 +121,10 @@
 		60% {
 			opacity: 0;
 		}
+	}
+
+	.request-clear {
+		font-variant-numeric: tabular-nums lining-nums;
 	}
 </style>
 
@@ -162,7 +162,7 @@
 </div>
 
 <div class="more">
-	<button on:click={requestClearBoard}>
+	<button on:click={requestClearBoard} class="request-clear">
 		clear board
 		{#if requiredForClear > 1}({wantClearCount}/{requiredForClear}){/if}
 	</button>

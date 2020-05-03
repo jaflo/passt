@@ -1,3 +1,5 @@
+@import url('https://rsms.me/inter/inter.css');
+
 :root {
 	--bgColor: #eff0d1;
 	--cardBgColor: #f9f9ee;
@@ -15,8 +17,16 @@ body {
 
 body {
 	box-sizing: border-box;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
 		Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+	line-height: 1.1;
+}
+
+@supports (font-variation-settings: normal) {
+	body {
+		font-family: 'Inter var', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+			Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+	}
 }
 
 a {
@@ -39,8 +49,6 @@ main {
 h1 {
 	font-size: 2em;
 	margin: 0;
-	text-transform: uppercase;
-	letter-spacing: 0.3em;
 	display: flex;
 	align-items: center;
 }
@@ -77,6 +85,7 @@ select,
 textarea {
 	font-family: inherit;
 	font-size: inherit;
+	line-height: inherit;
 	padding: 0.4em;
 	margin: 0 0 0.5em 0;
 	box-sizing: border-box;
