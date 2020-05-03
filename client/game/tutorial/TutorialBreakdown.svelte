@@ -63,7 +63,6 @@
 
 	.result {
 		text-transform: uppercase;
-		letter-spacing: 0.1em;
 	}
 </style>
 

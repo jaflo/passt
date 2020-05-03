@@ -111,6 +111,12 @@
 			rgba(34, 85, 96, 0) 100%
 		);
 	}
+
+	h2,
+	main {
+		position: relative;
+		z-index: 5;
+	}
 </style>
 
 <div class="tutorial-wrapper center-contents">
