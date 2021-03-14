@@ -9,6 +9,7 @@ on:
     - server/**.ts
     - docker-compose.yml
     - Dockerfile
+    - ormconfig.js
 
 env:
   HEROKU_APP_NAME: passt
