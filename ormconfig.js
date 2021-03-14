@@ -4,7 +4,9 @@ if (!process.env.DATABASE_URL) {
 module.exports = {
    type: "postgres",
    url: process.env.DATABASE_URL,
-   ssl: process.env.DATABASE_SSL,
+   ssl: process.env.DATABASE_SSL ? {
+      rejectUnauthorized: false
+   } : false,
    entities: ["build/server/entity/*.js"],
    migrations: ["build/server/migrations/*.js"],
    cli: {
