@@ -76,7 +76,7 @@
 	}
 
 	.buttons a,
-	button {
+	.buttons button {
 		--border-width: 3px;
 		--border-radius: 16px;
 		--extrude: 0 4px 0 rgba(0, 0, 0, 0.05);
