@@ -6,6 +6,7 @@
 	import socket from './socket.js';
 	import { closeAndReload } from './connectivity.js';
 	import { roomCode } from './stores.js';
+	import Deprecation from './Deprecation.svelte';
 
 	let incompleteTutorial = !localStorage.getItem('tutorial complete');
 
@@ -42,6 +43,8 @@
 </script>
 
 <svelte:window on:storage={closeIfDuplicate} on:beforeunload={beforeunload} />
+
+<Deprecation />
 
 {#if roomCode == ''}
 	<HomeView />
